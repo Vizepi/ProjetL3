@@ -2,9 +2,8 @@
 
 int main(int argc, char** argv)
 {
-	sf::RenderWindow window(sf::VideoMode(1280, 1024), "Platformer");
-	sf::Clock frameTimer;
-	window.setVerticalSyncEnabled(true);
+	sf::RenderWindow window(sf::VideoMode(1024, 768), "Platformer");
+	window.setFramerateLimit(60);
 
 	while(window.isOpen())
 	{

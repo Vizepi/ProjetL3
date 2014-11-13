@@ -16,7 +16,7 @@
 				</Compiler>
 				<Linker>
 					<Add library="sfml-audio-s-d" />
-					<Add library="sfml-graphic-s-d" />
+					<Add library="sfml-graphics-s-d" />
 					<Add library="sfml-window-s-d" />
 					<Add library="sfml-system-s-d" />
 				</Linker>
@@ -32,7 +32,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="sfml-audio-s" />
-					<Add library="sfml-graphic-s" />
+					<Add library="sfml-graphics-s" />
 					<Add library="sfml-window-s" />
 					<Add library="sfml-system-s" />
 				</Linker>
