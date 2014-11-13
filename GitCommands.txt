@@ -1,0 +1,21 @@
+git init : intilialise un nouveau dépôt. Transforme un repertoire en dépôt Git acceptant les commandes Git.
+
+git config : Configurer un dépôt.
+
+git help : Aide
+
+git status : Statut du dépôt.
+
+git add nomFichier : Inclus un fichier dans les instantanés du Git.
+
+git commit -m "Message" : Saisie un instantané du dépôt.
+
+git branch nomBranche : Crée une nouvelle branche.
+
+git checkout nomBranche : Rapatrie une branche d'un dépôt.
+
+git merge nomBranch : Fusionne la branche.
+
+git push : Envoi les modifications sur Github.
+
+git pull : Récupère la dérnière version de Github.
