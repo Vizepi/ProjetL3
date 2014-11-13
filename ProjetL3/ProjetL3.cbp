@@ -46,8 +46,9 @@
 			<Add directory="C:/sfml/include/" />
 		</Compiler>
 		<Linker>
-			<Add directory="C:/sfml/bin/" />
+			<Add directory="C:/sfml/lib/" />
 		</Linker>
+		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

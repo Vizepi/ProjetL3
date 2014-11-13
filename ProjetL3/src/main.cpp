@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 		sf::Event event;
 		while(window.pollEvent(event))
 		{
-			switch(event.Type)
+			switch(event.type)
 			{
 			case sf::Event::Closed:
 				window.close();
