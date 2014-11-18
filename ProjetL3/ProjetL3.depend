@@ -336,6 +336,73 @@
 	<string>
 	<vector>
 
-1415907930 source:c:\users\lisa\desktop\projetl3\projetl3\src\main.cpp
+1416339311 source:c:\users\lisa\desktop\projetl3\projetl3\src\main.cpp
 	<SFML/Graphics.hpp>
+	"../header/Level.h"
+	"../header/RessourceLoader.h"
+
+1416339066 source:c:\users\lisa\desktop\projetl3\projetl3\src\character.cpp
+	"../header/Character.h"
+
+1416339040 c:\users\lisa\desktop\projetl3\projetl3\header\character.h
+	<SFML/Graphics.hpp>
+	"RessourceLoader.h"
+	<iostream>
+	<stdio.h>
+
+1416336741 c:\users\lisa\desktop\projetl3\projetl3\header\ressourceloader.h
+	<SFML/Graphics/Texture.hpp>
+	<SFML/Audio/Sound.hpp>
+	<SFML/Audio/Music.hpp>
+	<SFML/Audio/SoundBuffer.hpp>
+	<string>
+	<fstream>
+	<vector>
+	<cstdlib>
+	<iostream>
+
+1367993678 c:\sfml\include\\sfml\audio\sound.hpp
+	<SFML/Audio/Export.hpp>
+	<SFML/Audio/SoundSource.hpp>
+	<SFML/System/Time.hpp>
+	<cstdlib>
+
+1367993678 c:\sfml\include\\sfml\audio\export.hpp
+	<SFML/Config.hpp>
+
+1367993678 c:\sfml\include\\sfml\audio\soundsource.hpp
+	<SFML/Audio/Export.hpp>
+	<SFML/System/Vector3.hpp>
+
+1367993678 c:\sfml\include\\sfml\audio\music.hpp
+	<SFML/Audio/Export.hpp>
+	<SFML/Audio/SoundStream.hpp>
+	<SFML/System/Mutex.hpp>
+	<SFML/System/Time.hpp>
+	<string>
+	<vector>
+
+1367993678 c:\sfml\include\\sfml\audio\soundstream.hpp
+	<SFML/Audio/Export.hpp>
+	<SFML/Audio/SoundSource.hpp>
+	<SFML/System/Thread.hpp>
+	<SFML/System/Time.hpp>
+	<cstdlib>
+
+1367993678 c:\sfml\include\\sfml\audio\soundbuffer.hpp
+	<SFML/Audio/Export.hpp>
+	<SFML/System/Time.hpp>
+	<string>
+	<vector>
+	<set>
+
+1416339081 source:c:\users\lisa\desktop\projetl3\projetl3\src\level.cpp
+	"../header/Level.h"
+
+1416338715 c:\users\lisa\desktop\projetl3\projetl3\header\level.h
+	<SFML/Graphics.hpp>
+	"Character.h"
+
+1416339318 source:c:\users\lisa\desktop\projetl3\projetl3\src\ressourceloader.cpp
+	"../header/RessourceLoader.h"
 
