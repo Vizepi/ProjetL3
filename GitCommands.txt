@@ -1,21 +1,28 @@
-git init : intilialise un nouveau dépôt. Transforme un repertoire en dépôt Git acceptant les commandes Git.
+git init : intilialise un nouveau dÃ©pÃ´t. Transforme un repertoire en dÃ©pÃ´t Git acceptant les commandes Git.
 
-git config : Configurer un dépôt.
+git config : Configurer un dÃ©pÃ´t.
 
 git help : Aide
 
-git status : Statut du dépôt.
+git status : Statut du dÃ©pÃ´t.
 
-git add nomFichier : Inclus un fichier dans les instantanés du Git.
+git add nomFichier : Inclus un fichier dans les instantanÃ©s du Git.
 
-git commit -m "Message" : Saisie un instantané du dépôt.
+git commit -m "Message" : Saisie un instantanÃ© du dÃ©pÃ´t.
 
-git branch nomBranche : Crée une nouvelle branche.
+git branch nomBranche : CrÃ©e une nouvelle branche.
 
-git checkout nomBranche : Rapatrie une branche d'un dépôt.
+git checkout nomBranche : Rapatrie une branche d'un dÃ©pÃ´t.
 
 git merge nomBranch : Fusionne la branche.
 
-git push : Envoi les modifications sur Github.
+git push nom branche : Envoi les modifications sur Github.
 
-git pull : Récupère la dérnière version de Github.
+git pull nom branche : RÃ©cupÃ¨re la dÃ©rniÃ¨re version de Github.
+
+mettre Ã  jour :
+git pull projet master
+envoyer :
+git add . : Ajouter tout les nouveau fichier et les fichiers mis a jours.
+git commit -m Message : Preparer le pack Ã  anvoyer sur github
+git push projet master : Envoyer le pack sur github
