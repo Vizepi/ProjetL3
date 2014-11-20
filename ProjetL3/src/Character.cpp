@@ -7,18 +7,26 @@ Character::Character()
 
 void Character::LoadSprite()
 {
-	character.setTexture(*RessourceLoader::GetTexture("Matt Smith"));
-	character.setTextureRect(sf::IntRect(0,0,32,47));
-	character.setPosition(0, 700);
-
+	image.setTexture(*RessourceLoader::GetTexture("Matt Smith"));
+	image.setTextureRect(sf::IntRect(0,0,32,47));
 }
 
-sf::Sprite Character::GetSprite()
+sf::Sprite* Character::GetSprite()
 {
-	return character;
+	return &image;
 }
 
 void Character::SetSprite(sf::Sprite sprite)
 {
-	character = sprite;
+	image = sprite;
+}
+
+b2Body* Character::getBody()
+{
+	return body;
+}
+
+void Character::setBody(b2Body* body)
+{
+	this->body = body;
 }
