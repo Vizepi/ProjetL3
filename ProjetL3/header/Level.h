@@ -5,6 +5,15 @@
 #include "Character.h"
 #include "../header/Event.h"
 
+enum LevelType
+{
+	lt_empty = 0, // Bloc vide
+	lt_solid, // Bloc de terre
+	lt_ground, // Bloc de sol
+	lt_ladder, // Bloc d'echelle
+	lt_cross // Bloc de croisement entre un sol et une echelle
+};
+
 class Level
 {
 	public :
@@ -13,17 +22,22 @@ class Level
 		b2Body* CreateDynamicObject(b2World& world, float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
-		void Blah(sf::RenderWindow& window, sf::Clock& frameTime);
-		Character* getCharacter(void);
+		void Update(sf::RenderWindow& window, sf::Clock& frameTime);
+		Character* GetCharacter(void);
+		void GenerateLevel(void);
+		void CreateTestLevel(void);
+		void LoadLevelArray(void);
+		void DrawLevelArray(sf::RenderWindow& window);
 
 	protected:
 
 	private :
-		Event  event;
-		b2Vec2 gravity;
-		b2World world;
-		Character character;
-
+		Event  m_event;
+		b2Vec2 m_gravity;
+		b2World m_world;
+		Character m_character;
+		std::vector<std::vector<int> > m_array;
+		b2Vec2 m_startPosition;
 
 };
 #endif // LEVEL_H

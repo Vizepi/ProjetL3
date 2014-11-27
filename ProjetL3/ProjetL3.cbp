@@ -50,11 +50,12 @@
 			<Add library="C:\Program Files (x86)\CodeBlocks\MinGW\lib\libBox2D.a" />
 			<Add directory="C:/sfml/lib/" />
 		</Linker>
-		<Unit filename="Level.h" />
+		<Unit filename="header/Animation.h" />
 		<Unit filename="header/Character.h" />
 		<Unit filename="header/Event.h" />
 		<Unit filename="header/Level.h" />
 		<Unit filename="header/RessourceLoader.h" />
+		<Unit filename="src/Animation.cpp" />
 		<Unit filename="src/Character.cpp" />
 		<Unit filename="src/Event.cpp" />
 		<Unit filename="src/Level.cpp" />
