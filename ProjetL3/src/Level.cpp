@@ -3,7 +3,7 @@
 #define SCALE 30.f
 #endif
 #ifndef GRAVITY_SCALE
-#define GRAVITY_SCALE 3.f
+#define GRAVITY_SCALE 4.f
 #endif // GRAVITY_SCALE
 #ifndef BLOC_SIZE
 #define BLOC_SIZE 48.f
@@ -43,7 +43,7 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
     FixtureDef.shape = &Shape;
-    Body->CreateFixture(&FixtureDef);
+    Body->CreateFixture(&FixtureDef);/*
     // Creation d'une seconde forme triangluaire sous le personnage avec friction.
     b2Vec2 down[3];
     down[0].Set((-(width-0.5f)/2.f)/SCALE, ((height-0.5f)/2.f)/SCALE);	//Forme du triangle sous le prersonnage :
@@ -52,9 +52,9 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
     Shape.Set(down, 3);
     b2FixtureDef FixtureDef2;
     FixtureDef2.density = 0.f;
-    FixtureDef2.friction = 10.f;
+    FixtureDef2.friction = 0.f;
     FixtureDef2.shape = &Shape;
-    Body->CreateFixture(&FixtureDef2);
+    Body->CreateFixture(&FixtureDef2);*/
     return Body;
 }
 
@@ -69,7 +69,7 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 	m_event.event(window, m_character, true);
 	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
 	m_character.Update();
-
+	// @TODO Changer view
 }
 void Level::Draw(sf::RenderWindow& window)
 {

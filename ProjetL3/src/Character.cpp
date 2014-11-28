@@ -27,7 +27,7 @@ sf::Sprite* Character::GetSprite()
 	return &m_image;
 }
 
-void Character::SetSprite(sf::Sprite sprite)
+void Character::SetSprite(const sf::Sprite& sprite)
 {
 	m_image = sprite;
 }

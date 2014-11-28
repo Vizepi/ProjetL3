@@ -5,6 +5,8 @@ int main(int argc, char** argv)
 {
 	sf::RenderWindow window(sf::VideoMode(960, 720), "Platformer");
 	window.setFramerateLimit(60);
+	window.setKeyRepeatEnabled(false);
+
 	RessourceLoader::LoadTextures("textures.txt");
 	Level level;
 	level.LoadLevel();

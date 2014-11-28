@@ -33,7 +33,7 @@ class Character
          *
          * \param sprite Le sprite à copier.
          */
-		void SetSprite(sf::Sprite sprite);
+		void SetSprite(const sf::Sprite& sprite);
         /** \brief Retourne le corps physique.
          *
          * \return Un pointeur sur le corps physique du personnage.
