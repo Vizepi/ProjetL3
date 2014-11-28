@@ -60,7 +60,15 @@ class Character
         /** \brief Retourne la direction du personnage.
          * \return La direction du personnage (enum LOOK_DOWN, LOOK_LEFT, LOOK_RIGHT ou LOOK_UP).
          */
-		int GetCurrentDirection(void);
+		int GetCurrentDirection(void) const;
+        /** \brief Définis l'état du saut
+         * \param state true pour autoriser, false pour empecher.
+         */
+		void EnableJump(bool state);
+        /** \brief Indique si le caractère peut sauter.
+         * \return true si le saut est autorisé, false sinon.
+         */
+		bool IsJumpEnabled(void) const;
 
 	protected :
 

@@ -3,7 +3,7 @@
 #include "../header/RessourceLoader.h"
 int main(int argc, char** argv)
 {
-	sf::RenderWindow window(sf::VideoMode(960, 960), "Platformer");
+	sf::RenderWindow window(sf::VideoMode(960, 720), "Platformer");
 	window.setFramerateLimit(60);
 	RessourceLoader::LoadTextures("textures.txt");
 	Level level;

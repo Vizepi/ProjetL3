@@ -72,7 +72,17 @@ Animation* Character::GetCurrentAnimation()
 	return m_currentAnimation;
 }
 
-int Character::GetCurrentDirection()
+int Character::GetCurrentDirection() const
 {
 	return m_currentDirection;
+}
+
+void Character::EnableJump(bool state)
+{
+	m_jumpEnabled = state;
+}
+
+bool Character::IsJumpEnabled() const
+{
+	return m_jumpEnabled;
 }

@@ -93,28 +93,31 @@ void Level::CreateTestLevel()
 	for(int i=0;i<20;i++)
 	{
 		m_array.push_back(std::vector<int>());
-		m_array[i].reserve(20);
+		m_array[i].reserve(15);
 	}
 	for(int i=0;i<20;i++)
 	{
-		for(int j=0;j<20;j++)
+		for(int j=0;j<15;j++)
 		{
 			m_array[i].push_back(lt_empty);
 		}
 	}
 	for(int i=0;i<20;i++)
 	{
-		m_array[0][i] = lt_solid;
-		m_array[19][i] = lt_solid;
+		if(i<15)
+		{
+			m_array[0][i] = lt_solid;
+			m_array[19][i] = lt_solid;
+		}
 		m_array[i][0] = lt_solid;
-		m_array[i][19] = lt_ground;
+		m_array[i][14] = lt_ground;
 		if(i > 5 && i < 15)
-			m_array[i][10] = lt_ground;
-		if(i > 10 && i < 19)
+			m_array[i][7] = lt_ground;
+		if(i > 7 && i < 14)
 			m_array[10][i] = lt_ladder;
 	}
-	m_array[10][10] = lt_cross;
-	m_startPosition.Set(64.f / SCALE, 850.f / SCALE);
+	m_array[10][7] = lt_cross;
+	m_startPosition.Set(64.f / SCALE, 620.f / SCALE);
 }
 
 void Level::LoadLevelArray()

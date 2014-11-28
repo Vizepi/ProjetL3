@@ -44,12 +44,12 @@ void Event::event(sf::RenderWindow& window, Character& character, bool canJump)
 	}
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
-		character.GetBody()->SetLinearVelocity(b2Vec2(10.f, character.GetBody()->GetLinearVelocity().y));
+		character.GetBody()->SetLinearVelocity(b2Vec2(7.5f, character.GetBody()->GetLinearVelocity().y));
 		character.SetAnimation(LOOK_RIGHT, ANIM_PLAY);
 	}
 	else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
-		character.GetBody()->SetLinearVelocity(b2Vec2(-10.f, character.GetBody()->GetLinearVelocity().y));
+		character.GetBody()->SetLinearVelocity(b2Vec2(-7.5f, character.GetBody()->GetLinearVelocity().y));
 		character.SetAnimation(LOOK_LEFT, ANIM_PLAY);
 	}
 	else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
