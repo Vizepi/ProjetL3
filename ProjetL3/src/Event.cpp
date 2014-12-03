@@ -1,7 +1,7 @@
 #include "../header/Event.h"
 
 //On traite tous les evenements de la fenetre qui ont ete generée depuis la derniere iteration de la boucle
-void Event::event(sf::RenderWindow& window, Character& character, bool canJump)
+void Event::event(sf::RenderWindow& window, Character& character)
 {
 	sf::Event event;
 	while (window.pollEvent(event))
@@ -59,7 +59,7 @@ void Event::event(sf::RenderWindow& window, Character& character, bool canJump)
 				character.SetAnimation(LOOK_UP, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Space:
-				if(canJump)
+				if(character.IsJumpEnabled())
 					character.GetBody()->ApplyLinearImpulse(b2Vec2(0.f, -200.f), character.GetBody()->GetWorldCenter(), true);
 				break;
 			default:

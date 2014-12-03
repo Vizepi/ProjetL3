@@ -10,10 +10,20 @@
 #endif // BLOC_SIZE
 
 Level::Level()
-: m_gravity(b2Vec2(0.f, 9.81f*GRAVITY_SCALE))
+: m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
 {
+	m_ground.setTexture(*RessourceLoader::GetTexture("Skin01"));
+	m_ground.setTextureRect(sf::IntRect(89,48,40,40));
+	m_ground.setScale(48.f/40.f,48.f/40.f);
 
+	m_ladder.setTexture(*RessourceLoader::GetTexture("Skin01"));
+	m_ladder.setTextureRect(sf::IntRect(180,94,32,32));
+	m_ladder.setScale(48.f/32.f,48.f/32.f);
+
+	m_cross.setTexture(*RessourceLoader::GetTexture("Skin01"));
+	m_cross.setTextureRect(sf::IntRect(175,14,40,40));
+	m_cross.setScale(48.f/40.f,48.f/40.f);
 }
 
 void Level::CreateStaticObject(b2World& world, float x, float y, float width, float height)
@@ -66,7 +76,7 @@ void Level::LoadLevel()
 
 void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 {
-	m_event.event(window, m_character, true);
+	m_event.event(window, m_character);
 	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
 	m_character.Update();
 	// @TODO Changer view
@@ -153,23 +163,31 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			rs.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 			switch(m_array[i][j])
 			{
-			case lt_cross:
-				rs.setFillColor(sf::Color::Blue);
+			case lt_cross://croisement entre une echelle et un sol
+				/*rs.setFillColor(sf::Color::Blue);
+				window.draw(rs);*/
+				m_cross.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_cross);
 				break;
-			case lt_ground:
-				rs.setFillColor(sf::Color::Red);
+			case lt_ground://sol
+				//rs.setFillColor(sf::Color::Red);
+				m_ground.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_ground);
 				break;
-			case lt_ladder:
-				rs.setFillColor(sf::Color::Green);
+			case lt_ladder://echelle
+				//rs.setFillColor(sf::Color::Green);
+				m_ladder.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_ladder);
 				break;
-			case lt_solid:
+			case lt_solid://bloc
 				rs.setFillColor(sf::Color::Yellow);
+				window.draw(rs);
 				break;
 			default:
-				rs.setFillColor(sf::Color::Black);
+				//rs.setFillColor(sf::Color::Black);
+				//window.draw(rs);
 				break;
 			}
-			window.draw(rs);
 		}
 	}
 }

@@ -1,4 +1,4 @@
 Matt Smith:../../pictures/doctor_who.png
 Amy Pond:../../pictures/doctor_who_amy_pond.png
-
-
+Skin01:../../pictures/darkertiles.png
+Skin02:../../pictures/pixel1.png

@@ -38,6 +38,9 @@ class Level
 		Character m_character;
 		std::vector<std::vector<int> > m_array;
 		b2Vec2 m_startPosition;
+		sf::Sprite m_ground;
+		sf::Sprite m_ladder;
+		sf::Sprite m_cross;
 
 };
 #endif // LEVEL_H

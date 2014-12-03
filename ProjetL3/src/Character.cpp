@@ -4,6 +4,7 @@ Character::Character()
 : m_body(NULL)
 , m_currentAnimation(NULL)
 , m_currentDirection(LOOK_DOWN)
+, m_jumpEnabled(true)
 {
 	// Chargement de l'image
 	LoadSprite();
@@ -47,6 +48,7 @@ void Character::Update()
 	if(m_currentAnimation)
 		m_currentAnimation->Update();
 	m_image.setPosition(SCALE * m_body->GetPosition().x + m_image.getGlobalBounds().width/4.f, SCALE * m_body->GetPosition().y+1.f);
+
 }
 
 void Character::SetAnimation(unsigned int direction, bool play)

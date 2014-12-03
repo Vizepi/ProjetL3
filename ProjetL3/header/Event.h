@@ -7,7 +7,7 @@
 class Event
 {
 	public :
-		void event(sf::RenderWindow& window, Character& character, bool canJump);
+		void event(sf::RenderWindow& window, Character& character);
 
 	protected :
 
