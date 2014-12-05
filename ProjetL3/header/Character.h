@@ -69,6 +69,8 @@ class Character
          * \return true si le saut est autorisé, false sinon.
          */
 		bool IsJumpEnabled(void) const;
+		void startContact(void);
+		void endContact(void);
 
 	protected :
 
@@ -79,6 +81,7 @@ class Character
 		Animation* m_currentAnimation; /**< Animation courante. */
 		int m_currentDirection; /**< Direction courante. */
 		bool m_jumpEnabled; /**< Le personnage peut-il sauter ? (collsion sous les pieds) */
+		bool m_contacting;
 
 };
 #endif // CHARACTER_H

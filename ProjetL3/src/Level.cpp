@@ -53,7 +53,16 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
     FixtureDef.shape = &Shape;
-    Body->CreateFixture(&FixtureDef);/*
+    Body->CreateFixture(&FixtureDef);
+
+	b2FixtureDef fixtureDef;
+    b2PolygonShape rectangle;
+	rectangle.SetAsBox((width/2.f)/SCALE,1, b2Vec2(0, height/2.f),0);
+	fixtureDef.shape = &rectangle;
+	fixtureDef.isSensor = true;
+	Body->CreateFixture(&fixtureDef);
+
+    /*
     // Creation d'une seconde forme triangluaire sous le personnage avec friction.
     b2Vec2 down[3];
     down[0].Set((-(width-0.5f)/2.f)/SCALE, ((height-0.5f)/2.f)/SCALE);	//Forme du triangle sous le prersonnage :
@@ -191,3 +200,5 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 		}
 	}
 }
+
+

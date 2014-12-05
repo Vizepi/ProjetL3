@@ -5,6 +5,7 @@ Character::Character()
 , m_currentAnimation(NULL)
 , m_currentDirection(LOOK_DOWN)
 , m_jumpEnabled(true)
+,m_contacting(true)
 {
 	// Chargement de l'image
 	LoadSprite();
@@ -88,3 +89,30 @@ bool Character::IsJumpEnabled() const
 {
 	return m_jumpEnabled;
 }
+
+void Character::startContact()
+{
+	m_contacting = true;
+}
+
+void Character::endContact()
+{
+	m_contacting = false;
+}
+
+class MyContactListener : public b2ContactListener
+{
+	void BeginContact(b2Contact* contact)
+	{
+		if((contact.GetFixtureA().GetBody().GetUserData() == /*BodyType.BLUE_BALL*/ && contact.GetFixtureB().GetBody().GetUserData() ==0/* BodyType.GROUND*/)
+		||(contact.GetFixtureA().GetBody().GetUserData() == /*BodyType.GROUND*/ && contact.GetFixtureB().GetBody().GetUserData() == /*BodyType.BLUE_BALL*/))
+		{
+			eventDispatcher.dispatchEvent(new Event(BLUE_BALL_START_CONTACT));
+		}
+	}
+	void EndContact(b2Contact* contact)
+	{
+
+
+	}
+};

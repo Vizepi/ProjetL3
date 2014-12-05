@@ -343,10 +343,10 @@
 	"../header/Level.h"
 	"../header/RessourceLoader.h"
 
-1417379083 source:c:\users\lisa\desktop\projetl3\projetl3\src\character.cpp
+1417632732 source:c:\users\lisa\desktop\projetl3\projetl3\src\character.cpp
 	"../header/Character.h"
 
-1417379083 c:\users\lisa\desktop\projetl3\projetl3\header\character.h
+1417632779 c:\users\lisa\desktop\projetl3\projetl3\header\character.h
 	<SFML/Graphics.hpp>
 	<Box2D/Box2D.h>
 	"RessourceLoader.h"
@@ -404,7 +404,7 @@
 1417385252 source:c:\users\lisa\desktop\projetl3\projetl3\src\level.cpp
 	"../header/Level.h"
 
-1417384826 c:\users\lisa\desktop\projetl3\projetl3\header\level.h
+1417632763 c:\users\lisa\desktop\projetl3\projetl3\header\level.h
 	<SFML/Graphics.hpp>
 	<Box2D/Box2D.h>
 	"Character.h"
