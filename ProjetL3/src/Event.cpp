@@ -1,5 +1,6 @@
 #include "../header/Event.h"
 
+
 //On traite tous les evenements de la fenetre qui ont ete generée depuis la derniere iteration de la boucle
 void Event::event(sf::RenderWindow& window, Character& character)
 {
@@ -23,15 +24,27 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				if(character.GetCurrentDirection() == LOOK_LEFT)
 				{
 					character.GetCurrentAnimation()->Stop();
-					character.GetBody()->SetLinearVelocity(b2Vec2(0.f, character.GetBody()->GetLinearVelocity().y));
 				}
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+				{
+					character.GetBody()->SetLinearVelocity(b2Vec2(CHARACTER_VELOCITY, character.GetBody()->GetLinearVelocity().y));
+					character.SetAnimation(LOOK_RIGHT, true);
+				}
+				else
+					character.GetBody()->SetLinearVelocity(b2Vec2(0.f, character.GetBody()->GetLinearVelocity().y));
 				break;
 			case sf::Keyboard::Right:
 				if(character.GetCurrentDirection() == LOOK_RIGHT)
 				{
 					character.GetCurrentAnimation()->Stop();
-					character.GetBody()->SetLinearVelocity(b2Vec2(0.f, character.GetBody()->GetLinearVelocity().y));
 				}
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				{
+					character.GetBody()->SetLinearVelocity(b2Vec2(-CHARACTER_VELOCITY, character.GetBody()->GetLinearVelocity().y));
+					character.SetAnimation(LOOK_LEFT, true);
+				}
+				else
+					character.GetBody()->SetLinearVelocity(b2Vec2(0.f, character.GetBody()->GetLinearVelocity().y));
 				break;
 			case sf::Keyboard::Up:
 				if(character.GetCurrentDirection() == LOOK_UP)
@@ -48,11 +61,11 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				character.SetAnimation(LOOK_DOWN, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Left:
-				character.GetBody()->SetLinearVelocity(b2Vec2(-7.5f, character.GetBody()->GetLinearVelocity().y));
+				character.GetBody()->SetLinearVelocity(b2Vec2(-CHARACTER_VELOCITY, character.GetBody()->GetLinearVelocity().y));
 				character.SetAnimation(LOOK_LEFT, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Right:
-				character.GetBody()->SetLinearVelocity(b2Vec2(7.5f, character.GetBody()->GetLinearVelocity().y));
+				character.GetBody()->SetLinearVelocity(b2Vec2(CHARACTER_VELOCITY, character.GetBody()->GetLinearVelocity().y));
 				character.SetAnimation(LOOK_RIGHT, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Up:
@@ -60,7 +73,8 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				break;
 			case sf::Keyboard::Space:
 				if(character.IsJumpEnabled())
-					character.GetBody()->ApplyLinearImpulse(b2Vec2(0.f, -200.f), character.GetBody()->GetWorldCenter(), true);
+					character.GetBody()->ApplyLinearImpulse(b2Vec2(0.f, -225.f), character.GetBody()->GetWorldCenter(), true);
+				character.EnableJump(false);
 				break;
 			default:
 				break;

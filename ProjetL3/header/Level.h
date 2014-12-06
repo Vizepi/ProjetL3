@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include "Character.h"
-#include "../header/Event.h"
+#include "Event.h"
 
 enum LevelType
 {
@@ -19,6 +19,7 @@ class Level
 	public :
 		Level(void);
 		void CreateStaticObject(b2World& world, float x, float y, float width, float height);
+		void CreateSensor(b2World& world, float x, float y, float width, float height);
 		b2Body* CreateDynamicObject(b2World& world, float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
@@ -41,6 +42,7 @@ class Level
 		sf::Sprite m_ground;
 		sf::Sprite m_ladder;
 		sf::Sprite m_cross;
+		JumpListener* m_listener;
 
 };
 #endif // LEVEL_H

@@ -12,6 +12,8 @@
 #define SCALE 30.f
 #endif
 
+#define CHARACTER_VELOCITY 7.5f
+
 #define CHARACTER_HEIGHT 48
 #define CHARACTER_WIDTH 20
 
@@ -69,19 +71,27 @@ class Character
          * \return true si le saut est autorisé, false sinon.
          */
 		bool IsJumpEnabled(void) const;
-		void startContact(void);
-		void endContact(void);
 
-	protected :
+	protected:
 
-	private :
+	private:
 		sf::Sprite m_image; /**< Image representant le personnage. */
 		b2Body* m_body; /**< Objet physique representant le personnage. */
 		std::vector<Animation*> m_anim; /**< Animateur de l'image. */
 		Animation* m_currentAnimation; /**< Animation courante. */
 		int m_currentDirection; /**< Direction courante. */
 		bool m_jumpEnabled; /**< Le personnage peut-il sauter ? (collsion sous les pieds) */
-		bool m_contacting;
 
 };
+
+class JumpListener : public b2ContactListener
+{
+public:
+	JumpListener(Character* character) : b2ContactListener(), m_character(character){}
+	void BeginContact(b2Contact* contact);
+	void EndContact(b2Contact* contact);
+private:
+	Character* m_character;
+};
+
 #endif // CHARACTER_H

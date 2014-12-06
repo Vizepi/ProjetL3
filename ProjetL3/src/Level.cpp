@@ -9,6 +9,7 @@
 #define BLOC_SIZE 48.f
 #endif // BLOC_SIZE
 
+
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
@@ -24,6 +25,9 @@ Level::Level()
 	m_cross.setTexture(*RessourceLoader::GetTexture("Skin01"));
 	m_cross.setTextureRect(sf::IntRect(175,14,40,40));
 	m_cross.setScale(48.f/40.f,48.f/40.f);
+
+	m_listener = new JumpListener(&m_character);
+	m_world.SetContactListener(m_listener);
 }
 
 void Level::CreateStaticObject(b2World& world, float x, float y, float width, float height)
@@ -39,6 +43,21 @@ void Level::CreateStaticObject(b2World& world, float x, float y, float width, fl
     FixtureDef.shape = &Shape;
     Body->CreateFixture(&FixtureDef);
 }
+
+void Level::CreateSensor(b2World& world, float x, float y, float width, float height)
+{
+	b2BodyDef BodyDef;
+    BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
+    BodyDef.type = b2_staticBody;
+    b2Body* Body = world.CreateBody(&BodyDef);
+    b2PolygonShape Shape;
+    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    b2FixtureDef FixtureDef;
+    FixtureDef.isSensor = true;
+    FixtureDef.shape = &Shape;
+    Body->CreateFixture(&FixtureDef);
+}
+
 b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
@@ -48,7 +67,7 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
     Body->SetFixedRotation(true);
 	// Creation d'une premiere forme "glissante", rectangulaire.
     b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, ((height-0.5f)/2.f)/SCALE, b2Vec2(0, -1.f/SCALE), 0.f); // Dimension width * height-1 decalée de 1px vers le haut
+    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE); // Dimension width * height-1 decalée de 1px vers le haut
     b2FixtureDef FixtureDef;
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
@@ -57,23 +76,11 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
 
 	b2FixtureDef fixtureDef;
     b2PolygonShape rectangle;
-	rectangle.SetAsBox((width/2.f)/SCALE,1, b2Vec2(0, height/2.f),0);
+	rectangle.SetAsBox(((width)/4.f)/SCALE,2/SCALE, b2Vec2(0, (height/2.f)/SCALE), 0.f);
 	fixtureDef.shape = &rectangle;
 	fixtureDef.isSensor = true;
 	Body->CreateFixture(&fixtureDef);
 
-    /*
-    // Creation d'une seconde forme triangluaire sous le personnage avec friction.
-    b2Vec2 down[3];
-    down[0].Set((-(width-0.5f)/2.f)/SCALE, ((height-0.5f)/2.f)/SCALE);	//Forme du triangle sous le prersonnage :
-    down[1].Set(((width-0.5f)/2.f)/SCALE, ((height-0.5f)/2.f)/SCALE);	// *                     *
-    down[2].Set(0.f, ((height-0.4f)/2.f)/SCALE);						//            *
-    Shape.Set(down, 3);
-    b2FixtureDef FixtureDef2;
-    FixtureDef2.density = 0.f;
-    FixtureDef2.friction = 0.f;
-    FixtureDef2.shape = &Shape;
-    Body->CreateFixture(&FixtureDef2);*/
     return Body;
 }
 
