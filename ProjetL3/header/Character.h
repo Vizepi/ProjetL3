@@ -67,10 +67,14 @@ class Character
          * \param state true pour autoriser, false pour empecher.
          */
 		void EnableJump(bool state);
+
+		void EnableClimb(bool state);
         /** \brief Indique si le caractère peut sauter.
          * \return true si le saut est autorisé, false sinon.
          */
 		bool IsJumpEnabled(void) const;
+
+		bool IsClimbEnabled(void) const;
 
 	protected:
 
@@ -81,6 +85,7 @@ class Character
 		Animation* m_currentAnimation; /**< Animation courante. */
 		int m_currentDirection; /**< Direction courante. */
 		bool m_jumpEnabled; /**< Le personnage peut-il sauter ? (collsion sous les pieds) */
+		bool m_climb;
 
 };
 

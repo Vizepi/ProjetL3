@@ -58,6 +58,8 @@ void Event::event(sf::RenderWindow& window, Character& character)
 			switch(event.key.code)
 			{
 			case sf::Keyboard::Down:
+				if(character.IsClimbEnabled())
+					character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, CHARACTER_VELOCITY));
 				character.SetAnimation(LOOK_DOWN, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Left:
@@ -69,6 +71,8 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				character.SetAnimation(LOOK_RIGHT, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Up:
+				if(character.IsClimbEnabled())
+					character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, -CHARACTER_VELOCITY));
 				character.SetAnimation(LOOK_UP, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Space:

@@ -21,7 +21,6 @@ Level::Level()
 	m_ladder.setTexture(*RessourceLoader::GetTexture("Skin01"));
 	m_ladder.setTextureRect(sf::IntRect(180,94,32,32));
 	m_ladder.setScale(48.f/32.f,48.f/32.f);
-
 	m_cross.setTexture(*RessourceLoader::GetTexture("Skin01"));
 	m_cross.setTextureRect(sf::IntRect(175,14,40,40));
 	m_cross.setScale(48.f/40.f,48.f/40.f);
@@ -30,18 +29,20 @@ Level::Level()
 	m_world.SetContactListener(m_listener);
 }
 
+
 void Level::CreateStaticObject(b2World& world, float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
-    b2Body* Body = world.CreateBody(&BodyDef);
+    Body = world.CreateBody(&BodyDef);
     b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
     FixtureDef.density = 0.f;
     FixtureDef.shape = &Shape;
     Body->CreateFixture(&FixtureDef);
+
 }
 
 void Level::CreateSensor(b2World& world, float x, float y, float width, float height)
@@ -56,6 +57,7 @@ void Level::CreateSensor(b2World& world, float x, float y, float width, float he
     FixtureDef.isSensor = true;
     FixtureDef.shape = &Shape;
     Body->CreateFixture(&FixtureDef);
+    FixtureDef.density = 1.f;
 }
 
 b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width, float height)
@@ -95,6 +97,7 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 	m_event.event(window, m_character);
 	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
 	m_character.Update();
+	Climb();
 	// @TODO Changer view
 }
 void Level::Draw(sf::RenderWindow& window)
@@ -140,7 +143,10 @@ void Level::CreateTestLevel()
 		if(i > 5 && i < 15)
 			m_array[i][7] = lt_ground;
 		if(i > 7 && i < 14)
+		{
 			m_array[10][i] = lt_ladder;
+
+		}
 	}
 	m_array[10][7] = lt_cross;
 	m_startPosition.Set(64.f / SCALE, 620.f / SCALE);
@@ -159,6 +165,10 @@ void Level::LoadLevelArray()
 			if(m_array[i][j] == lt_ground || m_array[i][j] == lt_solid)
 			{
 				CreateStaticObject(m_world, i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
+			}
+			if(m_array[i][j] == lt_ladder)
+			{
+				CreateSensor(m_world,i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
 			}
 		}
 	}
@@ -206,6 +216,23 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			}
 		}
 	}
+}
+
+void Level::SetGravity(b2Vec2 grav)
+{
+	m_gravity = grav;
+}
+void Level::Climb()
+{
+	if(m_character.IsClimbEnabled() == true)
+	{
+
+	}
+	else
+	{
+
+	}
+
 }
 
 

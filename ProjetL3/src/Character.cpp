@@ -5,6 +5,7 @@ Character::Character()
 , m_currentAnimation(NULL)
 , m_currentDirection(LOOK_DOWN)
 , m_jumpEnabled(true)
+, m_climb(false)
 {
 	// Chargement de l'image
 	LoadSprite();
@@ -20,7 +21,7 @@ Character::Character()
 
 void Character::LoadSprite()
 {
-	m_image.setTexture(*RessourceLoader::GetTexture("Matt Smith"));
+	m_image.setTexture(*RessourceLoader::GetTexture("doctor_who"));
 }
 
 sf::Sprite* Character::GetSprite()
@@ -84,9 +85,19 @@ void Character::EnableJump(bool state)
 	m_jumpEnabled = state;
 }
 
+void Character::EnableClimb(bool state)
+{
+	m_climb = state;
+}
+
 bool Character::IsJumpEnabled() const
 {
 	return m_jumpEnabled;
+}
+
+bool Character::IsClimbEnabled() const
+{
+	return m_climb;
 }
 
 void JumpListener::BeginContact(b2Contact* contact)
@@ -94,8 +105,20 @@ void JumpListener::BeginContact(b2Contact* contact)
     if(	(contact->GetFixtureA()->GetBody() == m_character->GetBody() && contact->GetFixtureA()->IsSensor()) ||
 		(contact->GetFixtureB()->GetBody() == m_character->GetBody() && contact->GetFixtureB()->IsSensor()))
 	{
-		m_character->EnableJump(true);
+			m_character->EnableJump(true);
 	}
+	else if(((contact->GetFixtureA()->GetBody() != m_character->GetBody() && contact->GetFixtureA()->IsSensor()) &&
+		(contact->GetFixtureB()->GetBody() == m_character->GetBody() && !contact->GetFixtureB()->IsSensor())) ||
+		((contact->GetFixtureB()->GetBody() != m_character->GetBody() && contact->GetFixtureB()->IsSensor()) &&
+		(contact->GetFixtureA()->GetBody() == m_character->GetBody() && !contact->GetFixtureA()->IsSensor())))
+	{
+		m_character->EnableClimb(true);
+	}
+	else
+	{
+		m_character->EnableClimb(false);
+	}
+	printf("%d", m_character->IsClimbEnabled());
 }
 void JumpListener::EndContact(b2Contact* contact)
 {
