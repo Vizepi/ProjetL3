@@ -5,7 +5,7 @@ Character::Character()
 , m_currentAnimation(NULL)
 , m_currentDirection(LOOK_DOWN)
 , m_jumpEnabled(true)
-, m_climb(false)
+, m_climb(0)
 {
 	// Chargement de l'image
 	LoadSprite();
@@ -87,7 +87,22 @@ void Character::EnableJump(bool state)
 
 void Character::EnableClimb(bool state)
 {
-	m_climb = state;
+	int prev = m_climb;
+	if(state)
+		m_climb++;
+	else
+		m_climb--;
+	if(m_climb <= 0)
+	{
+		m_climb = 0;
+		m_body->SetGravityScale(1.f);
+	}
+	else
+	{
+		m_body->SetGravityScale(0.f);
+		if(prev == 0)
+			m_body->SetLinearVelocity(b2Vec2(m_body->GetLinearVelocity().x, 0.f));
+	}
 }
 
 bool Character::IsJumpEnabled() const
@@ -97,7 +112,7 @@ bool Character::IsJumpEnabled() const
 
 bool Character::IsClimbEnabled() const
 {
-	return m_climb;
+	return (m_climb > 0);
 }
 
 void JumpListener::BeginContact(b2Contact* contact)
@@ -107,19 +122,21 @@ void JumpListener::BeginContact(b2Contact* contact)
 	{
 			m_character->EnableJump(true);
 	}
-	else if(((contact->GetFixtureA()->GetBody() != m_character->GetBody() && contact->GetFixtureA()->IsSensor()) &&
+	else if((contact->GetFixtureA()->GetBody() != m_character->GetBody() && contact->GetFixtureA()->IsSensor() &&
+		contact->GetFixtureB()->GetBody() == m_character->GetBody()) ||
+		(contact->GetFixtureB()->GetBody() != m_character->GetBody() && contact->GetFixtureB()->IsSensor() &&
+		contact->GetFixtureA()->GetBody() == m_character->GetBody()))
+	{
+		m_character->EnableClimb(true);
+	}
+}
+void JumpListener::EndContact(b2Contact* contact)
+{
+	if(((contact->GetFixtureA()->GetBody() != m_character->GetBody() && contact->GetFixtureA()->IsSensor()) &&
 		(contact->GetFixtureB()->GetBody() == m_character->GetBody() && !contact->GetFixtureB()->IsSensor())) ||
 		((contact->GetFixtureB()->GetBody() != m_character->GetBody() && contact->GetFixtureB()->IsSensor()) &&
 		(contact->GetFixtureA()->GetBody() == m_character->GetBody() && !contact->GetFixtureA()->IsSensor())))
 	{
-		m_character->EnableClimb(true);
-	}
-	else
-	{
 		m_character->EnableClimb(false);
 	}
-	printf("%d", m_character->IsClimbEnabled());
-}
-void JumpListener::EndContact(b2Contact* contact)
-{
 }

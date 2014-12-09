@@ -85,7 +85,7 @@ class Character
 		Animation* m_currentAnimation; /**< Animation courante. */
 		int m_currentDirection; /**< Direction courante. */
 		bool m_jumpEnabled; /**< Le personnage peut-il sauter ? (collsion sous les pieds) */
-		bool m_climb;
+		int m_climb;
 
 };
 

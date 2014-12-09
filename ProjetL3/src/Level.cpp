@@ -35,14 +35,13 @@ void Level::CreateStaticObject(b2World& world, float x, float y, float width, fl
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
-    Body = world.CreateBody(&BodyDef);
+    b2Body* Body = world.CreateBody(&BodyDef);
     b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
     FixtureDef.density = 0.f;
     FixtureDef.shape = &Shape;
     Body->CreateFixture(&FixtureDef);
-
 }
 
 void Level::CreateSensor(b2World& world, float x, float y, float width, float height)
@@ -97,7 +96,6 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 	m_event.event(window, m_character);
 	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
 	m_character.Update();
-	Climb();
 	// @TODO Changer view
 }
 void Level::Draw(sf::RenderWindow& window)
@@ -166,7 +164,7 @@ void Level::LoadLevelArray()
 			{
 				CreateStaticObject(m_world, i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
 			}
-			if(m_array[i][j] == lt_ladder)
+			if(m_array[i][j] == lt_ladder || m_array[i][j] == lt_cross)
 			{
 				CreateSensor(m_world,i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
 			}
@@ -217,22 +215,4 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 		}
 	}
 }
-
-void Level::SetGravity(b2Vec2 grav)
-{
-	m_gravity = grav;
-}
-void Level::Climb()
-{
-	if(m_character.IsClimbEnabled() == true)
-	{
-
-	}
-	else
-	{
-
-	}
-
-}
-
 

@@ -30,10 +30,6 @@ class Level
 		void LoadLevelArray(void);
 		void DrawLevelArray(sf::RenderWindow& window);
 
-
-		void SetGravity(b2Vec2 grav);
-		void Climb(void);
-
 	protected:
 
 	private :
@@ -47,7 +43,6 @@ class Level
 		sf::Sprite m_ladder;
 		sf::Sprite m_cross;
 		JumpListener* m_listener;
-		b2Body* Body;
 
 };
 #endif // LEVEL_H
