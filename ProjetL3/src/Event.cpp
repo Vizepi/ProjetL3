@@ -20,8 +20,8 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				if(character.GetCurrentDirection() == LOOK_DOWN)
 				{
 					character.GetCurrentAnimation()->Stop();
-					character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				}
+				character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				break;
 			case sf::Keyboard::Left:
 				if(character.GetCurrentDirection() == LOOK_LEFT)
@@ -53,8 +53,8 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				if(character.GetCurrentDirection() == LOOK_UP)
 				{
 					character.GetCurrentAnimation()->Stop();
-					character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				}
+				character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				break;
 			default:
 				break;
