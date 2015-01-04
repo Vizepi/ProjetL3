@@ -1,30 +1,9 @@
 #include "../header/Level.h"
-#ifndef SCALE
-#define SCALE 30.f
-#endif
-#ifndef GRAVITY_SCALE
-#define GRAVITY_SCALE 4.f
-#endif // GRAVITY_SCALE
-#ifndef BLOC_SIZE
-#define BLOC_SIZE 48.f
-#endif // BLOC_SIZE
-
 
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
 {
-	m_ground.setTexture(*RessourceLoader::GetTexture("Skin01"));
-	m_ground.setTextureRect(sf::IntRect(89,48,40,40));
-	m_ground.setScale(48.f/40.f,48.f/40.f);
-
-	m_ladder.setTexture(*RessourceLoader::GetTexture("Skin01"));
-	m_ladder.setTextureRect(sf::IntRect(180,94,32,32));
-	m_ladder.setScale(48.f/32.f,48.f/32.f);
-	m_cross.setTexture(*RessourceLoader::GetTexture("Skin01"));
-	m_cross.setTextureRect(sf::IntRect(175,14,40,40));
-	m_cross.setScale(48.f/40.f,48.f/40.f);
-
 	m_listener = new JumpListener(&m_character);
 	m_world.SetContactListener(m_listener);
 }
@@ -156,17 +135,62 @@ void Level::LoadLevelArray()
 		return;
 	int m_arrayWidth = m_array.size();
 	int m_arrayHeight = m_array[0].size();
-	for(int i=0;i<m_arrayWidth;i++)
+	int mul = m_arrayWidth * m_arrayHeight;
+	bool* mark = new bool[mul];
+	for(int i=0;i<mul;i++)
+		mark[i] = false;
+	int x = 0;
+	int y = 0;
+    int width = 0;
+    int height = 0;
+    int prev[3] = {0, 0, 0}; // {type, x, y}
+    int state = 0;
+	for(int i=0;i<m_arrayHeight;i++)
 	{
-		for(int j=0;j<m_arrayHeight;j++)
+		for(int j=0;j<m_arrayWidth;j++)
 		{
-			if(m_array[i][j] == lt_ground || m_array[i][j] == lt_solid)
+			if(!mark[i * m_arrayWidth + j])
 			{
-				CreateStaticObject(m_world, i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
-			}
-			if(m_array[i][j] == lt_ladder || m_array[i][j] == lt_cross)
-			{
-				CreateSensor(m_world,i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
+				state = 0;
+				int currentX = i, currentY = j;
+				while(state != 3)
+				{
+					mark[currentX * m_arrayWidth + currentY] = true;
+					if(state == 0) // Debut de rectangle
+					{
+						prev[0] = m_array[i][j];
+						prev[1] = i;
+						prev[2] = j;
+						x = i;
+						y = j;
+						width = 0;
+						height = 0;
+						state = 1;
+					}
+					if(state == 1) // Recherche de la longueur
+					{
+						if(prev[1] == currentX)
+						{
+							if(prev[0] == m_array[currentX][currentY])
+							{
+								width++;
+							}
+							else
+							{
+
+							}
+						}
+						else
+						{
+							height++;
+							state = 2;
+						}
+					}
+					if(state == 2) // Recherche de la hauteur
+					{
+
+					}
+				}
 			}
 		}
 	}
@@ -179,37 +203,32 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 		return;
 	int m_arrayWidth = m_array.size();
 	int m_arrayHeight = m_array[0].size();
+	sf::Sprite sprite;
+	sprite.setTexture(*RessourceLoader::GetTexture("Skin01"));
+	sprite.setScale(48.f/40.f, 48.f/40.f);
 	for(int i=0;i<m_arrayWidth;i++)
 	{
 		for(int j=0;j<m_arrayHeight;j++)
 		{
-			sf::RectangleShape rs(sf::Vector2f(BLOC_SIZE, BLOC_SIZE));
-			rs.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 			switch(m_array[i][j])
 			{
 			case lt_cross://croisement entre une echelle et un sol
-				/*rs.setFillColor(sf::Color::Blue);
-				window.draw(rs);*/
-				m_cross.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_cross);
+				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_sprite);
 				break;
 			case lt_ground://sol
-				//rs.setFillColor(sf::Color::Red);
-				m_ground.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_ground);
+				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_sprite);
 				break;
 			case lt_ladder://echelle
-				//rs.setFillColor(sf::Color::Green);
-				m_ladder.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_ladder);
+				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_sprite);
 				break;
 			case lt_solid://bloc
-				rs.setFillColor(sf::Color::Yellow);
-				window.draw(rs);
+				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(m_sprite);
 				break;
 			default:
-				//rs.setFillColor(sf::Color::Black);
-				//window.draw(rs);
 				break;
 			}
 		}

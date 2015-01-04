@@ -5,14 +5,31 @@
 #include "Character.h"
 #include "Event.h"
 
+#ifndef SCALE
+#define SCALE 30.f
+#endif
+#ifndef GRAVITY_SCALE
+#define GRAVITY_SCALE 4.f
+#endif // GRAVITY_SCALE
+#ifndef BLOC_SIZE
+#define BLOC_SIZE 48.f
+#endif // BLOC_SIZE
+
+#define RS_BLOC_SIZE 40
+#define RS_POS(x) RS_BLOC_SIZE * x
+
+#define SOLID_MASK 0x3
+#define SENSOR_MASK 0xC
+
 enum LevelType
 {
-	lt_empty = 0, // Bloc vide
-	lt_solid, // Bloc de terre
-	lt_ground, // Bloc de sol
-	lt_ladder, // Bloc d'echelle
-	lt_cross // Bloc de croisement entre un sol et une echelle
+	lt_empty = 0x0, // Bloc vide
+	lt_solid = 0x1, // Bloc de terre
+	lt_ground = 0x2, // Bloc de sol
+	lt_ladder = 0x4, // Bloc d'echelle
+	lt_cross = 0x8 // Bloc de croisement entre un sol et une echelle
 };
+
 
 class Level
 {
@@ -39,9 +56,6 @@ class Level
 		Character m_character;
 		std::vector<std::vector<int> > m_array;
 		b2Vec2 m_startPosition;
-		sf::Sprite m_ground;
-		sf::Sprite m_ladder;
-		sf::Sprite m_cross;
 		JumpListener* m_listener;
 
 };
