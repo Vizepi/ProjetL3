@@ -30,6 +30,9 @@ enum LevelType
 	lt_cross = 0x8 // Bloc de croisement entre un sol et une echelle
 };
 
+// Si les variables a et b sont de même type (static ou sensor), retourne true.
+#define SAME_LEVELTYPE(a, b) (((a & 0x3) && (b & 0x3)) || ((a & 0xC) && (b & 0xC)))
+
 
 class Level
 {

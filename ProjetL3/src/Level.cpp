@@ -34,8 +34,8 @@ void Level::CreateSensor(b2World& world, float x, float y, float width, float he
     b2FixtureDef FixtureDef;
     FixtureDef.isSensor = true;
     FixtureDef.shape = &Shape;
-    Body->CreateFixture(&FixtureDef);
     FixtureDef.density = 1.f;
+    Body->CreateFixture(&FixtureDef);
 }
 
 b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width, float height)
@@ -133,63 +133,117 @@ void Level::LoadLevelArray()
 {
 	if(m_array.size() == 0)
 		return;
-	int m_arrayWidth = m_array.size();
-	int m_arrayHeight = m_array[0].size();
-	int mul = m_arrayWidth * m_arrayHeight;
+	// Récupération des dimension du niveau
+	int arrayWidth = m_array.size();
+	int arrayHeight = m_array[0].size();
+	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
 	bool* mark = new bool[mul];
 	for(int i=0;i<mul;i++)
-		mark[i] = false;
-	int x = 0;
-	int y = 0;
+		mark[i] = false; // Initialisation du tableau de booléens
     int width = 0;
     int height = 0;
     int prev[3] = {0, 0, 0}; // {type, x, y}
-    int state = 0;
-	for(int i=0;i<m_arrayHeight;i++)
+    int state;
+	for(int j=0;j<arrayHeight;j++)
 	{
-		for(int j=0;j<m_arrayWidth;j++)
+		for(int i=0;i<arrayWidth;i++)
 		{
-			if(!mark[i * m_arrayWidth + j])
+			if(!mark[i * arrayWidth + j]) // Si on n'est pas encore passé sur le bloc
 			{
+				if(m_array[i][j] == lt_empty)
+				{
+					mark[i * arrayWidth + j] = true;
+					continue;
+				}
 				state = 0;
 				int currentX = i, currentY = j;
 				while(state != 3)
 				{
-					mark[currentX * m_arrayWidth + currentY] = true;
 					if(state == 0) // Debut de rectangle
 					{
+						mark[currentX * arrayWidth + currentY] = true;
 						prev[0] = m_array[i][j];
 						prev[1] = i;
 						prev[2] = j;
-						x = i;
-						y = j;
-						width = 0;
-						height = 0;
+						width = 1;
+						height = 1;
 						state = 1;
 					}
 					if(state == 1) // Recherche de la longueur
 					{
-						if(prev[1] == currentX)
+						// Avancement des positions courantes et passage
+						currentX++;
+						if(currentX == arrayWidth)
 						{
-							if(prev[0] == m_array[currentX][currentY])
+							currentX = prev[1];
+							currentY++;
+							if(currentY == arrayHeight)
 							{
-								width++;
+								state = 3;
 							}
-							else
-							{
-
-							}
+							state = 2;
 						}
 						else
 						{
-							height++;
-							state = 2;
+							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
+							{
+								width++;
+								mark[currentX * arrayWidth + currentY] = true;
+							}
+							else
+							{
+								currentX = prev[1];
+								currentY++;
+								if(currentY == arrayHeight)
+								{
+									state = 3;
+								}
+								state = 2;
+							}
 						}
 					}
 					if(state == 2) // Recherche de la hauteur
 					{
-
+						bool isOk = true;
+						int lineEnd = prev[1]+width;
+						for(int k=prev[1];k<lineEnd;k++)
+						{
+							if(m_array[k][currentY] != prev[0])
+							{
+								isOk = false;
+								break;
+							}
+						}
+						if(isOk)
+						{
+							for(int k=prev[1];k<lineEnd;k++)
+								mark[k * arrayWidth + currentY] = true;
+							height++;
+							currentX = prev[1];
+							currentY++;
+							if(currentY == arrayHeight)
+							{
+								state = 3;
+							}
+						}
+						else
+							state = 3;
 					}
+				}
+				switch(prev[0])
+				{
+				case lt_solid:
+				case lt_ground:
+					CreateStaticObject(m_world, prev[1] * 48.f, prev[2] * 48.f, width * 48.f, height * 48.f);
+					std::cout << "static" << std::endl;
+					break;
+				case lt_ladder:
+				case lt_cross:
+					CreateSensor(m_world, prev[1] * 48.f, prev[2] * 48.f, width * 48.f, height * 48.f);
+					std::cout << "sensor" << std::endl;
+					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -201,32 +255,32 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 {
 	if(m_array.size() == 0)
 		return;
-	int m_arrayWidth = m_array.size();
-	int m_arrayHeight = m_array[0].size();
+	int arrayWidth = m_array.size();
+	int arrayHeight = m_array[0].size();
 	sf::Sprite sprite;
 	sprite.setTexture(*RessourceLoader::GetTexture("Skin01"));
 	sprite.setScale(48.f/40.f, 48.f/40.f);
-	for(int i=0;i<m_arrayWidth;i++)
+	for(int i=0;i<arrayWidth;i++)
 	{
-		for(int j=0;j<m_arrayHeight;j++)
+		for(int j=0;j<arrayHeight;j++)
 		{
 			switch(m_array[i][j])
 			{
 			case lt_cross://croisement entre une echelle et un sol
-				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_sprite);
+				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(sprite);
 				break;
 			case lt_ground://sol
-				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_sprite);
+				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(sprite);
 				break;
 			case lt_ladder://echelle
-				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_sprite);
+				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(sprite);
 				break;
 			case lt_solid://bloc
-				m_sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(m_sprite);
+				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+				window.draw(sprite);
 				break;
 			default:
 				break;

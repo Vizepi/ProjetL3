@@ -20,6 +20,7 @@
 					<Add library="sfml-graphics-s-d" />
 					<Add library="sfml-window-s-d" />
 					<Add library="sfml-system-s-d" />
+					<Add library="lib\libBox2D-d.a" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -36,6 +37,7 @@
 					<Add library="sfml-graphics-s" />
 					<Add library="sfml-window-s" />
 					<Add library="sfml-system-s" />
+					<Add library="lib\libBox2D.a" />
 				</Linker>
 			</Target>
 		</Build>
@@ -47,7 +49,6 @@
 			<Add directory="C:/sfml/include/" />
 		</Compiler>
 		<Linker>
-			<Add library="C:\Program Files (x86)\CodeBlocks\MinGW\lib\libBox2D.a" />
 			<Add directory="C:/sfml/lib/" />
 		</Linker>
 		<Unit filename="header/Animation.h" />
