@@ -8,7 +8,7 @@ Level::Level()
 	m_world.SetContactListener(m_listener);
 }
 
-
+//Fonction qui crée un objet statique dans box2d.
 void Level::CreateStaticObject(b2World& world, float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
@@ -23,6 +23,7 @@ void Level::CreateStaticObject(b2World& world, float x, float y, float width, fl
     Body->CreateFixture(&FixtureDef);
 }
 
+//Fonction qui crée un sensor dans box2d.
 void Level::CreateSensor(b2World& world, float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
@@ -38,6 +39,7 @@ void Level::CreateSensor(b2World& world, float x, float y, float width, float he
     Body->CreateFixture(&FixtureDef);
 }
 
+//Fonction qui crée un objet dynamique dans box2d.
 b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
@@ -63,20 +65,26 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
 
     return Body;
 }
-
+//Chargement du level.
 void Level::LoadLevel()
 {
+	//Chargement du sprite du personnage.
 	m_character.LoadSprite();
+	//Création du corp physique du personnage.
 	m_character.SetBody(CreateDynamicObject(m_world, 0, 0, CHARACTER_WIDTH,CHARACTER_HEIGHT));
 }
 
+//Fonction de mise a jour.
 void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 {
+	//On regarde les evenements de la fenetre.
 	m_event.event(window, m_character);
 	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
 	m_character.Update();
 	// @TODO Changer view
 }
+
+//Remplissage de la fenetre
 void Level::Draw(sf::RenderWindow& window)
 {
 	DrawLevelArray(window);
@@ -88,17 +96,21 @@ Character* Level::GetCharacter()
 	return &m_character;
 }
 
+//Fonction de generation aléatoire d'un level.
 void Level::GenerateLevel()
 {
 
 }
 
+//Création du level test.
 void Level::CreateTestLevel()
 {
+	//Tableau de jeu, reservation de 20 en longueur.
 	m_array.reserve(20);
 	for(int i=0;i<20;i++)
 	{
 		m_array.push_back(std::vector<int>());
+		//Reservation de 15 en largeur.
 		m_array[i].reserve(15);
 	}
 	for(int i=0;i<20;i++)
@@ -129,6 +141,7 @@ void Level::CreateTestLevel()
 	m_startPosition.Set(64.f / SCALE, 620.f / SCALE);
 }
 
+//Fonction de creation du monde dans box2d.
 void Level::LoadLevelArray()
 {
 	if(m_array.size() == 0)
@@ -139,7 +152,7 @@ void Level::LoadLevelArray()
 	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
 	bool* mark = new bool[mul];
 	for(int i=0;i<mul;i++)
-		mark[i] = false; // Initialisation du tableau de booléens
+		mark[i] = false; // Initialisation du tableau de booléens, pour marquer les blocs déjà crées.
     int width = 0;
     int height = 0;
     int prev[3] = {0, 0, 0}; // {type, x, y}
@@ -150,7 +163,7 @@ void Level::LoadLevelArray()
 		{
 			if(!mark[i * arrayWidth + j]) // Si on n'est pas encore passé sur le bloc
 			{
-				if(m_array[i][j] == lt_empty)
+				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
 				{
 					mark[i * arrayWidth + j] = true;
 					continue;
@@ -173,11 +186,11 @@ void Level::LoadLevelArray()
 					{
 						// Avancement des positions courantes et passage
 						currentX++;
-						if(currentX == arrayWidth)
+						if(currentX == arrayWidth)//Si on est au bout de la fenetre en X
 						{
 							currentX = prev[1];
 							currentY++;
-							if(currentY == arrayHeight)
+							if(currentY == arrayHeight)//Si on est au bout de la fenetre en Y
 							{
 								state = 3;
 							}
@@ -251,6 +264,7 @@ void Level::LoadLevelArray()
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
 }
 
+//Dessine le tableau du niveau.
 void Level::DrawLevelArray(sf::RenderWindow& window)
 {
 	if(m_array.size() == 0)
