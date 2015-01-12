@@ -99,8 +99,394 @@ Character* Level::GetCharacter()
 //Fonction de generation aléatoire d'un level.
 void Level::GenerateLevel()
 {
+	int i, j;
+	Room** tableauExemple = new Room*[6];
+	for(i = 0; i<6; i++)
+	{
+			tableauExemple[i] = new Room[6];
+	}
+	for(i = 0; i<6; i++)
+	{
+		for(j = 0; j<6; j++)
+		{
+			tableauExemple[i][j].North = false;
+			tableauExemple[i][j].South = false;
+			tableauExemple[i][j].East = false;
+			tableauExemple[i][j].West = false;
+			tableauExemple[i][j].y=j;
+			tableauExemple[i][j].x=i;
+		}
+	}
+	//Création pile :
+	stack<Room*> pile;
+
+
+	if(m_array.size() == 0)
+		return;
+	// Récupération des dimension du niveau
+	int arrayWidth = m_array.size();
+	int arrayHeight = m_array[0].size();
+
+	int rand_x = rand()%6;
+	int rand_y = rand()%6;
+	int rand_xend = rand()%6;
+	int rand_yend = rand()%6;
+	while(rand_x == rand_xend && rand_y == rand_yend)
+	{
+		rand_xend = rand()%6;
+		rand_yend = rand()%6;
+	}
+	printf("x de depart :%d\ny de depart:%d\n", rand_x, rand_y);
+	printf("x d'arrive :%d\ny d'arrive:%d\n", rand_xend, rand_yend);
+	printf("hauteur : %d\nlargeur : %d\n", arrayWidth, arrayHeight);
+
+	FindPath(rand_x, rand_y, rand_xend, rand_yend, MINIM_DISTANCE, (Room**)(tableauExemple), arrayWidth, arrayHeight, pile);
+	Room* r_end = new Room();
+	pile.push(r_end);
+	pile.top()->x = rand_xend;
+	pile.top()->y = rand_yend;
+	pile.top()->North = false;
+	pile.top()->South = false;
+	pile.top()->East = false;
+	pile.top()->West = false;
+	for(i = 0; i<6; i++)
+	{
+		for(j = 0; j<6; j++)
+		{
+			printf("x :%d, j : %d, %d %d %d %d\n",tableauExemple[i][j].x, tableauExemple[i][j].y, tableauExemple[i][j].North,tableauExemple[i][j].East, tableauExemple[i][j].South, tableauExemple[i][j].West);
+		}
+		printf("\n");
+	}
+	for(j=0; j<6; j++)
+	{
+		for(i=0; i<6; i++)
+		{
+			if(tableauExemple[i][j].North == true ||tableauExemple[i][j].South == true || tableauExemple[i][j].East == true || tableauExemple[i][j].West == true)
+			{
+				std::cout <<"1 ";
+			}
+			else
+			{
+				std::cout <<"0 ";
+			}
+		}
+		std::cout <<"\n";
+	}
+	//Création d'une deque
+	deque<Room*> dq;
+	printf("Pile :\n");
+	while(!pile.empty())
+	{
+		dq.push_front(pile.top());
+		std::cout<<pile.top()->x<<" "<<pile.top()->y<<std::endl;
+		pile.pop();
+	}
+	printf("Deque :\n");
+	SetRoom(dq);
+	for (i=0; i<(signed)dq.size(); i++)
+	{
+		std::cout << dq[i]->x<<" " <<dq[i]->y<<" "<<dq[i]->North<<" "<<dq[i]->East<<" "<<dq[i]->South<<" "<<dq[i]->West<< std::endl;
+	}
+
+	for(i=0; i< 6; i++)
+	{
+		delete [] tableauExemple[i];
+	}
+	delete [] tableauExemple;
 
 }
+
+void Level::SetRoom(deque<Room*> &dq)
+{
+	for(int i = 0; i< (signed)dq.size()-1; i++)
+	{
+		if(dq.at(i)->x < dq.at(i+1)->x)
+		{
+			dq.at(i)->East = true;
+			dq.at(i+1)->West = true;
+		}
+		else if(dq.at(i)->x > dq.at(i+1)->x)
+		{
+			dq.at(i)->West = true;
+			dq.at(i+1)->East = true;
+		}
+		else if(dq.at(i)->y > dq.at(i+1)->y)
+		{
+			dq.at(i)->North = true;
+			dq.at(i+1)->South = true;
+		}
+		else if(dq.at(i)->y < dq.at(i+1)->y)
+		{
+			dq.at(i)->South = true;
+			dq.at(i+1)->North = true;
+		}
+	}
+}
+bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t, int w, int h, stack<Room*> &pile)
+{
+	//std::cout << /*x << " " << y << " " << xend << " " << yend << " " << minDistance*/ pile.size() << std::endl;
+	if((minDistance == 0 || minDistance == -1) && (x == xend && y == yend))
+	{
+		std::cout << "found" <<std::endl;
+		return true;
+	}
+	if((minDistance < -1) || (x == xend && y == yend) || t[x][y].North == true ||t[x][y].South == true || t[x][y].East == true || t[x][y].West == true)
+	{
+		return false;
+	}
+
+	Room *room = new Room();
+	room->x= x;
+	room->y=y;
+	room->North = t[x][y].North;
+
+	room->East = t[x][y].East;
+
+	room->South = t[x][y].South;
+
+	room->West = t[x][y].West;
+	//ON MET DANS LA PILE
+	pile.push(room);
+
+	bool north = false, south = false, east = false, west = false;
+	int r = rand()%4;
+	while(!(north && south && east && west))
+	{
+		switch(r)
+		{
+			case 0 :
+				if((y-1)<0 || north)
+				{
+					north = true;
+					break;
+				}
+				t[x][y].North = true;
+				if (FindPath(x,y-1,xend, yend, minDistance - 1, t, w, h, pile) == true)
+					return true;//north
+				north = true;
+				break;
+			case 1 :
+				if((y+1)>5 || south)
+				{
+					south = true;
+					break;
+				}
+				t[x][y].South = true;
+				if (FindPath(x,y+1,xend, yend, minDistance - 1, t, w, h, pile) == true)
+					return true;//south
+				south = true;
+				break;
+			case 2 :
+				if((x+1)>5 || east)
+				{
+					east = true;
+					break;
+				}
+				t[x][y].East = true;
+				if (FindPath(x+1,y,xend, yend, minDistance - 1, t, w, h, pile) == true)
+					return true;//East
+				east = true;
+				break;
+			case 3 :
+				if((x-1)<0 || west)
+				{
+					west = true;
+					break;
+				}
+				t[x][y].West = true;
+				if (FindPath(x-1,y,xend, yend, minDistance - 1, t, w, h, pile) == true)
+					return true;//west
+				west = true;
+				break;
+
+		}
+		t[x][y].North = false;
+		t[x][y].South = false;
+		t[x][y].East = false;
+		t[x][y].West = false;
+		r = (r+1) %4;
+	}
+	delete pile.top();
+	//ON DEPILE
+	pile.pop();
+	return false;
+
+}
+/*
+
+bool IsAPath(int x, int y, int xe, int ye, bool** t, int w, int h, bool** tPas)
+{
+	printf("bouh\n");
+	std::cout << x << " " << y << " " << xe << " " << ye << " " << (t)[x][y] <<" " <<(tPas)[x][y]<< std::endl;
+	if(x < 0 || x >= w || y < 0 || y >= h || (t)[x][y] || (tPas)[x][y])
+	{
+		printf("Retourne faux ici\n");
+		return false;
+
+	}
+	if(x == xe && y == ye)
+	{
+		printf("Retourne vrai dans x==xe et y == ye\n");
+		tPas[x][y]= true;
+		return true;
+	}
+	tPas[x][y-1] = true;
+	if(IsAPath(x, y-1, xe, ye, t, w, h, tPas))
+	{
+		printf("Retourne vrai nord\n");
+		return true;
+	}
+	else
+	{
+		tPas[x][y-1] = false;
+		tPas[x-1][y] = true;
+		if(IsAPath(x-1, y, xe, ye, t, w, h, tPas))
+		{
+			printf("Retourne vrai ouest\n");
+			return true;
+		}
+		else
+		{
+			tPas[x-1][y]= false;
+			tPas[x][y+1]= true;
+			if(IsAPath(x, y+1, xe, ye, t, w, h, tPas))
+			{
+				printf("Retourne vrai sud\n");
+				return true;
+			}
+			else
+			{
+				tPas[x][y+1]= false;
+				tPas[x+1][y]= true;
+				if(IsAPath(x+1, y, xe, ye, t, w, h, tPas))
+				{
+					printf("Retourne vrai est\n");
+					return true;
+				}
+				else
+				{
+					printf("Retourne faux dans le dernier else\n");
+					tPas[x+1][y]= false;
+				}
+			}
+		}
+	}
+	printf("Fin du isAPath\n");
+	return false;
+}
+
+bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, bool** tableauExemple, int w, int h)
+{
+	int i;
+	printf("FindPpath\n");
+	bool** tPas = new bool*[6];
+	for(i = 0; i<6; i++)
+	{
+			tPas[i] = new bool[6];
+	}
+	for( i = 0; i<6; i++)
+	{
+		printf("boucle\n");
+		for(int j = 0; j<6; j++)
+		{
+			printf("le j\n");
+			tPas[i][j] = tableauExemple[i][j];
+		}
+	}
+	printf("quatre\n");
+	if(x == xend && y == yend && minDistance >= 0)
+	{
+		printf("un\n");
+		tableauExemple[x][y] = true;
+	}
+	if(IsAPath(x, y, xend, yend, tableauExemple, w, h, (bool**)(tPas)))
+	{
+		printf("deux\n");
+		bool ok = false;
+		while(!ok)
+		{
+			int random = rand() % 4;
+			switch(random)
+			{
+			case 0:
+				if(y-1 < 0)
+					break;
+				if(!(tableauExemple)[x][y-1])
+				{
+					(tableauExemple)[x][y] = true;
+					ok = FindPath(x, y-1, xend, yend, minDistance-1, tableauExemple, w, h);
+					if(!ok)
+						(tableauExemple)[x][y] = false;
+				}
+				break;
+			case 1:
+				if(y+1 >= h)
+					break;
+				if(!(tableauExemple)[x][y-1])
+				{
+					(tableauExemple)[x][y] = true;
+					ok = FindPath(x, y+1, xend, yend, minDistance-1, tableauExemple, w, h);
+					if(!ok)
+						(tableauExemple)[x][y] = false;
+				}
+				break;
+			case 2:
+				if(x-1 < 0)
+					break;
+				if(!(tableauExemple)[x-1][y])
+				{
+					(tableauExemple)[x][y] = true;
+					ok = FindPath(x-1, y, xend, yend, minDistance-1, tableauExemple, w, h);
+					if(!ok)
+						(tableauExemple)[x][y] = false;
+				}
+				break;
+			default:
+				if(x+1 >= w)
+					break;
+				if(!(tableauExemple)[x+1][y])
+				{
+					(tableauExemple)[x][y] = true;
+					ok = FindPath(x+1, y, xend, yend, minDistance-1, tableauExemple, w, h);
+					if(!ok)
+						(tableauExemple)[x][y] = false;
+				}
+				break;
+			}
+		}
+		for(i=0; i< 6; i++)
+		{
+			delete [] tPas[i];
+		}
+		delete [] tPas;
+		return true;
+	}
+	else
+	{
+		for(i=0; i< 6; i++)
+		{
+			delete [] tPas[i];
+		}
+		delete [] tPas;
+		printf("fin du FindPath\n");
+		return false;
+	}
+}
+*/
+
+/*function findPath(x, y, minDistance):
+    if (x,y is goal and minDistance == 0) return true
+    if (x,y not open) return false
+    mark x,y as part of layout path
+    switch(random number 1 out of 4):
+        case 1: if (findPath(North of x,y, minDistance - 1) == true) return true
+        case 2: if (findPath(East of x,y, minDistance - 1) == true) return true
+        case 3: if (findPath(South of x,y, minDistance - 1) == true) return true
+        case 4: if (findPath(West of x,y, minDistance - 1) == true) return true
+    unmark x,y as part of solution path
+    return false
+*/
+
 
 //Création du level test.
 void Level::CreateTestLevel()

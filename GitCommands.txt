@@ -1,4 +1,4 @@
-git init : intilialise un nouveau dépôt. Transforme un repertoire en dépôt Git acceptant les commandes Git.
+﻿git init : intilialise un nouveau dépôt. Transforme un repertoire en dépôt Git acceptant les commandes Git.
 
 git config : Configurer un dépôt.
 
@@ -8,7 +8,7 @@ git status : Statut du dépôt.
 
 git add nomFichier : Inclus un fichier dans les instantanés du Git.
 
-git commit -m "Message" : Saisie un instantané du dépôt.
+git commit -a -m "Message" : Saisie un instantané du dépôt.
 
 git branch nomBranche : Crée une nouvelle branche.
 
