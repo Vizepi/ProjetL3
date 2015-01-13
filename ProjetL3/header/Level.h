@@ -4,6 +4,12 @@
 #include <Box2D/Box2D.h>
 #include "Character.h"
 #include "Event.h"
+#include <cstdlib>
+#include <time.h>
+#include <stack>
+using namespace std;
+#include <deque>
+
 
 #ifndef SCALE
 #define SCALE 30.f
@@ -26,6 +32,8 @@
 #define CLIP_LADDER sf::IntRect(RS_POS(2), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE)
 #define CLIP_CROSS sf::IntRect(RS_POS(0), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE)
 
+#define MINIM_DISTANCE 10
+
 enum LevelType
 {
 	lt_empty = 0x0, // Bloc vide
@@ -38,6 +46,15 @@ enum LevelType
 // Si les variables a et b sont de même type (static ou sensor), retourne true.
 #define SAME_LEVELTYPE(a, b) (((a & SOLID_MASK) && (b & SOLID_MASK)) || ((a & SENSOR_MASK) && (b & SENSOR_MASK)))
 
+struct Room
+{
+	bool North;
+	bool South;
+	bool East;
+	bool West;
+	int x;
+	int y;
+};
 
 class Level
 {
@@ -54,6 +71,8 @@ class Level
 		void CreateTestLevel(void);
 		void LoadLevelArray(void);
 		void DrawLevelArray(sf::RenderWindow& window);
+		void SetRoom(deque<Room*> &dq);
+		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** tableauExemple, int w, int h, stack<Room*> &pile);
 
 	protected:
 
