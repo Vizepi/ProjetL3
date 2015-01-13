@@ -15,11 +15,16 @@
 #define BLOC_SIZE 48.f
 #endif // BLOC_SIZE
 
-#define RS_BLOC_SIZE 40
+#define RS_BLOC_SIZE 46
 #define RS_POS(x) RS_BLOC_SIZE * x
 
 #define SOLID_MASK 0x3
 #define SENSOR_MASK 0xC
+
+#define CLIP_SOLID sf::IntRect(RS_POS(2), RS_POS(2), RS_BLOC_SIZE, RS_BLOC_SIZE)
+#define CLIP_GROUND sf::IntRect(RS_POS(2), RS_POS(1), RS_BLOC_SIZE, RS_BLOC_SIZE)
+#define CLIP_LADDER sf::IntRect(RS_POS(2), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE)
+#define CLIP_CROSS sf::IntRect(RS_POS(0), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE)
 
 enum LevelType
 {
@@ -31,16 +36,16 @@ enum LevelType
 };
 
 // Si les variables a et b sont de même type (static ou sensor), retourne true.
-#define SAME_LEVELTYPE(a, b) (((a & 0x3) && (b & 0x3)) || ((a & 0xC) && (b & 0xC)))
+#define SAME_LEVELTYPE(a, b) (((a & SOLID_MASK) && (b & SOLID_MASK)) || ((a & SENSOR_MASK) && (b & SENSOR_MASK)))
 
 
 class Level
 {
-	public :
+	public:
 		Level(void);
-		void CreateStaticObject(b2World& world, float x, float y, float width, float height);
-		void CreateSensor(b2World& world, float x, float y, float width, float height);
-		b2Body* CreateDynamicObject(b2World& world, float x, float y, float width, float height);
+		void CreateStaticObject(float x, float y, float width, float height);
+		void CreateSensor(float x, float y, float width, float height);
+		b2Body* CreateDynamicObject(float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
 		void Update(sf::RenderWindow& window, sf::Clock& frameTime);
@@ -52,7 +57,7 @@ class Level
 
 	protected:
 
-	private :
+	private:
 		Event  m_event;
 		b2Vec2 m_gravity;
 		b2World m_world;

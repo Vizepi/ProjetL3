@@ -9,26 +9,28 @@ Level::Level()
 }
 
 
-void Level::CreateStaticObject(b2World& world, float x, float y, float width, float height)
+void Level::CreateStaticObject(float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
-    b2Body* Body = world.CreateBody(&BodyDef);
+    b2Body* Body = m_world.CreateBody(&BodyDef);
     b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
-    FixtureDef.density = 0.f;
+    FixtureDef.density = 1.f;
     FixtureDef.shape = &Shape;
+    FixtureDef.isSensor = false;
     Body->CreateFixture(&FixtureDef);
+    std::cout << x << " " << y << " " << width << " " << height << std::endl;
 }
 
-void Level::CreateSensor(b2World& world, float x, float y, float width, float height)
+void Level::CreateSensor(float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
-    b2Body* Body = world.CreateBody(&BodyDef);
+    b2Body* Body = m_world.CreateBody(&BodyDef);
     b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
@@ -36,18 +38,18 @@ void Level::CreateSensor(b2World& world, float x, float y, float width, float he
     FixtureDef.shape = &Shape;
     FixtureDef.density = 1.f;
     Body->CreateFixture(&FixtureDef);
+    std::cout << x << " " << y << " " << width << " " << height << std::endl;
 }
 
-b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width, float height)
+b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 {
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_dynamicBody;
-    b2Body* Body = world.CreateBody(&BodyDef);
+    b2Body* Body = m_world.CreateBody(&BodyDef);
     Body->SetFixedRotation(true);
-	// Creation d'une premiere forme "glissante", rectangulaire.
     b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE); // Dimension width * height-1 decalée de 1px vers le haut
+    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
@@ -67,7 +69,7 @@ b2Body* Level::CreateDynamicObject(b2World& world, float x, float y, float width
 void Level::LoadLevel()
 {
 	m_character.LoadSprite();
-	m_character.SetBody(CreateDynamicObject(m_world, 0, 0, CHARACTER_WIDTH,CHARACTER_HEIGHT));
+	m_character.SetBody(CreateDynamicObject(0, 0, CHARACTER_WIDTH,CHARACTER_HEIGHT));
 }
 
 void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
@@ -125,6 +127,7 @@ void Level::CreateTestLevel()
 
 		}
 	}
+	m_array[19][14] = lt_solid;
 	m_array[10][7] = lt_cross;
 	m_startPosition.Set(64.f / SCALE, 620.f / SCALE);
 }
@@ -137,13 +140,25 @@ void Level::LoadLevelArray()
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
-	bool* mark = new bool[mul];
+	std::vector<bool> mark;
 	for(int i=0;i<mul;i++)
-		mark[i] = false; // Initialisation du tableau de booléens
+		mark.push_back(false);// = false; // Initialisation du tableau de booléens
     int width = 0;
     int height = 0;
+    int x, y;
     int prev[3] = {0, 0, 0}; // {type, x, y}
     int state;
+	for(int i=0;i<arrayHeight;i++)
+	{
+		for(int j=0;j<arrayWidth;j++)
+		{
+			if(mark[j*arrayWidth + i])
+				std::cout << "1 ";
+			else
+				std::cout << "0 ";
+		}
+		std::cout << std::endl;
+	}
 	for(int j=0;j<arrayHeight;j++)
 	{
 		for(int i=0;i<arrayWidth;i++)
@@ -208,7 +223,8 @@ void Level::LoadLevelArray()
 						int lineEnd = prev[1]+width;
 						for(int k=prev[1];k<lineEnd;k++)
 						{
-							if(m_array[k][currentY] != prev[0])
+							// Ligne non terminée.
+							if(!SAME_LEVELTYPE(m_array[k][currentY],  prev[0]))
 							{
 								isOk = false;
 								break;
@@ -216,6 +232,7 @@ void Level::LoadLevelArray()
 						}
 						if(isOk)
 						{
+							// Marquage.
 							for(int k=prev[1];k<lineEnd;k++)
 								mark[k * arrayWidth + currentY] = true;
 							height++;
@@ -234,13 +251,41 @@ void Level::LoadLevelArray()
 				{
 				case lt_solid:
 				case lt_ground:
-					CreateStaticObject(m_world, prev[1] * 48.f, prev[2] * 48.f, width * 48.f, height * 48.f);
-					std::cout << "static" << std::endl;
+					std::cout << "static " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
+					x = prev[1];
+					y = prev[2];
+					CreateStaticObject(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
+					for(int i=0;i<arrayHeight;i++)
+					{
+						for(int j=0;j<arrayWidth;j++)
+						{
+							if(mark[j*arrayWidth + i])
+								std::cout << "1 ";
+							else
+								std::cout << "0 ";
+						}
+						std::cout << std::endl;
+					}
+					std::cout << "ok" << std::endl;
 					break;
 				case lt_ladder:
 				case lt_cross:
-					CreateSensor(m_world, prev[1] * 48.f, prev[2] * 48.f, width * 48.f, height * 48.f);
-					std::cout << "sensor" << std::endl;
+					x = prev[1];
+					y = prev[2];
+					std::cout << "sensor " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
+					CreateSensor(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
+					for(int i=0;i<arrayHeight;i++)
+					{
+						for(int j=0;j<arrayWidth;j++)
+						{
+							if(mark[j*arrayWidth + i])
+								std::cout << "1 ";
+							else
+								std::cout << "0 ";
+						}
+						std::cout << std::endl;
+					}
+					std::cout << "ok" << std::endl;
 					break;
 				default:
 					break;
@@ -255,11 +300,11 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 {
 	if(m_array.size() == 0)
 		return;
-	int arrayWidth = m_array.size();
+	/*int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	sf::Sprite sprite;
 	sprite.setTexture(*RessourceLoader::GetTexture("Skin01"));
-	sprite.setScale(48.f/40.f, 48.f/40.f);
+	sprite.setScale(BLOC_SIZE/RS_BLOC_SIZE, BLOC_SIZE/RS_BLOC_SIZE);
 	for(int i=0;i<arrayWidth;i++)
 	{
 		for(int j=0;j<arrayHeight;j++)
@@ -267,18 +312,22 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			switch(m_array[i][j])
 			{
 			case lt_cross://croisement entre une echelle et un sol
+				sprite.setTextureRect(CLIP_CROSS);
 				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 				window.draw(sprite);
 				break;
 			case lt_ground://sol
+				sprite.setTextureRect(CLIP_GROUND);
 				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 				window.draw(sprite);
 				break;
 			case lt_ladder://echelle
+				sprite.setTextureRect(CLIP_LADDER);
 				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 				window.draw(sprite);
 				break;
 			case lt_solid://bloc
+				sprite.setTextureRect(CLIP_SOLID);
 				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 				window.draw(sprite);
 				break;
@@ -286,6 +335,16 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 				break;
 			}
 		}
+	}*/
+	b2Body* bodyIterator = m_world.GetBodyList();
+	while(bodyIterator)
+	{
+		sf::RectangleShape rs;
+		rs.setSize(sf::Vector2f(BLOC_SIZE, BLOC_SIZE));
+		rs.setPosition(bodyIterator->GetPosition().x * SCALE, bodyIterator->GetPosition().y * SCALE);
+		rs.setFillColor(sf::Color(255, 0, 0));
+		window.draw(rs);
+		bodyIterator = bodyIterator->GetNext();
 	}
 }
 

@@ -25,6 +25,7 @@
 			</Target>
 			<Target title="Release">
 				<Option output="bin/release/ProjetL3" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/release" />
 				<Option object_output="obj/release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -46,6 +47,7 @@
 			<Add option="-Wall" />
 			<Add option="-I include" />
 			<Add option="-DSFML_STATIC" />
+			<Add option="-DTARGET_OS_PC" />
 			<Add directory="C:/sfml/include/" />
 		</Compiler>
 		<Linker>
@@ -55,11 +57,13 @@
 		<Unit filename="header/Character.h" />
 		<Unit filename="header/Event.h" />
 		<Unit filename="header/Level.h" />
+		<Unit filename="header/Random.h" />
 		<Unit filename="header/RessourceLoader.h" />
 		<Unit filename="src/Animation.cpp" />
 		<Unit filename="src/Character.cpp" />
 		<Unit filename="src/Event.cpp" />
 		<Unit filename="src/Level.cpp" />
+		<Unit filename="src/Random.cpp" />
 		<Unit filename="src/RessourceLoader.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
