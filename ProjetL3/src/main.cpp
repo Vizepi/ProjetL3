@@ -23,8 +23,8 @@ int main(int argc, char** argv)
 	level.LoadLevelArray();
 	sf::Clock frameTime;
 	// Debug view pour voir toute la map.
-	sf::View view(sf::FloatRect(0, 0, BLOC_SIZE * ROOM_WIDTH * 6, BLOC_SIZE * ROOM_HEIGHT * 6));
-	window.setView(view);
+	//sf::View view(sf::FloatRect(0, 0, BLOC_SIZE * ROOM_WIDTH * 6, BLOC_SIZE * ROOM_HEIGHT * 6));
+	//window.setView(view);
 	//Tant que la fenetre est ouverte.
 	while(window.isOpen())
 	{
