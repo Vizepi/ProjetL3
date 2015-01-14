@@ -36,11 +36,6 @@ Level::~Level()
 	delete m_rand;
 }
 
-Level::~Level()
-{
-	delete m_rand;
-}
-
 //Fonction qui crée un objet statique dans box2d.
 void Level::CreateStaticObject(float x, float y, float width, float height)
 {
@@ -1111,6 +1106,5 @@ void Level::GetTextureCoords(int* x, int* y, int center, int north, int east, in
 		*y = 0;
 		break;
 	}
-	#endif
 }
 
