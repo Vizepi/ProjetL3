@@ -15,9 +15,10 @@
 
 }
 
-/*virtual*/ int Random::NextInt()
+/*virtual*/ int Random::NextInt(int base, int limit)
 {
-	return (int)(m_generator());
+	std::uniform_int_distribution<int> out(base, limit);
+	return out(m_generator);
 }
 
 /*virtual*/ float Random::NextFloat()

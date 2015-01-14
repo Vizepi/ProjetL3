@@ -14,7 +14,7 @@ public:
 
 	virtual ~Random(void);
 
-	virtual int NextInt(void);
+	virtual int NextInt(int base, int limit);
 
 	virtual float NextFloat(void);
 
