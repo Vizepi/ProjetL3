@@ -15,37 +15,73 @@
 
 }
 
+/*virtual*/ int Random::NextInt(int base, int limit)
+{
+	std::uniform_int_distribution<int> out(base, limit);
+	return out(m_generator);
+}
+
 /*virtual*/ int Random::NextInt()
 {
-	return (unsigned int)(m_generator());
+	return NextInt(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+}
+
+/*virtual*/ float Random::NextFloat(float base, float limit)
+{
+	std::uniform_real_distribution<float> out(base, limit);
+	return out(m_generator);
 }
 
 /*virtual*/ float Random::NextFloat()
 {
-	return (float)(m_generator());
+	return NextFloat(std::numeric_limits<float>::min(), std::numeric_limits<float>::max());
+}
+
+/*virtual*/ double Random::NextDouble(double base, double limit)
+{
+	std::uniform_real_distribution<double> out(base, limit);
+	return out(m_generator);
 }
 
 /*virtual*/ double Random::NextDouble()
 {
-	return (double)(m_generator());
+	return NextDouble(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+}
+
+/*virtual*/ char Random::NextChar(char base, char limit)
+{
+	std::uniform_int_distribution<char> out(base, limit);
+	return out(m_generator);
 }
 
 /*virtual*/ char Random::NextChar()
 {
-	return (char)(m_generator());
+	return NextChar(std::numeric_limits<char>::min(), std::numeric_limits<char>::max());
 }
 
 /*virtual*/ bool Random::NextBool()
 {
-	return (bool)(m_generator());
+	return (0 == NextInt(0, 1));
+}
+
+/*virtual*/ long Random::NextLong(long base, long limit)
+{
+	std::uniform_int_distribution<long> out(base, limit);
+	return out(m_generator);
 }
 
 /*virtual*/ long Random::NextLong()
 {
-	return (long)(m_generator());
+	return NextLong(std::numeric_limits<long>::min(), std::numeric_limits<long>::max());
+}
+
+/*virtual*/ short Random::NextShort(short base, short limit)
+{
+	std::uniform_int_distribution<short> out(base, limit);
+	return out(m_generator);
 }
 
 /*virtual*/ short Random::NextShort()
 {
-	return (short)(m_generator());
+	return NextShort(std::numeric_limits<short>::min(), std::numeric_limits<short>::max());
 }

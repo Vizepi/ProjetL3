@@ -5,7 +5,7 @@
 int main(int argc, char** argv)
 {
 	//Création de la fenetre.
-	sf::RenderWindow window(sf::VideoMode(960, 720), "Platformer");
+	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Platformer");
 	window.setFramerateLimit(60);
 	window.setKeyRepeatEnabled(false);
 
@@ -22,6 +22,9 @@ int main(int argc, char** argv)
 	//creation du monde dans box2d.
 	level.LoadLevelArray();
 	sf::Clock frameTime;
+	// Debug view pour voir toute la map.
+	sf::View view(sf::FloatRect(0, 0, BLOC_SIZE * ROOM_WIDTH * 6, BLOC_SIZE * ROOM_HEIGHT * 6));
+	window.setView(view);
 	//Tant que la fenetre est ouverte.
 	while(window.isOpen())
 	{

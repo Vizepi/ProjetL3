@@ -3,10 +3,37 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
+#ifdef SINGLE_BODY_LEVEL
+, m_levelBody(NULL)
+#endif
 , m_rand(new Random())
 {
+	gagne = false;
 	m_listener = new JumpListener(&m_character);
 	m_world.SetContactListener(m_listener);
+	tardis.setTexture(*RessourceLoader::GetTexture("Tardis"));
+	tardis.setScale(0.75f, 0.75f);
+	emy.setTexture(*RessourceLoader::GetTexture("Amy Pond"));
+	emy.setTextureRect(sf::IntRect(0, 0, 32, 48));
+
+	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
+	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
+
+	m_currentAnimation = m_anim[LOOK_DOWN];
+	m_currentAnimation->Play();
+
+	#ifdef SINGLE_BODY_LEVEL
+	// Creation du corps physique du niveau
+	b2BodyDef bodyDef;
+	bodyDef.position = b2Vec2(0.f, 0.f);
+	bodyDef.type = b2_staticBody;
+	m_levelBody = m_world.CreateBody(&bodyDef);
+	#endif
+}
+
+Level::~Level()
+{
+	delete m_rand;
 }
 
 Level::~Level()
@@ -17,6 +44,7 @@ Level::~Level()
 //Fonction qui crée un objet statique dans box2d.
 void Level::CreateStaticObject(float x, float y, float width, float height)
 {
+	#ifndef SINGLE_BODY_LEVEL
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
@@ -28,12 +56,21 @@ void Level::CreateStaticObject(float x, float y, float width, float height)
     FixtureDef.shape = &Shape;
     FixtureDef.isSensor = false;
     Body->CreateFixture(&FixtureDef);
-    std::cout << x << " " << y << " " << width << " " << height << std::endl;
+    #else
+    b2PolygonShape Shape;
+    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    b2FixtureDef FixtureDef;
+    FixtureDef.density = 1.f;
+    FixtureDef.shape = &Shape;
+    FixtureDef.isSensor = false;
+    m_levelBody->CreateFixture(&FixtureDef);
+    #endif
 }
 
 //Fonction qui crée un sensor dans box2d.
 void Level::CreateSensor(float x, float y, float width, float height)
 {
+	#ifndef SINGLE_BODY_LEVEL
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
@@ -45,7 +82,15 @@ void Level::CreateSensor(float x, float y, float width, float height)
     FixtureDef.shape = &Shape;
     FixtureDef.density = 1.f;
     Body->CreateFixture(&FixtureDef);
-    std::cout << x << " " << y << " " << width << " " << height << std::endl;
+    #else
+    b2PolygonShape Shape;
+    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    b2FixtureDef FixtureDef;
+    FixtureDef.isSensor = true;
+    FixtureDef.shape = &Shape;
+    FixtureDef.density = 1.f;
+    m_levelBody->CreateFixture(&FixtureDef);
+    #endif
 }
 
 //Fonction qui crée un objet dynamique dans box2d.
@@ -89,13 +134,31 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 	m_event.event(window, m_character);
 	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
 	m_character.Update();
-	// @TODO Changer view
+	m_currentAnimation->Update();
+	//Test si la partie est gagnée
+	int posx_d = GetCharacter()->GetSprite()->getPosition().x;
+	int posy_d = GetCharacter()->GetSprite()->getPosition().y;
+	int posx_a = emy.getPosition().x;
+	int posy_a= emy.getPosition().y;
+	if((posy_d >= posy_a-5 && posy_d <=  posy_a+5) && (posx_d >= posx_a-80 && posx_d <= posx_a+80 ))
+	{
+			gagne = true;
+	}
+
+
+	#ifndef SHOW_ALL_MAP
+	window.setView(sf::View(sf::Vector2f(m_character.GetBody()->GetPosition().x * SCALE, m_character.GetBody()->GetPosition().y * SCALE),
+					sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT)));
+	#endif
 }
 
 //Remplissage de la fenetre
 void Level::Draw(sf::RenderWindow& window)
 {
 	DrawLevelArray(window);
+	window.draw(tardis);
+	window.draw(emy);
+	window.draw(m_coin);
 	window.draw(*m_character.GetSprite());
 }
 
@@ -108,6 +171,7 @@ Character* Level::GetCharacter()
 void Level::GenerateLevel()
 {
 	int i, j;
+
 	Room** tableauExemple = new Room*[6];
 	for(i = 0; i<6; i++)
 	{
@@ -135,14 +199,14 @@ void Level::GenerateLevel()
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 
-	int rand_x = (m_rand->NextInt())%6;
-	int rand_y = (m_rand->NextInt())%6;
-	int rand_xend = (m_rand->NextInt())%6;
-	int rand_yend = (m_rand->NextInt())%6;
+	int rand_x = m_rand->NextInt(0, 5);
+	int rand_y = m_rand->NextInt(0, 5);
+	int rand_xend = m_rand->NextInt(0, 5);
+	int rand_yend = m_rand->NextInt(0, 5);
 	while(rand_x == rand_xend && rand_y == rand_yend)
 	{
-		rand_xend = (m_rand->NextInt())%6;
-		rand_yend = (m_rand->NextInt())%6;
+		rand_xend = m_rand->NextInt(0, 5);
+		rand_yend = m_rand->NextInt(0, 5);
 	}
 	printf("x de depart :%d\ny de depart:%d\n", rand_x, rand_y);
 	printf("x d'arrive :%d\ny d'arrive:%d\n", rand_xend, rand_yend);
@@ -194,13 +258,44 @@ void Level::GenerateLevel()
 	for (i=0; i<(signed)dq.size(); i++)
 	{
 		std::cout << dq[i]->x<<" " <<dq[i]->y<<" "<<dq[i]->North<<" "<<dq[i]->East<<" "<<dq[i]->South<<" "<<dq[i]->West<< std::endl;
+		//On choisit un point au hasard dans chaque Room
+		dq[i]->rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+		dq[i]->rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+		if(i != 0)
+		{
+			while(dq[i]->rand_x == dq[i-1]->rand_x ||
+					dq[i]->rand_x == dq[i-1]->rand_x+1 ||
+					dq[i]->rand_x == dq[i-1]->rand_x-1)
+			{
+				dq[i]->rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+			}
+			while(dq[i]->rand_y == dq[i-1]->rand_y ||
+					dq[i]->rand_y == dq[i-1]->rand_y+1 ||
+					dq[i]->rand_y == dq[i-1]->rand_y-1)
+			{
+				dq[i]->rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+			}
+		}
 	}
 
+	CreateLevel(tableauExemple, dq);
+
+	tardis.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
+						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
+	m_coin.setPosition(sf::Vector2f(((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE),
+						(ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT));
+	//Pour supprimer le tableau
+	while(dq.size() > 0)
+	{
+		delete dq.front();
+		dq.pop_front();
+	}
 	for(i=0; i< 6; i++)
 	{
 		delete [] tableauExemple[i];
 	}
 	delete [] tableauExemple;
+
 
 }
 
@@ -208,25 +303,25 @@ void Level::SetRoom(deque<Room*> &dq)
 {
 	for(int i = 0; i< (signed)dq.size()-1; i++)
 	{
-		if(dq.at(i)->x < dq.at(i+1)->x)
+		if(dq[i]->x < dq[i+1]->x)
 		{
-			dq.at(i)->East = true;
-			dq.at(i+1)->West = true;
+			dq[i]->East = true;
+			dq[i+1]->West = true;
 		}
-		else if(dq.at(i)->x > dq.at(i+1)->x)
+		else if(dq[i]->x > dq[i+1]->x)
 		{
-			dq.at(i)->West = true;
-			dq.at(i+1)->East = true;
+			dq[i]->West = true;
+			dq[i+1]->East = true;
 		}
-		else if(dq.at(i)->y > dq.at(i+1)->y)
+		else if(dq[i]->y > dq[i+1]->y)
 		{
-			dq.at(i)->North = true;
-			dq.at(i+1)->South = true;
+			dq[i]->North = true;
+			dq[i+1]->South = true;
 		}
-		else if(dq.at(i)->y < dq.at(i+1)->y)
+		else if(dq[i]->y < dq[i+1]->y)
 		{
-			dq.at(i)->South = true;
-			dq.at(i+1)->North = true;
+			dq[i]->South = true;
+			dq[i+1]->North = true;
 		}
 	}
 }
@@ -257,7 +352,7 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 	pile.push(room);
 
 	bool north = false, south = false, east = false, west = false;
-	int r = (m_rand->NextInt())%4;
+	int r = m_rand->NextInt(0, 3);
 	while(!(north && south && east && west))
 	{
 		switch(r)
@@ -321,6 +416,111 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 
 }
 
+//Création du level
+void Level::CreateLevel(Room** t, deque<Room*> &dq)
+{
+	int width = ROOM_WIDTH*6;
+	int height = ROOM_HEIGHT*6;
+	for(int i=m_array.size()-1;i>=0;i--)
+		m_array[i].clear();
+	m_array.clear();
+	//initialisation
+	m_array.reserve(width);
+	for(int i=0;i<width;i++)
+	{
+		m_array.push_back(std::vector<int>());
+
+		m_array[i].reserve(height);
+	}
+	for(int i=0;i<width;i++)
+	{
+		for(int j=0;j<height;j++)
+		{
+			m_array[i].push_back(lt_solid);
+		}
+	}
+	// Remplissage des rooms de la deque en lt_empty.
+	for(int i = 0; i< (signed)dq.size(); i++)
+	{
+		// Position de la room suivante en longueur.
+		int endj = ROOM_WIDTH*(dq[i]->x+1);
+
+		for(int j = ROOM_WIDTH*dq[i]->x; j< endj; j++)
+		{
+			// Position de la room suivante en hauteur.
+			int endk = ROOM_HEIGHT*(dq[i]->y+1);
+
+			for(int k=  ROOM_HEIGHT*dq[i]->y; k< endk; k++)
+			{
+				m_array[j][k] = lt_empty;
+			}
+		}
+	}
+
+	for(int i = 0; i< (signed)dq.size()-1; i++)
+	{
+
+		int p1x = ROOM_WIDTH * dq[i]->x + dq[i]->rand_x;
+		int p1y = ROOM_HEIGHT * dq[i]->y + dq[i]->rand_y;
+		int p2x = ROOM_WIDTH * dq[i+1]->x + dq[i+1]->rand_x;
+		int p2y = ROOM_HEIGHT * dq[i+1]->y + dq[i+1]->rand_y;
+
+		if(i == 0)
+			m_startPosition.Set(p1x * BLOC_SIZE / SCALE, (p1y - 1 ) * BLOC_SIZE / SCALE);
+
+		int it = 1;
+		if(p1x > p2x)
+		{
+			it = -1;
+		}
+		int posX = p1x;
+		while(posX != p2x)
+		{
+			//placeBloc(posX, p1y);
+			if(i != 0 && posX == p1x && p1y < ROOM_HEIGHT * dq[i-1]->y + dq[i-1]->rand_y)
+				m_array[posX][p1y] = lt_cross;
+			else
+				m_array[posX][p1y] = lt_ground;
+			posX += it;
+		}
+		it = 1;
+		if(p1y > p2y)
+		{
+			it = -1;
+		}
+		int posY = p1y;
+		while(posY != p2y)
+		{
+			//placeBloc(posX, posY);
+			if(it == 1 && posY == p1y)
+				m_array[posX][posY] = lt_cross;
+			else if (it == -1 && posY == p2y)
+				m_array[posX][posY] = lt_cross;
+			else if(it == -1 && posY == p1y )
+				m_array[posX][posY] = lt_ground;
+			else
+				m_array[posX][posY] = lt_ladder;
+			posY += it;
+		}
+		//Faire la plateforme de fin
+		if(i == (signed)dq.size()-2)
+		{
+			if(p2y< p1y)
+				m_array[p2x][p2y] = lt_cross;
+			else
+				m_array[p2x][p2y]= lt_ground;
+			for(int xf=p2x+1; xf<(p2x+4); xf++)
+			{
+				m_array[xf][p2y] = lt_ground;
+			}
+			for(int xf=p2x-1; xf>(p2x-4); xf--)
+			{
+				m_array[xf][p2y] = lt_ground;
+			}
+		}
+	}
+}
+
 //Création du level test.
 void Level::CreateTestLevel()
 {
@@ -370,6 +570,31 @@ void Level::LoadLevelArray()
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
+	for(int i =0; i < arrayWidth; i++)
+	{
+		for(int j =0; j<arrayHeight; j++)
+		{
+			switch(m_array[i][j])
+			{
+			case lt_cross :
+			case lt_ladder :
+				CreateSensor(i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
+				break;
+			case lt_ground :
+			case lt_solid :
+				CreateStaticObject(i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
+				break;
+			default:
+				break;
+
+			}
+
+		}
+	}
+
+	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
+	return;
+
 	std::vector<bool> mark;
 	for(int i=0;i<mul;i++)
 		mark.push_back(false); // Initialisation du tableau de booléens
@@ -378,7 +603,7 @@ void Level::LoadLevelArray()
     int x, y;
     int prev[3] = {0, 0, 0}; // {type, x, y}
     int state;
-	for(int i=0;i<arrayHeight;i++)
+	/*for(int i=0;i<arrayHeight;i++)
 	{
 		for(int j=0;j<arrayWidth;j++)
 		{
@@ -388,7 +613,7 @@ void Level::LoadLevelArray()
 				std::cout << "0 ";
 		}
 		std::cout << std::endl;
-	}
+	}*/
 	for(int j=0;j<arrayHeight;j++)
 	{
 		for(int i=0;i<arrayWidth;i++)
@@ -481,11 +706,11 @@ void Level::LoadLevelArray()
 				{
 				case lt_solid:
 				case lt_ground:
-					std::cout << "static " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
+					//std::cout << "static " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
 					x = prev[1];
 					y = prev[2];
 					CreateStaticObject(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
-					for(int i=0;i<arrayHeight;i++)
+					/*for(int i=0;i<arrayHeight;i++)
 					{
 						for(int j=0;j<arrayWidth;j++)
 						{
@@ -496,15 +721,15 @@ void Level::LoadLevelArray()
 						}
 						std::cout << std::endl;
 					}
-					std::cout << "ok" << std::endl;
+					std::cout << "ok" << std::endl;*/
 					break;
 				case lt_ladder:
 				case lt_cross:
 					x = prev[1];
 					y = prev[2];
-					std::cout << "sensor " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
+					//std::cout << "sensor " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
 					CreateSensor(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
-					for(int i=0;i<arrayHeight;i++)
+					/*for(int i=0;i<arrayHeight;i++)
 					{
 						for(int j=0;j<arrayWidth;j++)
 						{
@@ -515,7 +740,7 @@ void Level::LoadLevelArray()
 						}
 						std::cout << std::endl;
 					}
-					std::cout << "ok" << std::endl;
+					std::cout << "ok" << std::endl;*/
 					break;
 				default:
 					break;
@@ -531,6 +756,7 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 {
 	if(m_array.size() == 0)
 		return;
+	#ifndef SHOW_COLLISION_BOXES
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	sf::Sprite sprite;
@@ -556,45 +782,28 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			sprite.setTextureRect(sf::IntRect(RS_POS(x), RS_POS(y), RS_BLOC_SIZE, RS_BLOC_SIZE));
 			sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 			window.draw(sprite);
-			/*switch(m_array[i][j])
-			{
-			case lt_cross://croisement entre une echelle et un sol
-				sprite.setTextureRect(CLIP_CROSS);
-				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(sprite);
-				break;
-			case lt_ground://sol
-				sprite.setTextureRect(CLIP_GROUND);
-				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(sprite);
-				break;
-			case lt_ladder://echelle
-				sprite.setTextureRect(CLIP_LADDER);
-				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(sprite);
-				break;
-			case lt_solid://bloc
-				sprite.setTextureRect(CLIP_SOLID);
-				sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
-				window.draw(sprite);
-				break;
-			default:
-				break;
-			}*/
 		}
 	}
-	/*b2Body* bodyIterator = m_world.GetBodyList();
+	#else
+	b2Body* bodyIterator = m_world.GetBodyList();
 	while(bodyIterator)
 	{
 		sf::RectangleShape rs;
-		float width = bodyIterator->GetFixtureList()->GetAABB(0).upperBound.x - bodyIterator->GetFixtureList()->GetAABB(0).lowerBound.x;
-		float height = bodyIterator->GetFixtureList()->GetAABB(0).upperBound.y - bodyIterator->GetFixtureList()->GetAABB(0).lowerBound.y;
+		int width = bodyIterator->GetFixtureList()->GetAABB(0).upperBound.x - bodyIterator->GetFixtureList()->GetAABB(0).lowerBound.x;
+		int height = bodyIterator->GetFixtureList()->GetAABB(0).upperBound.y - bodyIterator->GetFixtureList()->GetAABB(0).lowerBound.y;
 		rs.setSize(sf::Vector2f(width * SCALE, height * SCALE));
 		rs.setPosition(bodyIterator->GetPosition().x * SCALE, bodyIterator->GetPosition().y * SCALE);
-		rs.setFillColor(sf::Color(m_rand->NextInt()%255, m_rand->NextInt()%255, m_rand->NextInt()%255));
+		rs.setFillColor(sf::Color(128, 128, 128));
+		if(bodyIterator->GetFixtureList()->IsSensor())
+			rs.setFillColor(sf::Color(0, 0, 255));
+		else if(bodyIterator->GetType() == b2_staticBody)
+			rs.setFillColor(sf::Color(255, 0, 0));
+		else if(bodyIterator->GetType() == b2_dynamicBody)
+			rs.setFillColor(sf::Color(0, 255, 0));
 		window.draw(rs);
 		bodyIterator = bodyIterator->GetNext();
-	}*/
+	}
+	#endif
 }
 
 void Level::GetTextureCoords(int* x, int* y, int center, int north, int east, int south, int west)
@@ -902,5 +1111,6 @@ void Level::GetTextureCoords(int* x, int* y, int center, int north, int east, in
 		*y = 0;
 		break;
 	}
+	#endif
 }
 

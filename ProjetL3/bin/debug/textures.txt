@@ -1,3 +1,6 @@
 Matt Smith:../../pictures/matt_smith.png
 Amy Pond:../../pictures/amy_pond.png
 Skin01:../../pictures/skin01.png
+Tardis:../../pictures/tardis.png
+Coins:../../pictures/coins.png
+
