@@ -17,7 +17,7 @@
 
 /*virtual*/ int Random::NextInt()
 {
-	return (int)(m_generator());
+	return (unsigned int)(m_generator());
 }
 
 /*virtual*/ float Random::NextFloat()

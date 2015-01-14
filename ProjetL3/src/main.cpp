@@ -1,11 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include "../header/Level.h"
 #include "../header/RessourceLoader.h"
-#include <ctime>
 
 int main(int argc, char** argv)
 {
-	srand(time(NULL));
 	//Création de la fenetre.
 	sf::RenderWindow window(sf::VideoMode(960, 720), "Platformer");
 	window.setFramerateLimit(60);
@@ -19,10 +17,10 @@ int main(int argc, char** argv)
 	//Chargement du level test.
 	level.CreateTestLevel();
 
-	level.GenerateLevel();
+	//level.GenerateLevel();
 
 	//creation du monde dans box2d.
-	/*level.LoadLevelArray();
+	level.LoadLevelArray();
 	sf::Clock frameTime;
 	//Tant que la fenetre est ouverte.
 	while(window.isOpen())
@@ -44,5 +42,5 @@ int main(int argc, char** argv)
 		//Affichage de la fenetre.
 		window.display();
 	}
-	*/
+
 }

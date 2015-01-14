@@ -4,6 +4,7 @@
 #include <Box2D/Box2D.h>
 #include "Character.h"
 #include "Event.h"
+#include "Random.h"
 #include <cstdlib>
 #include <time.h>
 #include <stack>
@@ -60,6 +61,7 @@ class Level
 {
 	public:
 		Level(void);
+		~Level(void);
 		void CreateStaticObject(float x, float y, float width, float height);
 		void CreateSensor(float x, float y, float width, float height);
 		b2Body* CreateDynamicObject(float x, float y, float width, float height);
@@ -73,6 +75,7 @@ class Level
 		void DrawLevelArray(sf::RenderWindow& window);
 		void SetRoom(deque<Room*> &dq);
 		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** tableauExemple, int w, int h, stack<Room*> &pile);
+		void GetTextureCoords(int* x, int* y, int center, int north, int east, int south, int west);
 
 	protected:
 
@@ -84,6 +87,7 @@ class Level
 		std::vector<std::vector<int> > m_array;
 		b2Vec2 m_startPosition;
 		JumpListener* m_listener;
+		Random* m_rand;
 
 };
 #endif // LEVEL_H

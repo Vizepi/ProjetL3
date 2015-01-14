@@ -3,9 +3,15 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
+, m_rand(new Random())
 {
 	m_listener = new JumpListener(&m_character);
 	m_world.SetContactListener(m_listener);
+}
+
+Level::~Level()
+{
+	delete m_rand;
 }
 
 //Fonction qui crée un objet statique dans box2d.
@@ -129,14 +135,14 @@ void Level::GenerateLevel()
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 
-	int rand_x = rand()%6;
-	int rand_y = rand()%6;
-	int rand_xend = rand()%6;
-	int rand_yend = rand()%6;
+	int rand_x = (m_rand->NextInt())%6;
+	int rand_y = (m_rand->NextInt())%6;
+	int rand_xend = (m_rand->NextInt())%6;
+	int rand_yend = (m_rand->NextInt())%6;
 	while(rand_x == rand_xend && rand_y == rand_yend)
 	{
-		rand_xend = rand()%6;
-		rand_yend = rand()%6;
+		rand_xend = (m_rand->NextInt())%6;
+		rand_yend = (m_rand->NextInt())%6;
 	}
 	printf("x de depart :%d\ny de depart:%d\n", rand_x, rand_y);
 	printf("x d'arrive :%d\ny d'arrive:%d\n", rand_xend, rand_yend);
@@ -251,7 +257,7 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 	pile.push(room);
 
 	bool north = false, south = false, east = false, west = false;
-	int r = rand()%4;
+	int r = (m_rand->NextInt())%4;
 	while(!(north && south && east && west))
 	{
 		switch(r)
@@ -314,181 +320,6 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 	return false;
 
 }
-/*
-
-bool IsAPath(int x, int y, int xe, int ye, bool** t, int w, int h, bool** tPas)
-{
-	printf("bouh\n");
-	std::cout << x << " " << y << " " << xe << " " << ye << " " << (t)[x][y] <<" " <<(tPas)[x][y]<< std::endl;
-	if(x < 0 || x >= w || y < 0 || y >= h || (t)[x][y] || (tPas)[x][y])
-	{
-		printf("Retourne faux ici\n");
-		return false;
-
-	}
-	if(x == xe && y == ye)
-	{
-		printf("Retourne vrai dans x==xe et y == ye\n");
-		tPas[x][y]= true;
-		return true;
-	}
-	tPas[x][y-1] = true;
-	if(IsAPath(x, y-1, xe, ye, t, w, h, tPas))
-	{
-		printf("Retourne vrai nord\n");
-		return true;
-	}
-	else
-	{
-		tPas[x][y-1] = false;
-		tPas[x-1][y] = true;
-		if(IsAPath(x-1, y, xe, ye, t, w, h, tPas))
-		{
-			printf("Retourne vrai ouest\n");
-			return true;
-		}
-		else
-		{
-			tPas[x-1][y]= false;
-			tPas[x][y+1]= true;
-			if(IsAPath(x, y+1, xe, ye, t, w, h, tPas))
-			{
-				printf("Retourne vrai sud\n");
-				return true;
-			}
-			else
-			{
-				tPas[x][y+1]= false;
-				tPas[x+1][y]= true;
-				if(IsAPath(x+1, y, xe, ye, t, w, h, tPas))
-				{
-					printf("Retourne vrai est\n");
-					return true;
-				}
-				else
-				{
-					printf("Retourne faux dans le dernier else\n");
-					tPas[x+1][y]= false;
-				}
-			}
-		}
-	}
-	printf("Fin du isAPath\n");
-	return false;
-}
-
-bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, bool** tableauExemple, int w, int h)
-{
-	int i;
-	printf("FindPpath\n");
-	bool** tPas = new bool*[6];
-	for(i = 0; i<6; i++)
-	{
-			tPas[i] = new bool[6];
-	}
-	for( i = 0; i<6; i++)
-	{
-		printf("boucle\n");
-		for(int j = 0; j<6; j++)
-		{
-			printf("le j\n");
-			tPas[i][j] = tableauExemple[i][j];
-		}
-	}
-	printf("quatre\n");
-	if(x == xend && y == yend && minDistance >= 0)
-	{
-		printf("un\n");
-		tableauExemple[x][y] = true;
-	}
-	if(IsAPath(x, y, xend, yend, tableauExemple, w, h, (bool**)(tPas)))
-	{
-		printf("deux\n");
-		bool ok = false;
-		while(!ok)
-		{
-			int random = rand() % 4;
-			switch(random)
-			{
-			case 0:
-				if(y-1 < 0)
-					break;
-				if(!(tableauExemple)[x][y-1])
-				{
-					(tableauExemple)[x][y] = true;
-					ok = FindPath(x, y-1, xend, yend, minDistance-1, tableauExemple, w, h);
-					if(!ok)
-						(tableauExemple)[x][y] = false;
-				}
-				break;
-			case 1:
-				if(y+1 >= h)
-					break;
-				if(!(tableauExemple)[x][y-1])
-				{
-					(tableauExemple)[x][y] = true;
-					ok = FindPath(x, y+1, xend, yend, minDistance-1, tableauExemple, w, h);
-					if(!ok)
-						(tableauExemple)[x][y] = false;
-				}
-				break;
-			case 2:
-				if(x-1 < 0)
-					break;
-				if(!(tableauExemple)[x-1][y])
-				{
-					(tableauExemple)[x][y] = true;
-					ok = FindPath(x-1, y, xend, yend, minDistance-1, tableauExemple, w, h);
-					if(!ok)
-						(tableauExemple)[x][y] = false;
-				}
-				break;
-			default:
-				if(x+1 >= w)
-					break;
-				if(!(tableauExemple)[x+1][y])
-				{
-					(tableauExemple)[x][y] = true;
-					ok = FindPath(x+1, y, xend, yend, minDistance-1, tableauExemple, w, h);
-					if(!ok)
-						(tableauExemple)[x][y] = false;
-				}
-				break;
-			}
-		}
-		for(i=0; i< 6; i++)
-		{
-			delete [] tPas[i];
-		}
-		delete [] tPas;
-		return true;
-	}
-	else
-	{
-		for(i=0; i< 6; i++)
-		{
-			delete [] tPas[i];
-		}
-		delete [] tPas;
-		printf("fin du FindPath\n");
-		return false;
-	}
-}
-*/
-
-/*function findPath(x, y, minDistance):
-    if (x,y is goal and minDistance == 0) return true
-    if (x,y not open) return false
-    mark x,y as part of layout path
-    switch(random number 1 out of 4):
-        case 1: if (findPath(North of x,y, minDistance - 1) == true) return true
-        case 2: if (findPath(East of x,y, minDistance - 1) == true) return true
-        case 3: if (findPath(South of x,y, minDistance - 1) == true) return true
-        case 4: if (findPath(West of x,y, minDistance - 1) == true) return true
-    unmark x,y as part of solution path
-    return false
-*/
-
 
 //Création du level test.
 void Level::CreateTestLevel()
@@ -700,7 +531,7 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 {
 	if(m_array.size() == 0)
 		return;
-	/*int arrayWidth = m_array.size();
+	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	sf::Sprite sprite;
 	sprite.setTexture(*RessourceLoader::GetTexture("Skin01"));
@@ -709,7 +540,23 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 	{
 		for(int j=0;j<arrayHeight;j++)
 		{
-			switch(m_array[i][j])
+			if(m_array[i][j] == lt_empty)
+				continue;
+			int x, y;
+			int north = lt_empty, south = lt_empty, east = lt_empty, west = lt_empty;
+			if(j-1 >= 0)
+				north = m_array[i][j-1];
+			if(j+1 < arrayHeight)
+				south = m_array[i][j+1];
+			if(i-1 >= 0)
+				east = m_array[i-1][j];
+			if(i+1 < arrayWidth)
+				west = m_array[i+1][j];
+			GetTextureCoords(&x, &y, m_array[i][j], north, east, south, west);
+			sprite.setTextureRect(sf::IntRect(RS_POS(x), RS_POS(y), RS_BLOC_SIZE, RS_BLOC_SIZE));
+			sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
+			window.draw(sprite);
+			/*switch(m_array[i][j])
 			{
 			case lt_cross://croisement entre une echelle et un sol
 				sprite.setTextureRect(CLIP_CROSS);
@@ -733,18 +580,327 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 				break;
 			default:
 				break;
-			}
+			}*/
 		}
-	}*/
-	b2Body* bodyIterator = m_world.GetBodyList();
+	}
+	/*b2Body* bodyIterator = m_world.GetBodyList();
 	while(bodyIterator)
 	{
 		sf::RectangleShape rs;
-		rs.setSize(sf::Vector2f(BLOC_SIZE, BLOC_SIZE));
+		float width = bodyIterator->GetFixtureList()->GetAABB(0).upperBound.x - bodyIterator->GetFixtureList()->GetAABB(0).lowerBound.x;
+		float height = bodyIterator->GetFixtureList()->GetAABB(0).upperBound.y - bodyIterator->GetFixtureList()->GetAABB(0).lowerBound.y;
+		rs.setSize(sf::Vector2f(width * SCALE, height * SCALE));
 		rs.setPosition(bodyIterator->GetPosition().x * SCALE, bodyIterator->GetPosition().y * SCALE);
-		rs.setFillColor(sf::Color(255, 0, 0));
+		rs.setFillColor(sf::Color(m_rand->NextInt()%255, m_rand->NextInt()%255, m_rand->NextInt()%255));
 		window.draw(rs);
 		bodyIterator = bodyIterator->GetNext();
+	}*/
+}
+
+void Level::GetTextureCoords(int* x, int* y, int center, int north, int east, int south, int west)
+{
+
+	switch(center)
+	{
+	case lt_ground:
+	case lt_solid:
+		switch(north) // Rien au dessus
+		{
+		case lt_empty:
+		case lt_ladder:
+			switch(south)
+			{
+			case lt_empty: // Rien en dessous
+			case lt_ladder:
+				switch(east)
+				{
+				case lt_empty: // Rien à droite
+				case lt_ladder:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 0;
+						*y = 0;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 1;
+						*y = 0;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				case lt_ground: // Bloc à droite
+				case lt_solid:
+				case lt_cross:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 3;
+						*y = 0;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 2;
+						*y = 0;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				default:
+					*x = 0;
+					*y = 0;
+					break;
+				}
+				break;
+			case lt_ground: // Bloc en dessous
+			case lt_solid:
+			case lt_cross:
+				switch(east)
+				{
+				case lt_empty: // Rien à droite
+				case lt_ladder:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 0;
+						*y = 1;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 1;
+						*y = 1;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				case lt_ground: // Bloc à droite
+				case lt_solid:
+				case lt_cross:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 3;
+						*y = 1;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 2;
+						*y = 1;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				default:
+					*x = 0;
+					*y = 0;
+					break;
+				}
+				break;
+			default:
+				*x = 0;
+				*y = 0;
+				break;
+			}
+			break;
+		case lt_ground: // Bloc au dessus
+		case lt_solid:
+		case lt_cross:
+			switch(south)
+			{
+			case lt_empty: // Rien en dessous
+			case lt_ladder:
+				switch(east)
+				{
+				case lt_empty: // Rien à droite
+				case lt_ladder:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 0;
+						*y = 3;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 1;
+						*y = 3;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				case lt_ground: // Bloc à droite
+				case lt_solid:
+				case lt_cross:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 3;
+						*y = 3;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 2;
+						*y = 3;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				default:
+					*x = 0;
+					*y = 0;
+					break;
+				}
+				break;
+			case lt_ground: // Bloc en dessous
+			case lt_solid:
+			case lt_cross:
+				switch(east)
+				{
+				case lt_empty: // Rien à droite
+				case lt_ladder:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 0;
+						*y = 2;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 1;
+						*y = 2;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				case lt_ground: // Bloc à droite
+				case lt_solid:
+				case lt_cross:
+					switch(west)
+					{
+					case lt_empty: // Rien à gauche
+					case lt_ladder:
+						*x = 3;
+						*y = 2;
+						break;
+					case lt_ground: // Bloc à gauche
+					case lt_solid:
+					case lt_cross:
+						*x = 2;
+						*y = 2;
+						break;
+					default:
+						*x = 0;
+						*y = 0;
+						break;
+					}
+					break;
+				default:
+					*x = 0;
+					*y = 0;
+					break;
+				}
+				break;
+			default:
+				*x = 0;
+				*y = 0;
+				break;
+			}
+			break;
+		default:
+			*x = 0;
+			*y = 0;
+			break;
+		}
+		break;
+	case lt_ladder:
+		*x = 2;
+		*y = 7;
+		return;
+	case lt_cross:
+		*y = 4;
+		switch(east)
+		{
+		case lt_empty:
+		case lt_ladder:
+			switch(west)
+			{
+			case lt_empty:
+			case lt_ladder:
+				*x = 0;
+				*y = 7;
+				break;
+			case lt_solid:
+			case lt_ground:
+			case lt_cross:
+				*x = 1;
+				break;
+			default:
+				break;
+			}
+			break;
+		case lt_solid:
+		case lt_ground:
+		case lt_cross:
+			switch(west)
+			{
+			case lt_empty:
+			case lt_ladder:
+				*x = 3;
+				break;
+			case lt_solid:
+			case lt_ground:
+			case lt_cross:
+				*x = 2;
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			*x = 0;
+			*y = 0;
+			break;
+		}
+		break;
+	default:
+		*x = 0;
+		*y = 0;
+		break;
 	}
 }
 
