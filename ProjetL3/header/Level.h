@@ -1,5 +1,6 @@
 #ifndef LEVEL_H
 #define LEVEL_H
+
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include "Character.h"
@@ -10,12 +11,15 @@
 #include <stack>
 #include <deque>
 #include <cassert>
+#include <cmath>
 
 using namespace std;
 
 //#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 //#define SINGLE_BODY_LEVEL
+#define LITTLE_BLOCS_PHYSIC
+//#define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
 #define WINDOW_HEIGHT 720
@@ -86,6 +90,7 @@ class Level
 		void CreateGenerateLevel(deque<Room*> &dq);
 		void CreateTestLevel(void);
 		void LoadLevelArray(void);
+		void DrawBackground(sf::RenderWindow& window);
 		void DrawLevelArray(sf::RenderWindow& window);
 		void SetRoom(deque<Room*> &dq);
 		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** tableauExemple, int w, int h, stack<Room*> &pile);
@@ -112,6 +117,7 @@ class Level
 		Animation* m_currentAnimation;
 		sf::Sprite m_coin;
 		Random* m_brokenLadderRandom;
+		int m_lastLightAlpha;
 
 };
 #endif // LEVEL_H

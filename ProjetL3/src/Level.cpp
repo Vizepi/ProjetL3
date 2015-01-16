@@ -7,6 +7,7 @@ Level::Level()
 , m_levelBody(NULL)
 #endif
 , m_rand(new Random())
+, m_lastLightAlpha(128)
 {
 	gagne = false;
 	m_listener = new JumpListener(&m_character);
@@ -150,11 +151,47 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 //Remplissage de la fenetre
 void Level::Draw(sf::RenderWindow& window)
 {
+	DrawBackground(window);
 	DrawLevelArray(window);
 	window.draw(tardis);
 	window.draw(emy);
 	window.draw(m_coin);
 	window.draw(*m_character.GetSprite());
+	// Creation de la lumière
+	#ifndef HIDE_LIGHT
+	int blackWidth = (WINDOW_WIDTH - 720) / 2;
+	int blackHeight = (WINDOW_HEIGHT - 720) / 2;
+	sf::RectangleShape blackRS;
+	blackRS.setFillColor(sf::Color::Black);
+	int winX = window.getView().getCenter().x - (window.getView().getSize().x)/2;
+	int winY = window.getView().getCenter().y - (window.getView().getSize().y)/2;
+	if(blackWidth > 0)
+	{
+		blackRS.setSize(sf::Vector2f(blackWidth+4, WINDOW_HEIGHT+4));
+		blackRS.setPosition(winX + 0.f-2, winY + 0.f-2);
+		window.draw(blackRS);
+		blackRS.setPosition(winX + 720.f-2+blackWidth, winY + 0.f-2);
+		window.draw(blackRS);
+	}
+	if(blackHeight > 0)
+	{
+		blackRS.setSize(sf::Vector2f(WINDOW_WIDTH+4, blackHeight+4));
+		blackRS.setPosition(winX + 0.f-2, winY + 0.f-2);
+		window.draw(blackRS);
+		blackRS.setPosition(winX + 0.f-2, winY + 720.f+blackHeight-2);
+		window.draw(blackRS);
+	}
+	sf::Sprite light(*RessourceLoader::GetTexture("Light"));
+	light.setPosition(winX + blackWidth, winY + blackHeight);
+	window.draw(light);
+	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
+	if(m_lastLightAlpha < 0)
+		m_lastLightAlpha = 0;
+	if(m_lastLightAlpha > 255)
+		m_lastLightAlpha = 255;
+	light.setColor(sf::Color(255, 255, 255, m_lastLightAlpha));
+	window.draw(light);
+	#endif
 }
 
 Character* Level::GetCharacter()
@@ -321,6 +358,7 @@ void Level::SetRoom(deque<Room*> &dq)
 		}
 	}
 }
+
 bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t, int w, int h, stack<Room*> &pile)
 {
 	//std::cout << /*x << " " << y << " " << xend << " " << yend << " " << minDistance*/ pile.size() << std::endl;
@@ -698,6 +736,7 @@ void Level::LoadLevelArray()
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
+	#ifdef LITTLE_BLOCS_PHYSIC
 	for(int i =0; i < arrayWidth; i++)
 	{
 		for(int j =0; j<arrayHeight; j++)
@@ -722,6 +761,7 @@ void Level::LoadLevelArray()
 
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
 	return;
+	#endif
 
 	std::vector<bool> mark;
 	for(int i=0;i<mul;i++)
@@ -879,6 +919,39 @@ void Level::LoadLevelArray()
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
 }
 
+void Level::DrawBackground(sf::RenderWindow& window)
+{
+	float coef = 2.f;
+	sf::Sprite backgroundTexture(*RessourceLoader::GetTexture("Background"));
+	int px = m_character.GetSprite()->getPosition().x / coef;
+	int py = m_character.GetSprite()->getPosition().y / coef;
+	int texX = backgroundTexture.getTexture()->getSize().x;
+	int texY = backgroundTexture.getTexture()->getSize().y;
+	while(std::abs(m_character.GetSprite()->getPosition().x - px) > texX)
+		px += texX;
+	while(std::abs(m_character.GetSprite()->getPosition().y - py) > texY)
+		py += texY;
+	// Dessine le font du niveau.
+	backgroundTexture.setPosition(px, py);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px-texX, py);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px, py-texY);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px-texX, py-texY);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px+texX, py-texY);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px-texX, py+texY);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px+texX, py);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px, py+texY);
+	window.draw(backgroundTexture);
+	backgroundTexture.setPosition(px+texX, py+texY);
+	window.draw(backgroundTexture);
+}
+
 //Dessine le tableau du niveau.
 void Level::DrawLevelArray(sf::RenderWindow& window)
 {
@@ -918,6 +991,8 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			}
 		}
 	}
+
+
 	delete m_brokenLadderRandom;
 	#else
 	b2Body* bodyIterator = m_world.GetBodyList();
