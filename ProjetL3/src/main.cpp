@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 	//Chargement du level test.
 	level.CreateTestLevel();
 
-	//level.GenerateLevel();
+	level.GenerateLevel();
 
 	//creation du monde dans box2d.
 	level.LoadLevelArray();

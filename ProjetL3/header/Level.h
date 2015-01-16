@@ -13,7 +13,7 @@
 
 using namespace std;
 
-#define SHOW_ALL_MAP
+//#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 //#define SINGLE_BODY_LEVEL
 
