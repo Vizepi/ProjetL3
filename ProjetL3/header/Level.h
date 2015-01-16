@@ -37,17 +37,12 @@ using namespace std;
 #define SOLID_MASK 0x3
 #define SENSOR_MASK 0xC
 
-#define CLIP_SOLID sf::IntRect(RS_POS(2), RS_POS(2), RS_BLOC_SIZE, RS_BLOC_SIZE)
-#define CLIP_GROUND sf::IntRect(RS_POS(2), RS_POS(1), RS_BLOC_SIZE, RS_BLOC_SIZE)
-#define CLIP_GROUNDWEST sf::IntRect(RS_POS(0), RS_POS(1), RS_BLOC_SIZE, RS_BLOC_SIZE)
-#define CLIP_GROUNDEAST sf::IntRect(RS_POS(0), RS_POS(3), RS_BLOC_SIZE, RS_BLOC_SIZE)
-#define CLIP_LADDER sf::IntRect(RS_POS(2), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE)
-#define CLIP_CROSS sf::IntRect(RS_POS(0), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE)
-
-#define MINIM_DISTANCE 12
-
 #define ROOM_WIDTH 10
 #define ROOM_HEIGHT 10
+#define LEVEL_WIDTH 6
+#define LEVEL_HEIGHT 6
+
+#define MINIM_DISTANCE ((int)(1.5 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
 
 enum LevelType
 {
@@ -87,6 +82,8 @@ class Level
 		Character* GetCharacter(void);
 		void GenerateLevel(void);
 		void CreateLevel(Room** t, deque<Room*> &dq);
+		void CreateWalls(deque<Room*> &dq);
+		void CreateGenerateLevel(deque<Room*> &dq);
 		void CreateTestLevel(void);
 		void LoadLevelArray(void);
 		void DrawLevelArray(sf::RenderWindow& window);
@@ -114,6 +111,7 @@ class Level
 		std::vector<Animation*> m_anim;
 		Animation* m_currentAnimation;
 		sf::Sprite m_coin;
+		Random* m_brokenLadderRandom;
 
 };
 #endif // LEVEL_H

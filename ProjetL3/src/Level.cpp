@@ -167,14 +167,14 @@ void Level::GenerateLevel()
 {
 	int i, j;
 
-	Room** tableauExemple = new Room*[6];
-	for(i = 0; i<6; i++)
+	Room** tableauExemple = new Room*[LEVEL_WIDTH];
+	for(i = 0; i<LEVEL_WIDTH; i++)
 	{
-			tableauExemple[i] = new Room[6];
+			tableauExemple[i] = new Room[LEVEL_HEIGHT];
 	}
-	for(i = 0; i<6; i++)
+	for(i = 0; i<LEVEL_WIDTH; i++)
 	{
-		for(j = 0; j<6; j++)
+		for(j = 0; j<LEVEL_HEIGHT; j++)
 		{
 			tableauExemple[i][j].North = false;
 			tableauExemple[i][j].South = false;
@@ -194,14 +194,14 @@ void Level::GenerateLevel()
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 
-	int rand_x = m_rand->NextInt(0, 5);
-	int rand_y = m_rand->NextInt(0, 5);
-	int rand_xend = m_rand->NextInt(0, 5);
-	int rand_yend = m_rand->NextInt(0, 5);
+	int rand_x = m_rand->NextInt(0, LEVEL_WIDTH-1);
+	int rand_y = m_rand->NextInt(0, LEVEL_HEIGHT-1);
+	int rand_xend = m_rand->NextInt(0, LEVEL_WIDTH-1);
+	int rand_yend = m_rand->NextInt(0, LEVEL_HEIGHT-1);
 	while(rand_x == rand_xend && rand_y == rand_yend)
 	{
-		rand_xend = m_rand->NextInt(0, 5);
-		rand_yend = m_rand->NextInt(0, 5);
+		rand_xend = m_rand->NextInt(0, LEVEL_WIDTH-1);
+		rand_yend = m_rand->NextInt(0, LEVEL_HEIGHT-1);
 	}
 	printf("x de depart :%d\ny de depart:%d\n", rand_x, rand_y);
 	printf("x d'arrive :%d\ny d'arrive:%d\n", rand_xend, rand_yend);
@@ -216,17 +216,17 @@ void Level::GenerateLevel()
 	pile.top()->South = false;
 	pile.top()->East = false;
 	pile.top()->West = false;
-	for(i = 0; i<6; i++)
+	for(i = 0; i<LEVEL_WIDTH; i++)
 	{
-		for(j = 0; j<6; j++)
+		for(j = 0; j<LEVEL_HEIGHT; j++)
 		{
 			printf("x :%d, j : %d, %d %d %d %d\n",tableauExemple[i][j].x, tableauExemple[i][j].y, tableauExemple[i][j].North,tableauExemple[i][j].East, tableauExemple[i][j].South, tableauExemple[i][j].West);
 		}
 		printf("\n");
 	}
-	for(j=0; j<6; j++)
+	for(j=0; j<LEVEL_HEIGHT; j++)
 	{
-		for(i=0; i<6; i++)
+		for(i=0; i<LEVEL_WIDTH; i++)
 		{
 			if(tableauExemple[i][j].North == true ||tableauExemple[i][j].South == true || tableauExemple[i][j].East == true || tableauExemple[i][j].West == true)
 			{
@@ -254,21 +254,22 @@ void Level::GenerateLevel()
 	{
 		std::cout << dq[i]->x<<" " <<dq[i]->y<<" "<<dq[i]->North<<" "<<dq[i]->East<<" "<<dq[i]->South<<" "<<dq[i]->West<< std::endl;
 		//On choisit un point au hasard dans chaque Room
-		dq[i]->rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
-		dq[i]->rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+		dq[i]->rand_x = m_rand->NextInt(1, ROOM_WIDTH-2);
+		dq[i]->rand_y = m_rand->NextInt(2, ROOM_HEIGHT-1);
+		std::cout << dq[i]->rand_x << " " << dq[i]->rand_y << std::endl;
 		if(i != 0)
 		{
 			while(dq[i]->rand_x == dq[i-1]->rand_x ||
 					dq[i]->rand_x == dq[i-1]->rand_x+1 ||
 					dq[i]->rand_x == dq[i-1]->rand_x-1)
 			{
-				dq[i]->rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+				dq[i]->rand_x = m_rand->NextInt(1, ROOM_WIDTH-2);
 			}
 			while(dq[i]->rand_y == dq[i-1]->rand_y ||
 					dq[i]->rand_y == dq[i-1]->rand_y+1 ||
 					dq[i]->rand_y == dq[i-1]->rand_y-1)
 			{
-				dq[i]->rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+				dq[i]->rand_y = m_rand->NextInt(2, ROOM_HEIGHT-1);
 			}
 		}
 	}
@@ -277,7 +278,7 @@ void Level::GenerateLevel()
 
 	tardis.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
 						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
-	m_coin.setPosition(sf::Vector2f(((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE),
+	emy.setPosition(sf::Vector2f(((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE),
 						(ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT));
 	//Pour supprimer le tableau
 	while(dq.size() > 0)
@@ -285,7 +286,7 @@ void Level::GenerateLevel()
 		delete dq.front();
 		dq.pop_front();
 	}
-	for(i=0; i< 6; i++)
+	for(i=0; i< LEVEL_WIDTH; i++)
 	{
 		delete [] tableauExemple[i];
 	}
@@ -364,7 +365,7 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 				north = true;
 				break;
 			case 1 :
-				if((y+1)>5 || south)
+				if((y+1)>LEVEL_HEIGHT-1 || south)
 				{
 					south = true;
 					break;
@@ -375,7 +376,7 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 				south = true;
 				break;
 			case 2 :
-				if((x+1)>5 || east)
+				if((x+1)>LEVEL_WIDTH-1 || east)
 				{
 					east = true;
 					break;
@@ -414,8 +415,8 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 //Création du level
 void Level::CreateLevel(Room** t, deque<Room*> &dq)
 {
-	int width = ROOM_WIDTH*6;
-	int height = ROOM_HEIGHT*6;
+	int width = ROOM_WIDTH*LEVEL_WIDTH;
+	int height = ROOM_HEIGHT*LEVEL_HEIGHT;
 	for(int i=m_array.size()-1;i>=0;i--)
 		m_array[i].clear();
 	m_array.clear();
@@ -494,7 +495,12 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 			else if(it == -1 && posY == p1y )
 				m_array[posX][posY] = lt_ground;
 			else
-				m_array[posX][posY] = lt_ladder;
+			{
+				if(m_array[posX][posY] != lt_empty)
+					m_array[posX][posY] = lt_cross;
+				else
+					m_array[posX][posY] = lt_ladder;
+			}
 			posY += it;
 		}
 		//Faire la plateforme de fin
@@ -506,12 +512,139 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 				m_array[p2x][p2y]= lt_ground;
 			for(int xf=p2x+1; xf<(p2x+4); xf++)
 			{
+				if(xf >= (int)m_array.size())
+					break;
 				m_array[xf][p2y] = lt_ground;
 			}
 			for(int xf=p2x-1; xf>(p2x-4); xf--)
 			{
+				if(xf < 0)
+					break;
 				m_array[xf][p2y] = lt_ground;
 			}
+		}
+	}
+	CreateGenerateLevel(dq);
+}
+
+void Level::CreateWalls(deque<Room*> &dq)
+{
+	for (int i=0; i < (signed)dq.size(); i++)
+	{
+		int roomX = dq[i]->x * ROOM_WIDTH;
+		int roomY = dq[i]->y * ROOM_HEIGHT;
+		if(!dq[i]->North)
+		{
+			for(int j=0;j<ROOM_WIDTH;j++)
+			{
+				m_array[roomX+j][roomY] = lt_solid;
+			}
+		}
+		if(!dq[i]->East)
+		{
+			for(int j=0;j<ROOM_HEIGHT;j++)
+			{
+				m_array[roomX+ROOM_WIDTH-1][roomY+j] = lt_solid;
+			}
+		}
+		if(!dq[i]->South)
+		{
+			for(int j=0;j<ROOM_WIDTH;j++)
+			{
+				m_array[roomX+j][roomY+ROOM_HEIGHT-1] = lt_solid;
+			}
+		}
+		if(!dq[i]->West)
+		{
+			for(int j=0;j<ROOM_HEIGHT;j++)
+			{
+				m_array[roomX][roomY+j] = lt_solid;
+			}
+		}
+	}
+}
+
+void Level::CreateGenerateLevel(deque<Room*> &dq)
+{
+
+	//nombre de platforme genere aleatoirement par bloc
+	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
+
+	int rand_x, rand_y, px, py;
+	int nbBlocs;
+	// Vectors contenant les points de chaque cross des plateformes
+	std::vector<int> crossX;
+	std::vector<int> crossY;
+	//Pour chaque room de la deque
+	for (int i=0; i < (signed)dq.size(); i++)
+	{
+		//Pour chaque platformes qui seront genere aléatoirement
+		for(int k=0; k< nbPlatforme; k++)
+		{
+			//On choisit un point au hasard dans chaque Room
+			rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+			rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+			cout<<"Valeurs aleatoire: "<<endl;
+			cout<<rand_x<<" "<<rand_y<<endl;
+			//On met à l'echelles les points.
+			px = ROOM_WIDTH * dq[i]->x + rand_x;
+			py = ROOM_HEIGHT * dq[i]->y + rand_y;
+			cout<<"Valeurs aleatoire 2: "<<endl;
+			cout<<px<<" "<<py<<endl;
+
+			//On test si il n'y a rien sur ce point, et sur les points au alentours.
+
+			while((m_array[px][py] != lt_empty && m_array[px][py] != lt_ladder) ||
+			(rand_y == dq[i]->rand_y-1))
+			{
+				rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+				rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+				px = ROOM_WIDTH * dq[i]->x + rand_x;
+				py = ROOM_HEIGHT * dq[i]->y + rand_y;
+			}
+			//longueur au hasard d'une platforme
+			nbBlocs = m_rand->NextInt(2, (ROOM_WIDTH*LEVEL_WIDTH)/5);
+			printf("Longueur bloc :%d\n", nbBlocs);
+			for(int l =0; l< nbBlocs; l++)
+			{
+				if(px+l>= (int)m_array.size() || px+l < 0 || py>= (int)m_array[0].size() || py<0)
+					continue;
+				// Si le bloc d'en dessous est solid, on ne le place pas
+				if(m_array[px+l][py+1] != lt_empty && m_array[px+l][py+1] != lt_ladder)
+				{
+					continue;
+				}
+				if(m_array[px+l][py] == lt_ladder || m_array[px+l][py] == lt_cross)
+				{
+					m_array[px+l][py] = lt_cross;
+				}
+				else
+				{
+					m_array[px+l][py]= lt_ground;
+				}
+			}
+			int randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
+			while(randCrossX >= (int)m_array.size())
+				randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
+			crossX.push_back(randCrossX);
+			crossY.push_back(py);
+		}
+	}
+
+	// Creation des murs des rooms
+	CreateWalls(dq);
+	// Generation des echelles
+	for(int i = crossX.size()-1;i>=0;i--)
+	{
+		int cX = crossX[i];
+		int cY = crossY[i];
+		if(cY+1 < (int)m_array[0].size() && (m_array[cX][cY+1] != lt_ground && m_array[cX][cY+1] != lt_solid))
+			m_array[cX][cY] = lt_cross;
+		cY++;
+		while(m_array[cX][cY] == lt_empty)
+		{
+			m_array[cX][cY] = lt_ladder;
+			cY++;
 		}
 	}
 }
@@ -757,6 +890,7 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 	sf::Sprite sprite;
 	sprite.setTexture(*RessourceLoader::GetTexture("Skin01"));
 	sprite.setScale(BLOC_SIZE/RS_BLOC_SIZE, BLOC_SIZE/RS_BLOC_SIZE);
+	m_brokenLadderRandom = new Random(68435);
 	for(int i=0;i<arrayWidth;i++)
 	{
 		for(int j=0;j<arrayHeight;j++)
@@ -777,8 +911,14 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			sprite.setTextureRect(sf::IntRect(RS_POS(x), RS_POS(y), RS_BLOC_SIZE, RS_BLOC_SIZE));
 			sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 			window.draw(sprite);
+			if(m_array[i][j] == lt_cross)
+			{
+				sprite.setTextureRect(sf::IntRect(RS_POS(2), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE));
+				window.draw(sprite);
+			}
 		}
 	}
+	delete m_brokenLadderRandom;
 	#else
 	b2Body* bodyIterator = m_world.GetBodyList();
 	while(bodyIterator)
@@ -1054,52 +1194,16 @@ void Level::GetTextureCoords(int* x, int* y, int center, int north, int east, in
 	case lt_ladder:
 		*x = 2;
 		*y = 7;
+		if(m_brokenLadderRandom->NextInt(0, 7) == 0)
+		{
+			if(m_brokenLadderRandom->NextBool())
+				*x = 1;
+			else
+				*x = 3;
+		}
 		return;
 	case lt_cross:
-		*y = 4;
-		switch(east)
-		{
-		case lt_empty:
-		case lt_ladder:
-			switch(west)
-			{
-			case lt_empty:
-			case lt_ladder:
-				*x = 0;
-				*y = 7;
-				break;
-			case lt_solid:
-			case lt_ground:
-			case lt_cross:
-				*x = 1;
-				break;
-			default:
-				break;
-			}
-			break;
-		case lt_solid:
-		case lt_ground:
-		case lt_cross:
-			switch(west)
-			{
-			case lt_empty:
-			case lt_ladder:
-				*x = 3;
-				break;
-			case lt_solid:
-			case lt_ground:
-			case lt_cross:
-				*x = 2;
-				break;
-			default:
-				break;
-			}
-			break;
-		default:
-			*x = 0;
-			*y = 0;
-			break;
-		}
+		GetTextureCoords(x, y, lt_solid, north, east, south, west);
 		break;
 	default:
 		*x = 0;
