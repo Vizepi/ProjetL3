@@ -43,10 +43,10 @@ using namespace std;
 
 #define ROOM_WIDTH 10
 #define ROOM_HEIGHT 10
-#define LEVEL_WIDTH 6
-#define LEVEL_HEIGHT 6
+#define LEVEL_WIDTH 10
+#define LEVEL_HEIGHT 10
 
-#define MINIM_DISTANCE ((int)(1.5 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
+#define MINIM_DISTANCE ((int)(2 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
 
 enum LevelType
 {
@@ -102,9 +102,6 @@ class Level
 		Event  m_event;
 		b2Vec2 m_gravity;
 		b2World m_world;
-		#ifdef SINGLE_BODY_LEVEL
-		b2Body* m_levelBody;
-		#endif
 		Character m_character;
 		std::vector<std::vector<int> > m_array;
 		b2Vec2 m_startPosition;

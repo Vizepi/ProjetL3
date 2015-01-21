@@ -3,9 +3,6 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
-#ifdef SINGLE_BODY_LEVEL
-, m_levelBody(NULL)
-#endif
 , m_rand(new Random())
 , m_lastLightAlpha(128)
 {
@@ -22,14 +19,6 @@ Level::Level()
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
-
-	#ifdef SINGLE_BODY_LEVEL
-	// Creation du corps physique du niveau
-	b2BodyDef bodyDef;
-	bodyDef.position = b2Vec2(0.f, 0.f);
-	bodyDef.type = b2_staticBody;
-	m_levelBody = m_world.CreateBody(&bodyDef);
-	#endif
 }
 
 Level::~Level()
@@ -40,7 +29,6 @@ Level::~Level()
 //Fonction qui crée un objet statique dans box2d.
 void Level::CreateStaticObject(float x, float y, float width, float height)
 {
-	#ifndef SINGLE_BODY_LEVEL
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
@@ -52,46 +40,28 @@ void Level::CreateStaticObject(float x, float y, float width, float height)
     FixtureDef.shape = &Shape;
     FixtureDef.isSensor = false;
     Body->CreateFixture(&FixtureDef);
-    #else
-    b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
-    b2FixtureDef FixtureDef;
-    FixtureDef.density = 1.f;
-    FixtureDef.shape = &Shape;
-    FixtureDef.isSensor = false;
-    m_levelBody->CreateFixture(&FixtureDef);
-    #endif
 }
 
 //Fonction qui crée un sensor dans box2d.
 void Level::CreateSensor(float x, float y, float width, float height)
 {
-	#ifndef SINGLE_BODY_LEVEL
 	b2BodyDef BodyDef;
-    BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
+    BodyDef.position = b2Vec2((x+2)/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
     b2Body* Body = m_world.CreateBody(&BodyDef);
     b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    Shape.SetAsBox(((width-4)/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
     FixtureDef.isSensor = true;
     FixtureDef.shape = &Shape;
     FixtureDef.density = 1.f;
     Body->CreateFixture(&FixtureDef);
-    #else
-    b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
-    b2FixtureDef FixtureDef;
-    FixtureDef.isSensor = true;
-    FixtureDef.shape = &Shape;
-    FixtureDef.density = 1.f;
-    m_levelBody->CreateFixture(&FixtureDef);
-    #endif
 }
 
 //Fonction qui crée un objet dynamique dans box2d.
 b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 {
+	// Rectangle de collision
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_dynamicBody;
@@ -104,10 +74,33 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
     FixtureDef.friction = 0.f;
     FixtureDef.shape = &Shape;
     Body->CreateFixture(&FixtureDef);
+/*
+    b2Vec2 points[3];
+    float bCenterX = width/2.f;
+    float bCenterY = height/2.f;
 
+    // Triangle glissant au sommet
+    b2PolygonShape triTop;
+    points[0].Set(0.f - bCenterX, 2.f/SCALE - bCenterY);
+    points[1].Set((width/2.f)/SCALE - bCenterX, 0.f - bCenterY);
+    points[2].Set(width/SCALE - bCenterX, 2.f/SCALE - bCenterY);
+    triTop.Set(points, 3);
+    FixtureDef.shape = &triTop;
+    Body->CreateFixture(&FixtureDef);
+
+    // Triangle glissant en dessous
+    b2PolygonShape triBot;
+    points[0].Set(0.f - bCenterX, (height-2.f)/SCALE - bCenterY);
+    points[1].Set(width/SCALE - bCenterX, (height-2.f)/SCALE - bCenterY);
+    points[2].Set((width/2.f)/SCALE - bCenterX, height/SCALE - bCenterY);
+    triBot.Set(points, 3);
+    FixtureDef.shape = &triBot;
+    Body->CreateFixture(&FixtureDef);
+*/
+	// Detecteur de sauts
 	b2FixtureDef fixtureDef;
     b2PolygonShape rectangle;
-	rectangle.SetAsBox(((width)/4.f)/SCALE,2/SCALE, b2Vec2(0, (height/2.f)/SCALE), 0.f);
+	rectangle.SetAsBox(((width)/4.f)/SCALE,2/SCALE, b2Vec2(0, (1+height/2.f)/SCALE), 0.f);
 	fixtureDef.shape = &rectangle;
 	fixtureDef.isSensor = true;
 	Body->CreateFixture(&fixtureDef);
@@ -140,11 +133,20 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 	{
 			gagne = true;
 	}
-
-
 	#ifndef SHOW_ALL_MAP
-	window.setView(sf::View(sf::Vector2f(m_character.GetBody()->GetPosition().x * SCALE, m_character.GetBody()->GetPosition().y * SCALE),
-					sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT)));
+	float cX = m_character.GetBody()->GetPosition().x * SCALE;
+	float cY = m_character.GetBody()->GetPosition().y * SCALE;
+	float wX = window.getSize().x;
+	float wY = window.getSize().y;
+	if(cX < wX/2.f)
+		cX = wX/2.f;
+	if(cX > m_array.size() * BLOC_SIZE - wX/2.f)
+		cX = m_array.size() * BLOC_SIZE - wX/2.f;
+	if(cY < wY/2.f)
+		cY = wY/2.f;
+	if(cY > m_array[0].size() * BLOC_SIZE - wY/2.f)
+		cY = m_array[0].size() * BLOC_SIZE - wY/2.f;
+	window.setView(sf::View(sf::Vector2f(cX, cY), sf::Vector2f(wX, wY)));
 	#endif
 }
 
@@ -159,30 +161,48 @@ void Level::Draw(sf::RenderWindow& window)
 	window.draw(*m_character.GetSprite());
 	// Creation de la lumière
 	#ifndef HIDE_LIGHT
-	int blackWidth = (WINDOW_WIDTH - 720) / 2;
-	int blackHeight = (WINDOW_HEIGHT - 720) / 2;
+	sf::Sprite light(*RessourceLoader::GetTexture("Light"));
+	int lightWidth = light.getTexture()->getSize().x;
+	int lightHeight = light.getTexture()->getSize().y;
+	int winW = window.getView().getSize().x;
+	int winH = window.getView().getSize().y;
+	int winX = window.getView().getCenter().x - winW/2;
+	int winY = window.getView().getCenter().y - winH/2;
+	int posChX = m_character.GetSprite()->getPosition().x;
+	int posChY = m_character.GetSprite()->getPosition().y;
+	int posLightX = posChX - (lightWidth / 2.f);
+	int posLightY = posChY - (lightHeight / 2.f);
+	int blackWidth0 = posLightX - winX;
+	int blackHeight0 = posLightY - winY;
+	int blackWidth1 = winX + winW - posLightX - lightWidth;
+	int blackHeight1 = winY + winH - posLightY - lightHeight;
 	sf::RectangleShape blackRS;
 	blackRS.setFillColor(sf::Color::Black);
-	int winX = window.getView().getCenter().x - (window.getView().getSize().x)/2;
-	int winY = window.getView().getCenter().y - (window.getView().getSize().y)/2;
-	if(blackWidth > 0)
+	if(blackWidth0 > 0)
 	{
-		blackRS.setSize(sf::Vector2f(blackWidth+4, WINDOW_HEIGHT+4));
-		blackRS.setPosition(winX + 0.f-2, winY + 0.f-2);
-		window.draw(blackRS);
-		blackRS.setPosition(winX + 720.f-2+blackWidth, winY + 0.f-2);
+		blackRS.setSize(sf::Vector2f(blackWidth0+4, winH+4));
+		blackRS.setPosition(winX - 2.f, winY - 2.f);
 		window.draw(blackRS);
 	}
-	if(blackHeight > 0)
+	if(blackWidth1 > 0)
 	{
-		blackRS.setSize(sf::Vector2f(WINDOW_WIDTH+4, blackHeight+4));
-		blackRS.setPosition(winX + 0.f-2, winY + 0.f-2);
-		window.draw(blackRS);
-		blackRS.setPosition(winX + 0.f-2, winY + 720.f+blackHeight-2);
+		blackRS.setSize(sf::Vector2f(blackWidth1+4, winH+4));
+		blackRS.setPosition(posLightX + lightWidth - 2.f, winY - 2.f);
 		window.draw(blackRS);
 	}
-	sf::Sprite light(*RessourceLoader::GetTexture("Light"));
-	light.setPosition(winX + blackWidth, winY + blackHeight);
+	if(blackHeight0 > 0)
+	{
+		blackRS.setSize(sf::Vector2f(winW+4, blackHeight0+4));
+		blackRS.setPosition(winX - 2.f, winY - 2.f);
+		window.draw(blackRS);
+	}
+	if(blackHeight1 > 0)
+	{
+		blackRS.setSize(sf::Vector2f(winW+4, blackHeight1+4));
+		blackRS.setPosition(winX - 2.f, posLightY + lightHeight - 2.f);
+		window.draw(blackRS);
+	}
+	light.setPosition(posLightX, posLightY);
 	window.draw(light);
 	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
 	if(m_lastLightAlpha < 0)
