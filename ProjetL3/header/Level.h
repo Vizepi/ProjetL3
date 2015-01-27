@@ -18,8 +18,8 @@ using namespace std;
 //#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 //#define SINGLE_BODY_LEVEL
-#define LITTLE_BLOCS_PHYSIC
-//#define HIDE_LIGHT
+//#define LITTLE_BLOCS_PHYSIC
+#define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
 #define WINDOW_HEIGHT 720

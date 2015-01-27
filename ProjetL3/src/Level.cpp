@@ -3,7 +3,7 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
-, m_rand(new Random())
+, m_rand(new Random(1548))
 , m_lastLightAlpha(128)
 {
 	gagne = false;
@@ -36,7 +36,7 @@ void Level::CreateStaticObject(float x, float y, float width, float height)
     b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
-    FixtureDef.density = 1.f;
+    FixtureDef.density = 10.f;
     FixtureDef.shape = &Shape;
     FixtureDef.isSensor = false;
     Body->CreateFixture(&FixtureDef);
@@ -54,7 +54,7 @@ void Level::CreateSensor(float x, float y, float width, float height)
     b2FixtureDef FixtureDef;
     FixtureDef.isSensor = true;
     FixtureDef.shape = &Shape;
-    FixtureDef.density = 1.f;
+    FixtureDef.density = 10.f;
     Body->CreateFixture(&FixtureDef);
 }
 
@@ -67,13 +67,19 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
     BodyDef.type = b2_dynamicBody;
     b2Body* Body = m_world.CreateBody(&BodyDef);
     Body->SetFixedRotation(true);
-    b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    //b2PolygonShape Shape;
+    //Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    b2CircleShape Shape;
+    Shape.m_radius = (width /2.f) /SCALE;
     b2FixtureDef FixtureDef;
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
-    FixtureDef.shape = &Shape;
+	b2MassData mdata;
+	mdata.mass = 10.f;
+	mdata.center = b2Vec2(0, 0);
+	mdata.I = 0;
     Body->CreateFixture(&FixtureDef);
+    Body->SetMassData(&mdata);
 /*
     b2Vec2 points[3];
     float bCenterX = width/2.f;
@@ -780,6 +786,7 @@ void Level::LoadLevelArray()
 	}
 
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
+
 	return;
 	#endif
 
@@ -808,6 +815,7 @@ void Level::LoadLevelArray()
 		{
 			if(!mark[i * arrayWidth + j]) // Si on n'est pas encore passé sur le bloc
 			{
+						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
 				{
 					mark[i * arrayWidth + j] = true;
@@ -820,6 +828,7 @@ void Level::LoadLevelArray()
 					if(state == 0) // Debut de rectangle
 					{
 						mark[currentX * arrayWidth + currentY] = true;
+						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 						prev[0] = m_array[i][j];
 						prev[1] = i;
 						prev[2] = j;
@@ -843,6 +852,7 @@ void Level::LoadLevelArray()
 						}
 						else
 						{
+						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
 							{
 								width++;
@@ -867,6 +877,7 @@ void Level::LoadLevelArray()
 						for(int k=prev[1];k<lineEnd;k++)
 						{
 							// Ligne non terminée.
+						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 							if(!SAME_LEVELTYPE(m_array[k][currentY],  prev[0]))
 							{
 								isOk = false;
