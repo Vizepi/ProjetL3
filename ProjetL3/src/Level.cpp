@@ -3,7 +3,7 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
-, m_rand(new Random())
+, m_rand(new Random(0))
 , m_lastLightAlpha(128)
 {
 	gagne = false;
@@ -625,10 +625,83 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 	// Creation des murs des rooms
 	CreateWalls(dq);
 
-	//nombre de platforme genere aleatoirement par rrom
+	//nombre de platforme genere aleatoirement par bloc
 	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
 
+	int rand_x, rand_y, px, py;
+	int nbBlocs;
+	// Vectors contenant les points de chaque cross des plateformes
+	std::vector<int> crossX;
+	std::vector<int> crossY;
+	//Pour chaque room de la deque
+	for (int i=0; i < (signed)dq.size(); i++)
+	{
+		//Pour chaque platformes qui seront genere aléatoirement
+		for(int k=0; k< nbPlatforme; k++)
+		{
+			//On choisit un point au hasard dans chaque Room
+			rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+			rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+			cout<<"Valeurs aleatoire: "<<endl;
+			cout<<rand_x<<" "<<rand_y<<endl;
+			//On met à l'echelles les points.
+			px = ROOM_WIDTH * dq[i]->x + rand_x;
+			py = ROOM_HEIGHT * dq[i]->y + rand_y;
+			cout<<"Valeurs aleatoire 2: "<<endl;
+			cout<<px<<" "<<py<<endl;
 
+			//On test si il n'y a rien sur ce point, et sur les points au alentours.
+
+			while((m_array[px][py] != lt_empty && m_array[px][py] != lt_ladder) ||
+			(rand_y == dq[i]->rand_y-1))
+			{
+				rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
+				rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
+				px = ROOM_WIDTH * dq[i]->x + rand_x;
+				py = ROOM_HEIGHT * dq[i]->y + rand_y;
+			}
+			//longueur au hasard d'une platforme
+			nbBlocs = m_rand->NextInt(2, (ROOM_WIDTH*LEVEL_WIDTH)/5);
+			printf("Longueur bloc :%d\n", nbBlocs);
+			for(int l =0; l< nbBlocs; l++)
+			{
+				if(px+l>= (int)m_array.size() || px+l < 0 || py>= (int)m_array[0].size() || py<0)
+					continue;
+				// Si le bloc d'en dessous est solid, on ne le place pas
+				if(m_array[px+l][py+1] != lt_empty && m_array[px+l][py+1] != lt_ladder)
+				{
+					continue;
+				}
+				if(m_array[px+l][py] == lt_ladder || m_array[px+l][py] == lt_cross)
+				{
+					m_array[px+l][py] = lt_cross;
+				}
+				else
+				{
+					m_array[px+l][py]= lt_ground;
+				}
+			}
+			int randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
+			while(randCrossX >= (int)m_array.size())
+				randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
+			crossX.push_back(randCrossX);
+			crossY.push_back(py);
+		}
+	}
+	// Generation des echelles
+	for(int i = crossX.size()-1;i>=0;i--)
+	{
+		int cX = crossX[i];
+		int cY = crossY[i];
+		if(cY+1 < (int)m_array[0].size() && (m_array[cX][cY+1] != lt_ground && m_array[cX][cY+1] != lt_solid))
+			m_array[cX][cY] = lt_cross;
+		cY++;
+		while(m_array[cX][cY] == lt_empty)
+		{
+			m_array[cX][cY] = lt_ladder;
+			cY++;
+		}
+	}
 
 	//Appel de la fonction pour mettre les pieces
 	PutCoin();
