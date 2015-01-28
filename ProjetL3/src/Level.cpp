@@ -3,7 +3,7 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
-, m_rand(new Random(1548))
+, m_rand(new Random())
 , m_lastLightAlpha(128)
 {
 	gagne = false;
@@ -67,19 +67,20 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
     BodyDef.type = b2_dynamicBody;
     b2Body* Body = m_world.CreateBody(&BodyDef);
     Body->SetFixedRotation(true);
-    //b2PolygonShape Shape;
-    //Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
-    b2CircleShape Shape;
-    Shape.m_radius = (width /2.f) /SCALE;
+	b2PolygonShape Shape;
+    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    //b2CircleShape Shape;
+   // Shape.m_radius = (width /2.f) /SCALE;
     b2FixtureDef FixtureDef;
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
-	b2MassData mdata;
-	mdata.mass = 10.f;
-	mdata.center = b2Vec2(0, 0);
-	mdata.I = 0;
+    FixtureDef.shape = &Shape;
+	//b2MassData mdata;
+	//mdata.mass = 10.f;
+	//mdata.center = b2Vec2(0, 0);
+	//mdata.I = 0;
     Body->CreateFixture(&FixtureDef);
-    Body->SetMassData(&mdata);
+   // Body->SetMassData(&mdata);
 /*
     b2Vec2 points[3];
     float bCenterX = width/2.f;
@@ -163,8 +164,13 @@ void Level::Draw(sf::RenderWindow& window)
 	DrawLevelArray(window);
 	window.draw(tardis);
 	window.draw(emy);
-	window.draw(m_coin);
+	//window.draw(m_coin);
 	window.draw(*m_character.GetSprite());
+	for(int i=0; i< NB_COINS; i++)
+	{
+		m_coin.setPosition(m_coins[i].x * BLOC_SIZE, m_coins[i].y * BLOC_SIZE);
+		window.draw(m_coin);
+	}
 	// Creation de la lumière
 	#ifndef HIDE_LIGHT
 	sf::Sprite light(*RessourceLoader::GetTexture("Light"));
@@ -268,7 +274,6 @@ void Level::GenerateLevel()
 	}
 	printf("x de depart :%d\ny de depart:%d\n", rand_x, rand_y);
 	printf("x d'arrive :%d\ny d'arrive:%d\n", rand_xend, rand_yend);
-	printf("hauteur : %d\nlargeur : %d\n", arrayWidth, arrayHeight);
 
 	FindPath(rand_x, rand_y, rand_xend, rand_yend, MINIM_DISTANCE, (Room**)(tableauExemple), arrayWidth, arrayHeight, pile);
 	Room* r_end = new Room();
@@ -279,47 +284,21 @@ void Level::GenerateLevel()
 	pile.top()->South = false;
 	pile.top()->East = false;
 	pile.top()->West = false;
-	for(i = 0; i<LEVEL_WIDTH; i++)
-	{
-		for(j = 0; j<LEVEL_HEIGHT; j++)
-		{
-			printf("x :%d, j : %d, %d %d %d %d\n",tableauExemple[i][j].x, tableauExemple[i][j].y, tableauExemple[i][j].North,tableauExemple[i][j].East, tableauExemple[i][j].South, tableauExemple[i][j].West);
-		}
-		printf("\n");
-	}
-	for(j=0; j<LEVEL_HEIGHT; j++)
-	{
-		for(i=0; i<LEVEL_WIDTH; i++)
-		{
-			if(tableauExemple[i][j].North == true ||tableauExemple[i][j].South == true || tableauExemple[i][j].East == true || tableauExemple[i][j].West == true)
-			{
-				std::cout <<"1 ";
-			}
-			else
-			{
-				std::cout <<"0 ";
-			}
-		}
-		std::cout <<"\n";
-	}
 	//Création d'une deque
 	deque<Room*> dq;
 	printf("Pile :\n");
 	while(!pile.empty())
 	{
 		dq.push_front(pile.top());
-		std::cout<<pile.top()->x<<" "<<pile.top()->y<<std::endl;
 		pile.pop();
 	}
 	printf("Deque :\n");
 	SetRoom(dq);
 	for (i=0; i<(signed)dq.size(); i++)
 	{
-		std::cout << dq[i]->x<<" " <<dq[i]->y<<" "<<dq[i]->North<<" "<<dq[i]->East<<" "<<dq[i]->South<<" "<<dq[i]->West<< std::endl;
 		//On choisit un point au hasard dans chaque Room
 		dq[i]->rand_x = m_rand->NextInt(1, ROOM_WIDTH-2);
 		dq[i]->rand_y = m_rand->NextInt(2, ROOM_HEIGHT-1);
-		std::cout << dq[i]->rand_x << " " << dq[i]->rand_y << std::endl;
 		if(i != 0)
 		{
 			while(dq[i]->rand_x == dq[i-1]->rand_x ||
@@ -341,8 +320,19 @@ void Level::GenerateLevel()
 
 	tardis.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
 						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
-	emy.setPosition(sf::Vector2f(((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE),
-						(ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT));
+	int x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
+	int y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT;
+	emy.setPosition(sf::Vector2f(x,y));
+
+	//Pour eviter qu'Amy soit dans le mur
+	//PLANTE DES FOIS ! SEGFAULT !
+	while(m_array[emy.getPosition().x/BLOC_SIZE][emy.getPosition().y/BLOC_SIZE] == lt_solid)
+	{
+		x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
+		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT;
+		emy.setPosition(sf::Vector2f(x,y));
+	}
+
 	//Pour supprimer le tableau
 	while(dq.size() > 0)
 	{
@@ -390,7 +380,6 @@ bool Level::FindPath(int x, int y, int xend, int yend, int minDistance, Room** t
 	//std::cout << /*x << " " << y << " " << xend << " " << yend << " " << minDistance*/ pile.size() << std::endl;
 	if((minDistance == 0 || minDistance == -1) && (x == xend && y == yend))
 	{
-		std::cout << "found" <<std::endl;
 		return true;
 	}
 	if((minDistance < -1) || (x == xend && y == yend) || t[x][y].North == true ||t[x][y].South == true || t[x][y].East == true || t[x][y].West == true)
@@ -516,6 +505,8 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 			}
 		}
 	}
+	// Creation des murs des rooms
+	CreateWalls(dq);
 
 	for(int i = 0; i< (signed)dq.size()-1; i++)
 	{
@@ -631,88 +622,39 @@ void Level::CreateWalls(deque<Room*> &dq)
 void Level::CreateGenerateLevel(deque<Room*> &dq)
 {
 
-	//nombre de platforme genere aleatoirement par bloc
-	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
-
-	int rand_x, rand_y, px, py;
-	int nbBlocs;
-	// Vectors contenant les points de chaque cross des plateformes
-	std::vector<int> crossX;
-	std::vector<int> crossY;
-	//Pour chaque room de la deque
-	for (int i=0; i < (signed)dq.size(); i++)
-	{
-		//Pour chaque platformes qui seront genere aléatoirement
-		for(int k=0; k< nbPlatforme; k++)
-		{
-			//On choisit un point au hasard dans chaque Room
-			rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
-			rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
-			cout<<"Valeurs aleatoire: "<<endl;
-			cout<<rand_x<<" "<<rand_y<<endl;
-			//On met à l'echelles les points.
-			px = ROOM_WIDTH * dq[i]->x + rand_x;
-			py = ROOM_HEIGHT * dq[i]->y + rand_y;
-			cout<<"Valeurs aleatoire 2: "<<endl;
-			cout<<px<<" "<<py<<endl;
-
-			//On test si il n'y a rien sur ce point, et sur les points au alentours.
-
-			while((m_array[px][py] != lt_empty && m_array[px][py] != lt_ladder) ||
-			(rand_y == dq[i]->rand_y-1))
-			{
-				rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
-				rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
-				px = ROOM_WIDTH * dq[i]->x + rand_x;
-				py = ROOM_HEIGHT * dq[i]->y + rand_y;
-			}
-			//longueur au hasard d'une platforme
-			nbBlocs = m_rand->NextInt(2, (ROOM_WIDTH*LEVEL_WIDTH)/5);
-			printf("Longueur bloc :%d\n", nbBlocs);
-			for(int l =0; l< nbBlocs; l++)
-			{
-				if(px+l>= (int)m_array.size() || px+l < 0 || py>= (int)m_array[0].size() || py<0)
-					continue;
-				// Si le bloc d'en dessous est solid, on ne le place pas
-				if(m_array[px+l][py+1] != lt_empty && m_array[px+l][py+1] != lt_ladder)
-				{
-					continue;
-				}
-				if(m_array[px+l][py] == lt_ladder || m_array[px+l][py] == lt_cross)
-				{
-					m_array[px+l][py] = lt_cross;
-				}
-				else
-				{
-					m_array[px+l][py]= lt_ground;
-				}
-			}
-			int randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
-			while(randCrossX >= (int)m_array.size())
-				randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
-			crossX.push_back(randCrossX);
-			crossY.push_back(py);
-		}
-	}
-
 	// Creation des murs des rooms
 	CreateWalls(dq);
-	// Generation des echelles
-	for(int i = crossX.size()-1;i>=0;i--)
-	{
-		int cX = crossX[i];
-		int cY = crossY[i];
-		if(cY+1 < (int)m_array[0].size() && (m_array[cX][cY+1] != lt_ground && m_array[cX][cY+1] != lt_solid))
-			m_array[cX][cY] = lt_cross;
-		cY++;
-		while(m_array[cX][cY] == lt_empty)
-		{
-			m_array[cX][cY] = lt_ladder;
-			cY++;
-		}
-	}
+
+	//nombre de platforme genere aleatoirement par rrom
+	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
+
+
+
+	//Appel de la fonction pour mettre les pieces
+	PutCoin();
 }
 
+void Level::PutCoin()
+{
+	m_coins.reserve(NB_COINS);
+	for(int i =0; i< NB_COINS; i++)
+	{
+		int rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);
+		int rand_y = m_rand->NextInt(0,ROOM_HEIGHT*LEVEL_HEIGHT-1);
+		while(m_array[rand_x][rand_y] != lt_empty)
+		{
+			rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);
+			rand_y = m_rand->NextInt(0,ROOM_HEIGHT*LEVEL_HEIGHT-1);
+		}
+		int cY = rand_y;
+		while(m_array[rand_x][cY+1] == lt_empty)
+		{
+			cY++;
+		}
+		m_coins.push_back(sf::Vector2i(rand_x, cY));
+
+	}
+}
 //Création du level test.
 void Level::CreateTestLevel()
 {

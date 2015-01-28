@@ -17,8 +17,7 @@ using namespace std;
 
 //#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
-//#define SINGLE_BODY_LEVEL
-//#define LITTLE_BLOCS_PHYSIC
+#define LITTLE_BLOCS_PHYSIC
 #define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
@@ -41,12 +40,14 @@ using namespace std;
 #define SOLID_MASK 0x3
 #define SENSOR_MASK 0xC
 
-#define ROOM_WIDTH 10
-#define ROOM_HEIGHT 10
-#define LEVEL_WIDTH 10
-#define LEVEL_HEIGHT 10
+#define ROOM_WIDTH 15
+#define ROOM_HEIGHT 15
+#define LEVEL_WIDTH 6
+#define LEVEL_HEIGHT 6
 
 #define MINIM_DISTANCE ((int)(2 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
+
+#define NB_COINS 50
 
 enum LevelType
 {
@@ -88,6 +89,7 @@ class Level
 		void CreateLevel(Room** t, deque<Room*> &dq);
 		void CreateWalls(deque<Room*> &dq);
 		void CreateGenerateLevel(deque<Room*> &dq);
+		void PutCoin(void);
 		void CreateTestLevel(void);
 		void LoadLevelArray(void);
 		void DrawBackground(sf::RenderWindow& window);
@@ -104,6 +106,7 @@ class Level
 		b2World m_world;
 		Character m_character;
 		std::vector<std::vector<int> > m_array;
+		std::vector<sf::Vector2i> m_coins;
 		b2Vec2 m_startPosition;
 		JumpListener* m_listener;
 		Random* m_rand;
