@@ -15,10 +15,10 @@
 
 using namespace std;
 
-#define SHOW_ALL_MAP
+//#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 #define LITTLE_BLOCS_PHYSIC
-#define HIDE_LIGHT
+//#define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
 #define WINDOW_HEIGHT 720
@@ -118,6 +118,7 @@ class Level
 		sf::Sprite m_coin;
 		Random* m_brokenLadderRandom;
 		int m_lastLightAlpha;
+		int m_coinsGet;
 
 };
 #endif // LEVEL_H

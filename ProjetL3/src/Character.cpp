@@ -138,5 +138,13 @@ void JumpListener::EndContact(b2Contact* contact)
 		(contact->GetFixtureA()->GetBody() == m_character->GetBody() && !contact->GetFixtureA()->IsSensor())))
 	{
 		m_character->EnableClimb(false);
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		{
+			m_character->SetAnimation(LOOK_LEFT, ANIM_PLAY);
+		}
+		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		{
+			m_character->SetAnimation(LOOK_RIGHT, ANIM_PLAY);
+		}
 	}
 }

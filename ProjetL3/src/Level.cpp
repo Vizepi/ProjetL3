@@ -3,8 +3,9 @@
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
 , m_world(b2World(m_gravity))
-, m_rand(new Random(0))
+, m_rand(new Random())
 , m_lastLightAlpha(128)
+, m_coinsGet(0)
 {
 	gagne = false;
 	m_listener = new JumpListener(&m_character);
@@ -155,6 +156,11 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 		cY = m_array[0].size() * BLOC_SIZE - wY/2.f;
 	window.setView(sf::View(sf::Vector2f(cX, cY), sf::Vector2f(wX, wY)));
 	#endif
+	// Get coins
+	for(int i=m_coins.size()-1;i>=0;i--)
+	{
+
+	}
 }
 
 //Remplissage de la fenetre
@@ -627,7 +633,7 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 
 	//nombre de platforme genere aleatoirement par bloc
 	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
-
+/*
 	int rand_x, rand_y, px, py;
 	int nbBlocs;
 	// Vectors contenant les points de chaque cross des plateformes
@@ -693,6 +699,140 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 	{
 		int cX = crossX[i];
 		int cY = crossY[i];
+		if(cY+1 < (int)m_array[0].size() && (m_array[cX][cY+1] != lt_ground && m_array[cX][cY+1] != lt_solid))
+			m_array[cX][cY] = lt_cross;
+		cY++;
+		while(m_array[cX][cY] == lt_empty)
+		{
+			m_array[cX][cY] = lt_ladder;
+			cY++;
+		}
+	}
+*/
+
+	int dqCount = dq.size();
+
+	std::vector<int> globalCrossX;
+	std::vector<int> globalCrossY;
+
+	for(int i=0;i<dqCount;i++)
+	{
+		int roomOriginX = dq[i]->x * ROOM_WIDTH;
+		int roomOriginY = dq[i]->y * ROOM_HEIGHT + 1;
+		int roomSizeX = ROOM_WIDTH;
+		int roomSizeY = ROOM_HEIGHT - 2;
+		int offsetX = 0, offsetY = 0;
+		std::vector<int> crossX;
+		std::vector<int> crossY;
+		crossX.push_back(dq[i]->rand_x);
+		crossY.push_back(dq[i]->rand_y);
+		if(!dq[i]->North)
+		{
+			offsetX++;
+			roomOriginY++;
+			roomSizeY--;
+		}
+		if(!dq[i]->East)
+		{
+			roomSizeX--;
+		}
+		if(!dq[i]->South)
+		{
+			roomSizeY--;
+		}
+		if(!dq[i]->West)
+		{
+			offsetX++;
+			roomOriginX++;
+			roomSizeX--;
+		}
+
+		for(int j=0;j<nbPlatforme;j++)
+		{
+			int generateX = 0, generateY = 0;
+			bool valid = true;
+			do
+			{
+				valid = true;
+				generateX = m_rand->NextInt(offsetX, roomSizeX-1);
+				generateY = m_rand->NextInt(offsetY, roomSizeY-1);
+				for(int k=crossX.size()-1;k>=0;k--)
+				{
+					if(	generateX + 1 == crossX[k] || generateX - 1 == crossX[k] ||
+						generateY + 1 == crossY[k] || generateY - 1 == crossY[k])
+					{
+						valid = false;
+						break;
+					}
+				}
+				if(valid)
+				{
+					int realX = generateX + roomOriginX;
+					int realY = generateY + roomOriginY;
+					if(	SAME_LEVELTYPE(m_array[realX][realY], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX][realY+1], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX][realY-1], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX+1][realY], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX-1][realY], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX+1][realY+1], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX-1][realY-1], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX-1][realY+1], lt_ground) ||
+						SAME_LEVELTYPE(m_array[realX+1][realY-1], lt_ground))
+					{
+						valid = false;
+					}
+				}
+			} while(!valid);
+
+			m_array[generateX + roomOriginX][generateY + roomOriginY] = lt_cross;
+			crossX.push_back(generateX);
+			crossY.push_back(generateY);
+			globalCrossX.push_back(generateX + roomOriginX);
+			globalCrossY.push_back(generateY + roomOriginY);
+
+			// Agrandire la platforme
+			int leftSpace = generateX;
+			int rightSpace = ROOM_WIDTH - generateX - 1;
+			int leftRand = m_rand->NextInt(1, leftSpace);
+			int rightRand = m_rand->NextInt(1, rightSpace);
+			for(int l=0;l<leftRand;l++)
+			{
+				if(	SAME_LEVELTYPE(m_array[generateX + roomOriginX - l+1][generateY + roomOriginY+1], lt_ground) ||
+					SAME_LEVELTYPE(m_array[generateX + roomOriginX - l-1][generateY + roomOriginY-1], lt_ground) ||
+					SAME_LEVELTYPE(m_array[generateX + roomOriginX - l-1][generateY + roomOriginY+1], lt_ground) ||
+					SAME_LEVELTYPE(m_array[generateX + roomOriginX - l+1][generateY + roomOriginY-1], lt_ground))
+				{
+					break;
+				}
+				if(	m_array[generateX + roomOriginX - l][generateY + roomOriginY] == lt_ladder ||
+					m_array[generateX + roomOriginX - l][generateY + roomOriginY] == lt_cross)
+					m_array[generateX + roomOriginX - l][generateY + roomOriginY] = lt_cross;
+				else
+					m_array[generateX + roomOriginX - l][generateY + roomOriginY] = lt_ground;
+			}
+			for(int l=0;l<rightRand;l++)
+			{
+				if(	SAME_LEVELTYPE(m_array[generateX + roomOriginX + l+1][generateY + roomOriginY+1], lt_ground) ||
+					SAME_LEVELTYPE(m_array[generateX + roomOriginX + l-1][generateY + roomOriginY-1], lt_ground) ||
+					SAME_LEVELTYPE(m_array[generateX + roomOriginX + l-1][generateY + roomOriginY+1], lt_ground) ||
+					SAME_LEVELTYPE(m_array[generateX + roomOriginX + l+1][generateY + roomOriginY-1], lt_ground))
+				{
+					break;
+				}
+				if(	m_array[generateX + roomOriginX + l][generateY + roomOriginY] == lt_ladder ||
+					m_array[generateX + roomOriginX + l][generateY + roomOriginY] == lt_cross)
+					m_array[generateX + roomOriginX + l][generateY + roomOriginY] = lt_cross;
+				else
+					m_array[generateX + roomOriginX + l][generateY + roomOriginY] = lt_ground;
+			}
+		}
+	}
+
+	// Generation des echelles
+	for(int i = globalCrossX.size()-1;i>=0;i--)
+	{
+		int cX = globalCrossX[i];
+		int cY = globalCrossY[i];
 		if(cY+1 < (int)m_array[0].size() && (m_array[cX][cY+1] != lt_ground && m_array[cX][cY+1] != lt_solid))
 			m_array[cX][cY] = lt_cross;
 		cY++;

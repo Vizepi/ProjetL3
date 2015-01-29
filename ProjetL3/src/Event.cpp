@@ -17,7 +17,7 @@ void Event::event(sf::RenderWindow& window, Character& character)
 			switch(event.key.code)
 			{
 			case sf::Keyboard::Down:
-				if(character.GetCurrentDirection() == LOOK_DOWN)
+				if(character.GetCurrentDirection() == LOOK_UP)
 				{
 					character.GetCurrentAnimation()->Stop();
 				}
@@ -67,23 +67,29 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				if(character.IsClimbEnabled())
 				{
 					character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, CHARACTER_VELOCITY));
+					character.SetAnimation(LOOK_UP, ANIM_PLAY);
 				}
-				character.SetAnimation(LOOK_DOWN, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Left:
 				character.GetBody()->SetLinearVelocity(b2Vec2(-CHARACTER_VELOCITY, character.GetBody()->GetLinearVelocity().y));
-				character.SetAnimation(LOOK_LEFT, ANIM_PLAY);
+				if(!character.IsClimbEnabled())
+				{
+					character.SetAnimation(LOOK_LEFT, ANIM_PLAY);
+				}
 				break;
 			case sf::Keyboard::Right:
 				character.GetBody()->SetLinearVelocity(b2Vec2(CHARACTER_VELOCITY, character.GetBody()->GetLinearVelocity().y));
-				character.SetAnimation(LOOK_RIGHT, ANIM_PLAY);
+				if(!character.IsClimbEnabled())
+				{
+					character.SetAnimation(LOOK_RIGHT, ANIM_PLAY);
+				}
 				break;
 			case sf::Keyboard::Up:
 				if(character.IsClimbEnabled())
 				{
 					character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, -CHARACTER_VELOCITY));
+					character.SetAnimation(LOOK_UP, ANIM_PLAY);
 				}
-				character.SetAnimation(LOOK_UP, ANIM_PLAY);
 				break;
 			case sf::Keyboard::Space:
 				if(character.IsJumpEnabled() && !character.IsClimbEnabled())
