@@ -159,7 +159,19 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 	// Get coins
 	for(int i=m_coins.size()-1;i>=0;i--)
 	{
-
+		//If le docteur est en colision avec une piece
+			//On incremente de 1 le m_coinsGet
+			//On supprime le coin dans m_coin.erase[i]
+		int posx_coin = m_coins[i].x*BLOC_SIZE+16;
+		int posy_coin = m_coins[i].y*BLOC_SIZE+16;
+		if(m_character.GetSprite()->getGlobalBounds().contains(posx_coin, posy_coin))
+		{
+				m_coinsGet++;
+				m_coins.erase(m_coins.begin()+i);
+				printf("Nombres de pieces :%d\n", m_coinsGet);
+				printf("Index : %d, reste %d\n", i, m_coins.size());
+				break;
+		}
 	}
 }
 
@@ -172,7 +184,8 @@ void Level::Draw(sf::RenderWindow& window)
 	window.draw(emy);
 	//window.draw(m_coin);
 	window.draw(*m_character.GetSprite());
-	for(int i=0; i< NB_COINS; i++)
+	int coin_count = m_coins.size();
+	for(int i=0; i< coin_count; i++)
 	{
 		m_coin.setPosition(m_coins[i].x * BLOC_SIZE, m_coins[i].y * BLOC_SIZE);
 		window.draw(m_coin);
@@ -849,7 +862,7 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 
 void Level::PutCoin()
 {
-	m_coins.reserve(NB_COINS);
+	//.reserve(NB_COINS);
 	for(int i =0; i< NB_COINS; i++)
 	{
 		int rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);

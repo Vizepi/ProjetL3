@@ -15,10 +15,10 @@
 
 using namespace std;
 
-//#define SHOW_ALL_MAP
+#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 #define LITTLE_BLOCS_PHYSIC
-//#define HIDE_LIGHT
+#define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
 #define WINDOW_HEIGHT 720
@@ -45,9 +45,9 @@ using namespace std;
 #define LEVEL_WIDTH 6
 #define LEVEL_HEIGHT 6
 
-#define MINIM_DISTANCE ((int)(2 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
+#define MINIM_DISTANCE ((int)(1 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
 
-#define NB_COINS 50
+#define NB_COINS 20
 
 enum LevelType
 {
