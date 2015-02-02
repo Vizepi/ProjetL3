@@ -61,7 +61,7 @@ void Level::CreateSensor(float x, float y, float width, float height)
 
 //Fonction qui crée un objet dynamique dans box2d.
 b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
-{
+{/*
 	// Rectangle de collision
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
@@ -70,41 +70,48 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
     Body->SetFixedRotation(true);
 	b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
-    //b2CircleShape Shape;
-   // Shape.m_radius = (width /2.f) /SCALE;
     b2FixtureDef FixtureDef;
     FixtureDef.density = 10.f;
     FixtureDef.friction = 0.f;
     FixtureDef.shape = &Shape;
-	//b2MassData mdata;
-	//mdata.mass = 10.f;
-	//mdata.center = b2Vec2(0, 0);
-	//mdata.I = 0;
-    Body->CreateFixture(&FixtureDef);
-   // Body->SetMassData(&mdata);
-/*
-    b2Vec2 points[3];
-    float bCenterX = width/2.f;
-    float bCenterY = height/2.f;
 
-    // Triangle glissant au sommet
-    b2PolygonShape triTop;
-    points[0].Set(0.f - bCenterX, 2.f/SCALE - bCenterY);
-    points[1].Set((width/2.f)/SCALE - bCenterX, 0.f - bCenterY);
-    points[2].Set(width/SCALE - bCenterX, 2.f/SCALE - bCenterY);
-    triTop.Set(points, 3);
-    FixtureDef.shape = &triTop;
     Body->CreateFixture(&FixtureDef);
 
-    // Triangle glissant en dessous
-    b2PolygonShape triBot;
-    points[0].Set(0.f - bCenterX, (height-2.f)/SCALE - bCenterY);
-    points[1].Set(width/SCALE - bCenterX, (height-2.f)/SCALE - bCenterY);
-    points[2].Set((width/2.f)/SCALE - bCenterX, height/SCALE - bCenterY);
-    triBot.Set(points, 3);
-    FixtureDef.shape = &triBot;
-    Body->CreateFixture(&FixtureDef);
-*/
+	// Detecteur de sauts
+	b2FixtureDef fixtureDef;
+    b2PolygonShape rectangle;
+	rectangle.SetAsBox(((width)/4.f)/SCALE,2/SCALE, b2Vec2(0, (1+height/2.f)/SCALE), 0.f);
+	fixtureDef.shape = &rectangle;
+	fixtureDef.isSensor = true;
+	Body->CreateFixture(&fixtureDef);
+
+	return Body;*/
+
+	b2BodyDef BodyDef;
+	BodyDef.type = b2_dynamicBody;
+	b2Body* Body = m_world.CreateBody(&BodyDef);
+	Body->SetFixedRotation(true);
+	// Creation d'une premiere forme "glissante", rectangulaire.
+	b2PolygonShape Shape;
+	Shape.SetAsBox((width/2.f)/SCALE, ((height-5.f)/2.f)/SCALE, b2Vec2(0, -10.f/SCALE), 0.f); // Dimension width * height-10 decalée de 10px vers le haut
+	b2FixtureDef FixtureDef;
+	FixtureDef.density = 10.f;
+	FixtureDef.friction = 0.f;
+	FixtureDef.shape = &Shape;
+	Body->CreateFixture(&FixtureDef);
+
+	// Creation d'une seconde forme triangluaire sous le personnage avec friction.
+	b2Vec2 down[3];
+	down[0].Set((-(width-5.f)/2.f)/SCALE, ((height-5.f)/2.f)/SCALE);	//Forme du triangle sous le prersonnage :
+	down[1].Set(((width-5.f)/2.f)/SCALE, ((height-5.f)/2.f)/SCALE);	// *                     *
+	down[2].Set(0.f, ((height-0.4f)/2.f)/SCALE);						//            *
+	Shape.Set(down, 3);
+	b2FixtureDef FixtureDef2;
+	FixtureDef2.density = 0.f;
+	FixtureDef2.friction = 0.f;
+	FixtureDef2.shape = &Shape;
+	Body->CreateFixture(&FixtureDef2);
+
 	// Detecteur de sauts
 	b2FixtureDef fixtureDef;
     b2PolygonShape rectangle;
@@ -966,24 +973,12 @@ void Level::LoadLevelArray()
     int x, y;
     int prev[3] = {0, 0, 0}; // {type, x, y}
     int state;
-	/*for(int i=0;i<arrayHeight;i++)
-	{
-		for(int j=0;j<arrayWidth;j++)
-		{
-			if(mark[j*arrayWidth + i])
-				std::cout << "1 ";
-			else
-				std::cout << "0 ";
-		}
-		std::cout << std::endl;
-	}*/
 	for(int j=0;j<arrayHeight;j++)
 	{
 		for(int i=0;i<arrayWidth;i++)
 		{
 			if(!mark[i * arrayWidth + j]) // Si on n'est pas encore passé sur le bloc
 			{
-						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
 				{
 					mark[i * arrayWidth + j] = true;
@@ -996,7 +991,6 @@ void Level::LoadLevelArray()
 					if(state == 0) // Debut de rectangle
 					{
 						mark[currentX * arrayWidth + currentY] = true;
-						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 						prev[0] = m_array[i][j];
 						prev[1] = i;
 						prev[2] = j;
@@ -1020,7 +1014,6 @@ void Level::LoadLevelArray()
 						}
 						else
 						{
-						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
 							{
 								width++;
@@ -1045,7 +1038,6 @@ void Level::LoadLevelArray()
 						for(int k=prev[1];k<lineEnd;k++)
 						{
 							// Ligne non terminée.
-						assert(i >= arrayWidth || j >= arrayHeight || i < 0 || j < 0);
 							if(!SAME_LEVELTYPE(m_array[k][currentY],  prev[0]))
 							{
 								isOk = false;
@@ -1073,41 +1065,17 @@ void Level::LoadLevelArray()
 				{
 				case lt_solid:
 				case lt_ground:
-					//std::cout << "static " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
 					x = prev[1];
 					y = prev[2];
+					std::cout << "static : " << x << " " << y << " " << width << " " << height << std::endl;
 					CreateStaticObject(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
-					/*for(int i=0;i<arrayHeight;i++)
-					{
-						for(int j=0;j<arrayWidth;j++)
-						{
-							if(mark[j*arrayWidth + i])
-								std::cout << "1 ";
-							else
-								std::cout << "0 ";
-						}
-						std::cout << std::endl;
-					}
-					std::cout << "ok" << std::endl;*/
 					break;
 				case lt_ladder:
 				case lt_cross:
 					x = prev[1];
 					y = prev[2];
-					//std::cout << "sensor " << prev[1] << " " << prev[2] << " " << width << " " << height << std::endl;
+					std::cout << "sensor : " << x << " " << y << " " << width << " " << height << std::endl;
 					CreateSensor(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
-					/*for(int i=0;i<arrayHeight;i++)
-					{
-						for(int j=0;j<arrayWidth;j++)
-						{
-							if(mark[j*arrayWidth + i])
-								std::cout << "1 ";
-							else
-								std::cout << "0 ";
-						}
-						std::cout << std::endl;
-					}
-					std::cout << "ok" << std::endl;*/
 					break;
 				default:
 					break;

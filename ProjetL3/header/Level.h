@@ -15,17 +15,17 @@
 
 using namespace std;
 
-#define SHOW_ALL_MAP
+//#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 #define LITTLE_BLOCS_PHYSIC
-#define HIDE_LIGHT
+//#define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
 #define WINDOW_HEIGHT 720
 
 
 #ifndef SCALE
-#define SCALE 30.0
+#define SCALE 1.0
 #endif
 #ifndef GRAVITY_SCALE
 #define GRAVITY_SCALE 4.0

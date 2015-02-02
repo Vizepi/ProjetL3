@@ -14,7 +14,7 @@
 
 #define CHARACTER_VELOCITY 7.5
 
-#define CHARACTER_HEIGHT 40
+#define CHARACTER_HEIGHT 37
 #define CHARACTER_WIDTH 20
 
 class Character
