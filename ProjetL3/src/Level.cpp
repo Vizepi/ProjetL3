@@ -243,6 +243,28 @@ void Level::Draw(sf::RenderWindow& window)
 	light.setColor(sf::Color(255, 255, 255, m_lastLightAlpha));
 	window.draw(light);
 	#endif
+	DrawHUB(window.getView().getCenter().x - (window.getView().getSize().x)/2,
+			window.getView().getCenter().y - (window.getView().getSize().y)/2,
+			window.getView().getSize().x,
+			window.getView().getSize().y,
+			window);
+}
+
+void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window)
+{
+	sf::Font font;
+	if(!font.loadFromFile("../../segoeui.ttf"))
+	{
+		printf("erreur\n");
+	}
+	sf::Text text_coins;
+	text_coins.setFont(font);
+	std::stringstream strs;
+	strs << "Pieces : " << m_coinsGet << " / " << NB_COINS;
+	std::string text(strs.str());
+	text_coins.setString(text);
+	text_coins.setPosition(winX+10,winY+10);
+	window.draw(text_coins);
 }
 
 Character* Level::GetCharacter()
