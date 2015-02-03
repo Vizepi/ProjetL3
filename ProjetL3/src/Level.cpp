@@ -34,6 +34,7 @@ void Level::CreateStaticObject(float x, float y, float width, float height)
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
     b2Body* Body = m_world.CreateBody(&BodyDef);
+    Body->SetFixedRotation(true);
     b2PolygonShape Shape;
     Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
@@ -50,6 +51,7 @@ void Level::CreateSensor(float x, float y, float width, float height)
     BodyDef.position = b2Vec2((x+2)/SCALE, y/SCALE);
     BodyDef.type = b2_staticBody;
     b2Body* Body = m_world.CreateBody(&BodyDef);
+    Body->SetFixedRotation(true);
     b2PolygonShape Shape;
     Shape.SetAsBox(((width-4)/2.f)/SCALE, (height/2.f)/SCALE);
     b2FixtureDef FixtureDef;
@@ -61,7 +63,8 @@ void Level::CreateSensor(float x, float y, float width, float height)
 
 //Fonction qui crée un objet dynamique dans box2d.
 b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
-{/*
+{
+
 	// Rectangle de collision
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
@@ -85,13 +88,34 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 	fixtureDef.isSensor = true;
 	Body->CreateFixture(&fixtureDef);
 
-	return Body;*/
-
+	return Body;
+/*
 	b2BodyDef BodyDef;
 	BodyDef.type = b2_dynamicBody;
+	BodyDef.position.Set(0.f, 0.f);
 	b2Body* Body = m_world.CreateBody(&BodyDef);
 	Body->SetFixedRotation(true);
-	// Creation d'une premiere forme "glissante", rectangulaire.
+	// Creation d'une premiere forme  rectangulaire.
+	float percent = 0.5f;
+	float halfWidth = (width/2.f)/SCALE;
+	float halfHeight = (height/2.f)/SCALE;
+	b2Vec2 vertices[8];
+	vertices[0].Set(-halfWidth, percent * halfHeight);
+	vertices[1].Set(-percent * halfWidth, halfHeight);
+	vertices[2].Set(percent * halfWidth, halfHeight);
+	vertices[3].Set(halfWidth, percent * halfHeight);
+	vertices[4].Set(halfWidth, -percent * halfHeight);
+	vertices[5].Set(percent * halfWidth, -halfHeight);
+	vertices[6].Set(-percent * halfWidth, -halfHeight);
+	vertices[7].Set(-halfWidth, -percent * halfHeight);
+	b2PolygonShape shape;
+	shape.Set(vertices, 8);
+	b2FixtureDef fDef;
+	fDef.density = 100.f;
+	fDef.friction = 0.f;
+	fDef.shape = &shape;
+	Body->CreateFixture(&fDef);*/
+	/*
 	b2PolygonShape Shape;
 	Shape.SetAsBox((width/2.f)/SCALE, ((height-5.f)/2.f)/SCALE, b2Vec2(0, -10.f/SCALE), 0.f); // Dimension width * height-10 decalée de 10px vers le haut
 	b2FixtureDef FixtureDef;
@@ -100,7 +124,7 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 	FixtureDef.shape = &Shape;
 	Body->CreateFixture(&FixtureDef);
 
-	// Creation d'une seconde forme triangluaire sous le personnage avec friction.
+	// Creation d'une seconde forme triangluaire sous le personnage
 	b2Vec2 down[3];
 	down[0].Set((-(width-5.f)/2.f)/SCALE, ((height-5.f)/2.f)/SCALE);	//Forme du triangle sous le prersonnage :
 	down[1].Set(((width-5.f)/2.f)/SCALE, ((height-5.f)/2.f)/SCALE);	// *                     *
@@ -120,7 +144,7 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 	fixtureDef.isSensor = true;
 	Body->CreateFixture(&fixtureDef);
 
-    return Body;
+    return Body;*/
 }
 //Chargement du level.
 void Level::LoadLevel()
@@ -351,13 +375,13 @@ void Level::GenerateLevel()
 	emy.setPosition(sf::Vector2f(x,y));
 
 	//Pour eviter qu'Amy soit dans le mur
-	//PLANTE DES FOIS ! SEGFAULT !
 	while(m_array[emy.getPosition().x/BLOC_SIZE][emy.getPosition().y/BLOC_SIZE] == lt_solid)
 	{
 		x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
 		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT;
 		emy.setPosition(sf::Vector2f(x,y));
 	}
+	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
 
 	//Pour supprimer le tableau
 	while(dq.size() > 0)
@@ -648,87 +672,8 @@ void Level::CreateWalls(deque<Room*> &dq)
 void Level::CreateGenerateLevel(deque<Room*> &dq)
 {
 
-	// Creation des murs des rooms
-	CreateWalls(dq);
-
 	//nombre de platforme genere aleatoirement par bloc
 	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
-/*
-	int rand_x, rand_y, px, py;
-	int nbBlocs;
-	// Vectors contenant les points de chaque cross des plateformes
-	std::vector<int> crossX;
-	std::vector<int> crossY;
-	//Pour chaque room de la deque
-	for (int i=0; i < (signed)dq.size(); i++)
-	{
-		//Pour chaque platformes qui seront genere aléatoirement
-		for(int k=0; k< nbPlatforme; k++)
-		{
-			//On choisit un point au hasard dans chaque Room
-			rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
-			rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
-			cout<<"Valeurs aleatoire: "<<endl;
-			cout<<rand_x<<" "<<rand_y<<endl;
-			//On met à l'echelles les points.
-			px = ROOM_WIDTH * dq[i]->x + rand_x;
-			py = ROOM_HEIGHT * dq[i]->y + rand_y;
-			cout<<"Valeurs aleatoire 2: "<<endl;
-			cout<<px<<" "<<py<<endl;
-
-			//On test si il n'y a rien sur ce point, et sur les points au alentours.
-
-			while((m_array[px][py] != lt_empty && m_array[px][py] != lt_ladder) ||
-			(rand_y == dq[i]->rand_y-1))
-			{
-				rand_x = m_rand->NextInt(0, ROOM_WIDTH-2)+1;
-				rand_y = m_rand->NextInt(0, ROOM_HEIGHT-2)+1;
-				px = ROOM_WIDTH * dq[i]->x + rand_x;
-				py = ROOM_HEIGHT * dq[i]->y + rand_y;
-			}
-			//longueur au hasard d'une platforme
-			nbBlocs = m_rand->NextInt(2, (ROOM_WIDTH*LEVEL_WIDTH)/5);
-			printf("Longueur bloc :%d\n", nbBlocs);
-			for(int l =0; l< nbBlocs; l++)
-			{
-				if(px+l>= (int)m_array.size() || px+l < 0 || py>= (int)m_array[0].size() || py<0)
-					continue;
-				// Si le bloc d'en dessous est solid, on ne le place pas
-				if(m_array[px+l][py+1] != lt_empty && m_array[px+l][py+1] != lt_ladder)
-				{
-					continue;
-				}
-				if(m_array[px+l][py] == lt_ladder || m_array[px+l][py] == lt_cross)
-				{
-					m_array[px+l][py] = lt_cross;
-				}
-				else
-				{
-					m_array[px+l][py]= lt_ground;
-				}
-			}
-			int randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
-			while(randCrossX >= (int)m_array.size())
-				randCrossX = m_rand->NextInt(px, px+nbBlocs-1);
-			crossX.push_back(randCrossX);
-			crossY.push_back(py);
-		}
-	}
-	// Generation des echelles
-	for(int i = crossX.size()-1;i>=0;i--)
-	{
-		int cX = crossX[i];
-		int cY = crossY[i];
-		if(cY+1 < (int)m_array[0].size() && (m_array[cX][cY+1] != lt_ground && m_array[cX][cY+1] != lt_solid))
-			m_array[cX][cY] = lt_cross;
-		cY++;
-		while(m_array[cX][cY] == lt_empty)
-		{
-			m_array[cX][cY] = lt_ladder;
-			cY++;
-		}
-	}
-*/
 
 	int dqCount = dq.size();
 
@@ -810,7 +755,7 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 			globalCrossX.push_back(generateX + roomOriginX);
 			globalCrossY.push_back(generateY + roomOriginY);
 
-			// Agrandire la platforme
+			// Agrandir la platforme
 			int leftSpace = generateX;
 			int rightSpace = ROOM_WIDTH - generateX - 1;
 			int leftRand = m_rand->NextInt(1, leftSpace);
@@ -1175,7 +1120,7 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			rs.setFillColor(sf::Color(0, 0, 255));
 		else if(bodyIterator->GetType() == b2_staticBody)
 			rs.setFillColor(sf::Color(255, 0, 0));
-		else if(bodyIterator->GetType() == b2_dynamicBody)
+		else
 			rs.setFillColor(sf::Color(0, 255, 0));
 		window.draw(rs);
 		bodyIterator = bodyIterator->GetNext();

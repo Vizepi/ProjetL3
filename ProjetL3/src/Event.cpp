@@ -56,6 +56,10 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				}
 				character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				break;
+			case sf::Keyboard::P:
+			case sf::Keyboard::Escape:
+				Game::s_instance->SwitchState(STATE_PAUSE);
+				break;
 			default:
 				break;
 			}

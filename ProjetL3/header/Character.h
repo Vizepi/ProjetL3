@@ -9,12 +9,12 @@
 #include <vector>
 
 #ifndef SCALE
-#define SCALE 30.0
+#define SCALE 30.01
 #endif
 
 #define CHARACTER_VELOCITY 7.5
 
-#define CHARACTER_HEIGHT 37
+#define CHARACTER_HEIGHT 36
 #define CHARACTER_WIDTH 20
 
 class Character

@@ -48,7 +48,7 @@ void Character::Update()
 {
 	if(m_currentAnimation)
 		m_currentAnimation->Update();
-	m_image.setPosition(SCALE * m_body->GetPosition().x + m_image.getGlobalBounds().width/4.f, SCALE * m_body->GetPosition().y+1.f);
+	m_image.setPosition(SCALE * m_body->GetPosition().x + m_image.getGlobalBounds().width/4.f, SCALE * m_body->GetPosition().y - 6.f);
 
 }
 
