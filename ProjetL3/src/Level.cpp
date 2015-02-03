@@ -20,6 +20,10 @@ Level::Level()
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
+	if(!m_font.loadFromFile("../../segoeui.ttf"))
+	{
+		printf("erreur\n");
+	}
 }
 
 Level::~Level()
@@ -250,21 +254,28 @@ void Level::Draw(sf::RenderWindow& window)
 			window);
 }
 
+sf::Font& Level::GetFont()
+{
+	return m_font;
+}
 void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window)
 {
-	sf::Font font;
-	if(!font.loadFromFile("../../segoeui.ttf"))
-	{
-		printf("erreur\n");
-	}
 	sf::Text text_coins;
-	text_coins.setFont(font);
+	text_coins.setFont(m_font);
 	std::stringstream strs;
 	strs << "Pieces : " << m_coinsGet << " / " << NB_COINS;
 	std::string text(strs.str());
 	text_coins.setString(text);
 	text_coins.setPosition(winX+10,winY+10);
 	window.draw(text_coins);
+	if(gagne == true)
+	{
+		sf::Text text_final;
+		text_final.setFont(m_font);
+		text_final.setString("You Win !");
+		text_final.setPosition(winX+(winW/2)-(text_final.getGlobalBounds().width/2), winY+(winH/2)-(text_final.getGlobalBounds().height/2));
+		window.draw(text_final);
+	}
 }
 
 Character* Level::GetCharacter()

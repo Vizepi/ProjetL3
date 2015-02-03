@@ -84,6 +84,7 @@ class Level
 		b2Body* CreateDynamicObject(float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
+		sf::Font& GetFont(void);
 		void DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window);
 		void Update(sf::RenderWindow& window, sf::Clock& frameTime);
 		Character* GetCharacter(void);
@@ -121,6 +122,7 @@ class Level
 		Random* m_brokenLadderRandom;
 		int m_lastLightAlpha;
 		int m_coinsGet;
+		sf::Font m_font;
 
 };
 #endif // LEVEL_H
