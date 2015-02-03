@@ -12,12 +12,13 @@
 #include <deque>
 #include <cassert>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
-#define SHOW_ALL_MAP
-#define SHOW_COLLISION_BOXES
-//#define LITTLE_BLOCS_PHYSIC
+//#define SHOW_ALL_MAP
+//#define SHOW_COLLISION_BOXES
+#define LITTLE_BLOCS_PHYSIC
 #define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
@@ -83,6 +84,8 @@ class Level
 		b2Body* CreateDynamicObject(float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
+		sf::Font& GetFont(void);
+		void DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window);
 		void Update(sf::RenderWindow& window, sf::Clock& frameTime);
 		Character* GetCharacter(void);
 		void GenerateLevel(void);
@@ -119,6 +122,7 @@ class Level
 		Random* m_brokenLadderRandom;
 		int m_lastLightAlpha;
 		int m_coinsGet;
+		sf::Font m_font;
 
 };
 #endif // LEVEL_H
