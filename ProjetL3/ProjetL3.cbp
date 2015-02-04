@@ -56,6 +56,7 @@
 		<Unit filename="header/Animation.h" />
 		<Unit filename="header/Character.h" />
 		<Unit filename="header/Event.h" />
+		<Unit filename="header/Game.h" />
 		<Unit filename="header/Level.h" />
 		<Unit filename="header/Menu.h" />
 		<Unit filename="header/Random.h" />
@@ -63,6 +64,7 @@
 		<Unit filename="src/Animation.cpp" />
 		<Unit filename="src/Character.cpp" />
 		<Unit filename="src/Event.cpp" />
+		<Unit filename="src/Game.cpp" />
 		<Unit filename="src/Level.cpp" />
 		<Unit filename="src/Menu.cpp" />
 		<Unit filename="src/Random.cpp" />
