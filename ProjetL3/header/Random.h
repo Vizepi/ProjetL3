@@ -40,11 +40,15 @@ public:
 
 	virtual short NextShort(void);
 
+	virtual int GetSeed(void) const;
+
 private:
 
 protected:
 
 	std::mt19937 m_generator;
+
+	int m_seed;
 
 };
 

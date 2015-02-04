@@ -21,6 +21,7 @@ public:
 	virtual void Update(sf::RenderWindow& window, sf::Clock& frameTime);
 	virtual void Draw(sf::RenderWindow& window);
 	virtual void SwitchState(int state);
+	virtual void NewLevel(void);
 	static Game* s_instance;
 protected:
 	Level* m_level;

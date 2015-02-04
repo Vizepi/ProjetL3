@@ -2,12 +2,14 @@
 
 /*explicit*/ Random::Random()
 {
-	m_generator.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+	m_seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+	m_generator.seed(m_seed);
 }
 
 /*explicit*/ Random::Random(unsigned int seed)
 {
-	m_generator.seed(seed);
+	m_seed = seed;
+	m_generator.seed(m_seed);
 }
 
 /*virtual*/ Random::~Random()
@@ -84,4 +86,9 @@
 /*virtual*/ short Random::NextShort()
 {
 	return NextShort(std::numeric_limits<short>::min(), std::numeric_limits<short>::max());
+}
+
+/*virtual*/ int Random::GetSeed() const
+{
+	return m_seed;
 }

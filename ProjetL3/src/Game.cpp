@@ -1,4 +1,4 @@
-#include <header/Game.h>
+#include "../header/Game.h"
 
 /*static*/ Game* Game::s_instance = NULL;
 
@@ -16,6 +16,18 @@
 
 /*virtual*/ void Game::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 {
+	sf::Rect<int> menuButton;
+	float cX = 0.f;
+	float cY = 0.f;
+	float wX = 0.f;
+	float wY = 0.f;
+	if(m_level != NULL)
+	{
+		cX = m_level->GetCharacter()->GetBody()->GetPosition().x * SCALE;
+		cY = m_level->GetCharacter()->GetBody()->GetPosition().y * SCALE;
+		wX = window.getSize().x;
+		wY = window.getSize().y;
+	}
 	switch(m_state)
 	{
 	case STATE_MENU:
@@ -45,16 +57,35 @@
 				}
 				break;
 			case sf::Event::MouseButtonReleased:
-				sf::Rect<float> menuButton;
 				if(menuButton.contains(sf::Mouse::getPosition(window)))
 				{
 					m_state = STATE_MENU;
 				}
 				break;
+			case sf::Event::Resized:
+				// Gere la taille du viewport lors du redimensionnement !
+				if(event.size.width > 1920)
+					window.setSize(sf::Vector2u(1920, window.getSize().y));
+				if(event.size.width < 800)
+					window.setSize(sf::Vector2u(800, window.getSize().y));
+				if(event.size.height > 1080)
+					window.setSize(sf::Vector2u(window.getSize().x, 1080));
+				if(event.size.height < 600)
+					window.setSize(sf::Vector2u(window.getSize().x, 600));
+				break;
 			default:
 				break;
 			}
 		}
+		if(cX < wX/2.f)
+			cX = wX/2.f;
+		if(cX > LEVEL_WIDTH * ROOM_WIDTH * BLOC_SIZE - wX/2.f)
+			cX = LEVEL_WIDTH * ROOM_WIDTH * BLOC_SIZE - wX/2.f;
+		if(cY < wY/2.f)
+			cY = wY/2.f;
+		if(cY > LEVEL_HEIGHT * ROOM_HEIGHT * BLOC_SIZE - wY/2.f)
+			cY = LEVEL_HEIGHT * ROOM_HEIGHT * BLOC_SIZE - wY/2.f;
+		window.setView(sf::View(sf::Vector2f(cX, cY), sf::Vector2f(wX, wY)));
 		break;
 	default:
 		if(m_level)
@@ -68,6 +99,7 @@
 
 /*virtual*/ void Game::Draw(sf::RenderWindow& window)
 {
+	sf::RectangleShape rs;
 	switch(m_state)
 	{
 	case STATE_MENU:
@@ -78,15 +110,27 @@
 		break;
 	case STATE_PAUSE:
 		m_level->Draw(window);
-		sf::RectangleShape rs;
 		rs.setFillColor(sf::Color(0, 0, 0, 128));
 		rs.setPosition(0, 0);
-		rs.setSize(window.getSize());
+		rs.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
 		window.draw(rs);
 		break;
 	default:
 		break;
 	}
+}
+
+/*virtual*/ void Game::NewLevel()
+{
+	if(m_level)
+	{
+		delete m_level;
+	}
+	m_level = new Level();
+	m_level->LoadLevel();
+	m_level->CreateTestLevel();
+	m_level->GenerateLevel();
+	m_level->LoadLevelArray();
 }
 
 /*virtual*/ void Game::SwitchState(int state)

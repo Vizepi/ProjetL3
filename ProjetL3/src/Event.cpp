@@ -1,5 +1,5 @@
 #include "../header/Event.h"
-
+#include "../header/Game.h"
 
 //On traite tous les evenements de la fenetre qui ont ete generée depuis la derniere iteration de la boucle
 void Event::event(sf::RenderWindow& window, Character& character)
@@ -108,7 +108,15 @@ void Event::event(sf::RenderWindow& window, Character& character)
 			}
 			break;
 		case sf::Event::Resized:
-			// @TODO Gerer la taille du viewport lors du redimensionnement !
+			// Gere la taille du viewport lors du redimensionnement !
+			if(event.size.width > 1920)
+				window.setSize(sf::Vector2u(1920, window.getSize().y));
+			if(event.size.width < 800)
+				window.setSize(sf::Vector2u(800, window.getSize().y));
+			if(event.size.height > 1080)
+				window.setSize(sf::Vector2u(window.getSize().x, 1080));
+			if(event.size.height < 600)
+				window.setSize(sf::Vector2u(window.getSize().x, 600));
 			break;
 		default :
 			break;

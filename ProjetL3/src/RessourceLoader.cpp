@@ -186,7 +186,29 @@
 	return true;
 }
 
+/*static*/ void RessourceLoader::LoadFont(const char* fontFile)
+{
+	s_font = new sf::Font();
+	if(!s_font->loadFromFile(fontFile))
+	{
+		std::cerr << "Error while loading font file \"" << fontFile << "\"." << std::endl;
+	}
+}
+
+/*static*/ sf::Font* RessourceLoader::GetFont()
+{
+	return s_font;
+}
+
+/*static*/ void RessourceLoader::ClearFont()
+{
+	if(s_font)
+		delete s_font;
+	s_font = NULL;
+}
+
 std::vector<texture_set*> RessourceLoader::s_textureArray;
 std::vector<sound_set*> RessourceLoader::s_soundArray;
 std::vector<music_set*> RessourceLoader::s_musicArray;
+sf::Font* RessourceLoader::s_font = NULL;
 

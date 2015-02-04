@@ -5,6 +5,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include <string>
 #include <fstream>
 #include <vector>
@@ -64,6 +65,10 @@ public:
 	static sf::Music* GetMusic(unsigned int index);
 	static void ClearMusics(void);
 
+	static void LoadFont(const char* fontFile);
+	static sf::Font* GetFont(void);
+	static void ClearFont(void);
+
 private:
 
 	RessourceLoader(void);
@@ -73,6 +78,7 @@ protected:
 	static std::vector<texture_set*> s_textureArray;
 	static std::vector<sound_set*> s_soundArray;
 	static std::vector<music_set*> s_musicArray;
+	static sf::Font* s_font;
 
 	/*
 		Recupère l'item suivant dans le fichier et stocke le nom dans name et le chemin dans path

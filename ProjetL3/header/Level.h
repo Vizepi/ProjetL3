@@ -74,17 +74,20 @@ struct Room
 	int rand_y;
 };
 
+#define SIDE_CENTER 0x0
+#define SIDE_LEFT	0x1
+#define SIDE_RIGHT	0x2
+
 class Level
 {
 	public:
 		Level(void);
 		~Level(void);
-		void CreateStaticObject(float x, float y, float width, float height);
+		void CreateStaticObject(float x, float y, float width, float height, int side = SIDE_CENTER);
 		void CreateSensor(float x, float y, float width, float height);
 		b2Body* CreateDynamicObject(float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
-		sf::Font& GetFont(void);
 		void DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window);
 		void Update(sf::RenderWindow& window, sf::Clock& frameTime);
 		Character* GetCharacter(void);
@@ -122,7 +125,7 @@ class Level
 		Random* m_brokenLadderRandom;
 		int m_lastLightAlpha;
 		int m_coinsGet;
-		sf::Font m_font;
+		sf::Font* m_font;
 
 };
 #endif // LEVEL_H

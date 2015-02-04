@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "RessourceLoader.h"
 
 class Menu
@@ -18,6 +19,10 @@ private:
 	sf::Sprite m_playButton;
 	sf::Sprite m_optionButton;
 	sf::Sprite m_quitButton;
+	sf::Sprite m_title;
+	sf::Text m_playText;
+	sf::Text m_optionText;
+	sf::Text m_quitText;
 };
 
 #endif // MENU_H

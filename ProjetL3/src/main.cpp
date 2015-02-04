@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "../header/Level.h"
+#include "../header/Game.h"
 #include "../header/RessourceLoader.h"
 
 int main(int argc, char** argv)
@@ -11,7 +11,8 @@ int main(int argc, char** argv)
 
 	//Chargement des textures.
 	RessourceLoader::LoadTextures("textures.txt");
-	Level level;
+	RessourceLoader::LoadFont("../../pictures/segoeui.ttf");
+	/*Level level;
 	//Chargement du level.
 	level.LoadLevel();
 	//Chargement du level test.
@@ -20,18 +21,20 @@ int main(int argc, char** argv)
 	level.GenerateLevel();
 
 	//creation du monde dans box2d.
-	level.LoadLevelArray();
+	level.LoadLevelArray();*/
+	Game game;
 	sf::Clock frameTime;
 	 //Debug view pour voir toute la map.
-	sf::View view(sf::FloatRect(0, 0, BLOC_SIZE * ROOM_WIDTH * LEVEL_WIDTH, BLOC_SIZE * ROOM_HEIGHT * LEVEL_HEIGHT));
-	window.setView(view);
+	//sf::View view(sf::FloatRect(0, 0, BLOC_SIZE * ROOM_WIDTH * LEVEL_WIDTH, BLOC_SIZE * ROOM_HEIGHT * LEVEL_HEIGHT));
+	//window.setView(view);
 	//Tant que la fenetre est ouverte.
 	while(window.isOpen())
 	{
 
 		// Begin Update
 
-		level.Update(window, frameTime);
+		//level.Update(window, frameTime);
+		game.Update(window, frameTime);
 
 		// End Update
 		//Effacement de la fenetre.
@@ -39,7 +42,8 @@ int main(int argc, char** argv)
 
 		// Begin Draw
 		//Remplissage de la fenetre.
-		level.Draw(window);
+		//level.Draw(window);
+		game.Draw(window);
 
 		// End Draw
 		//Affichage de la fenetre.

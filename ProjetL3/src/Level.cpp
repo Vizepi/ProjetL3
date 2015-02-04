@@ -6,6 +6,7 @@ Level::Level()
 , m_rand(new Random())
 , m_lastLightAlpha(128)
 , m_coinsGet(0)
+, m_font(RessourceLoader::GetFont())
 {
 	gagne = false;
 	m_listener = new JumpListener(&m_character);
@@ -20,19 +21,21 @@ Level::Level()
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
-	if(!m_font.loadFromFile("../../segoeui.ttf"))
-	{
-		printf("erreur\n");
-	}
 }
 
 Level::~Level()
 {
 	delete m_rand;
+	delete m_listener;
+	while(m_anim.size() > 0)
+	{
+		delete m_anim[m_anim.size()-1];
+		m_anim.pop_back();
+	}
 }
 
 //Fonction qui crée un objet statique dans box2d.
-void Level::CreateStaticObject(float x, float y, float width, float height)
+void Level::CreateStaticObject(float x, float y, float width, float height, int side)
 {
 	b2BodyDef BodyDef;
     BodyDef.position = b2Vec2(x/SCALE, y/SCALE);
@@ -40,7 +43,47 @@ void Level::CreateStaticObject(float x, float y, float width, float height)
     b2Body* Body = m_world.CreateBody(&BodyDef);
     Body->SetFixedRotation(true);
     b2PolygonShape Shape;
-    Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    b2Vec2 vertices[8];
+    //Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+    float percent = 0.8f;
+    float halfW = width/(2.f*SCALE);
+    float halfH = height/(2.f*SCALE);
+    if(side == 0)
+	{
+		Shape.SetAsBox((width/2.f)/SCALE, (height/2.f)/SCALE);
+	}
+	else if(side == SIDE_LEFT)
+	{
+		vertices[0].Set(-halfW, percent * halfH);
+		vertices[1].Set(-percent * halfW, halfH);
+		vertices[2].Set(halfW, halfH);
+		vertices[3].Set(halfW, -halfH);
+		vertices[4].Set(-percent * halfW, -halfH);
+		vertices[5].Set(-halfW, -percent * halfH);
+		Shape.Set(vertices, 6);
+	}
+	else if(side == SIDE_RIGHT)
+	{
+		vertices[0].Set(-halfW, halfH);
+		vertices[1].Set(percent * halfW, halfH);
+		vertices[2].Set(halfW, percent * halfH);
+		vertices[3].Set(halfW, -percent * halfH);
+		vertices[4].Set(percent * halfW, -halfH);
+		vertices[5].Set(-halfW, -halfH);
+		Shape.Set(vertices, 6);
+	}
+	else if(side == (SIDE_LEFT | SIDE_RIGHT))
+	{
+		vertices[0].Set(-halfW, percent * halfH);
+		vertices[1].Set(-percent * halfW, halfH);
+		vertices[2].Set(percent * halfW, halfH);
+		vertices[3].Set(halfW, percent * halfH);
+		vertices[4].Set(halfW, -percent * halfH);
+		vertices[5].Set(percent * halfW, -halfH);
+		vertices[6].Set(-percent * halfW, -halfH);
+		vertices[7].Set(-halfW, -percent * halfH);
+		Shape.Set(vertices, 8);
+	}
     b2FixtureDef FixtureDef;
     FixtureDef.density = 10.f;
     FixtureDef.shape = &Shape;
@@ -93,62 +136,6 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 	Body->CreateFixture(&fixtureDef);
 
 	return Body;
-/*
-	b2BodyDef BodyDef;
-	BodyDef.type = b2_dynamicBody;
-	BodyDef.position.Set(0.f, 0.f);
-	b2Body* Body = m_world.CreateBody(&BodyDef);
-	Body->SetFixedRotation(true);
-	// Creation d'une premiere forme  rectangulaire.
-	float percent = 0.5f;
-	float halfWidth = (width/2.f)/SCALE;
-	float halfHeight = (height/2.f)/SCALE;
-	b2Vec2 vertices[8];
-	vertices[0].Set(-halfWidth, percent * halfHeight);
-	vertices[1].Set(-percent * halfWidth, halfHeight);
-	vertices[2].Set(percent * halfWidth, halfHeight);
-	vertices[3].Set(halfWidth, percent * halfHeight);
-	vertices[4].Set(halfWidth, -percent * halfHeight);
-	vertices[5].Set(percent * halfWidth, -halfHeight);
-	vertices[6].Set(-percent * halfWidth, -halfHeight);
-	vertices[7].Set(-halfWidth, -percent * halfHeight);
-	b2PolygonShape shape;
-	shape.Set(vertices, 8);
-	b2FixtureDef fDef;
-	fDef.density = 100.f;
-	fDef.friction = 0.f;
-	fDef.shape = &shape;
-	Body->CreateFixture(&fDef);*/
-	/*
-	b2PolygonShape Shape;
-	Shape.SetAsBox((width/2.f)/SCALE, ((height-5.f)/2.f)/SCALE, b2Vec2(0, -10.f/SCALE), 0.f); // Dimension width * height-10 decalée de 10px vers le haut
-	b2FixtureDef FixtureDef;
-	FixtureDef.density = 10.f;
-	FixtureDef.friction = 0.f;
-	FixtureDef.shape = &Shape;
-	Body->CreateFixture(&FixtureDef);
-
-	// Creation d'une seconde forme triangluaire sous le personnage
-	b2Vec2 down[3];
-	down[0].Set((-(width-5.f)/2.f)/SCALE, ((height-5.f)/2.f)/SCALE);	//Forme du triangle sous le prersonnage :
-	down[1].Set(((width-5.f)/2.f)/SCALE, ((height-5.f)/2.f)/SCALE);	// *                     *
-	down[2].Set(0.f, ((height-0.4f)/2.f)/SCALE);						//            *
-	Shape.Set(down, 3);
-	b2FixtureDef FixtureDef2;
-	FixtureDef2.density = 0.f;
-	FixtureDef2.friction = 0.f;
-	FixtureDef2.shape = &Shape;
-	Body->CreateFixture(&FixtureDef2);
-
-	// Detecteur de sauts
-	b2FixtureDef fixtureDef;
-    b2PolygonShape rectangle;
-	rectangle.SetAsBox(((width)/4.f)/SCALE,2/SCALE, b2Vec2(0, (1+height/2.f)/SCALE), 0.f);
-	fixtureDef.shape = &rectangle;
-	fixtureDef.isSensor = true;
-	Body->CreateFixture(&fixtureDef);
-
-    return Body;*/
 }
 //Chargement du level.
 void Level::LoadLevel()
@@ -285,16 +272,12 @@ void Level::Draw(sf::RenderWindow& window)
 			window);
 }
 
-sf::Font& Level::GetFont()
-{
-	return m_font;
-}
 void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window)
 {
 	sf::Text text_coins;
-	text_coins.setFont(m_font);
+	text_coins.setFont(*m_font);
 	std::stringstream strs;
-	strs << "Pieces : " << m_coinsGet << " / " << NB_COINS;
+	strs << "COINS : " << m_coinsGet << " / " << NB_COINS;
 	std::string text(strs.str());
 	text_coins.setString(text);
 	text_coins.setPosition(winX+10,winY+10);
@@ -302,8 +285,8 @@ void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& wi
 	if(gagne == true)
 	{
 		sf::Text text_final;
-		text_final.setFont(m_font);
-		text_final.setString("You Win !");
+		text_final.setFont(*m_font);
+		text_final.setString("YOU WIN !");
 		text_final.setPosition(winX+(winW/2)-(text_final.getGlobalBounds().width/2), winY+(winH/2)-(text_final.getGlobalBounds().height/2));
 		window.draw(text_final);
 	}
@@ -404,14 +387,14 @@ void Level::GenerateLevel()
 	tardis.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
 						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
 	int x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
-	int y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT;
+	int y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
 	emy.setPosition(sf::Vector2f(x,y));
 
 	//Pour eviter qu'Amy soit dans le mur
 	while(m_array[emy.getPosition().x/BLOC_SIZE][emy.getPosition().y/BLOC_SIZE] == lt_solid)
 	{
 		x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
-		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT;
+		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
 		emy.setPosition(sf::Vector2f(x,y));
 	}
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
@@ -916,10 +899,12 @@ void Level::LoadLevelArray()
 	int arrayHeight = m_array[0].size();
 	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
 	#ifdef LITTLE_BLOCS_PHYSIC
+	int side = 0;
 	for(int i =0; i < arrayWidth; i++)
 	{
 		for(int j =0; j<arrayHeight; j++)
 		{
+			side = 0;
 			switch(m_array[i][j])
 			{
 			case lt_cross :
@@ -928,7 +913,17 @@ void Level::LoadLevelArray()
 				break;
 			case lt_ground :
 			case lt_solid :
-				CreateStaticObject(i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE);
+				if(i > 0 && m_array[i-1][j] != lt_empty)
+				{
+					if(j > 0 && m_array[i-1][j-1] != lt_ladder)
+						side = side | SIDE_LEFT;
+				}
+				if(i < arrayWidth-1 && m_array[i+1][j] != lt_empty)
+				{
+					if(j > 0 && m_array[i+1][j-1] != lt_ladder)
+						side = side | SIDE_RIGHT;
+				}
+				CreateStaticObject(i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE, side);
 				break;
 			default:
 				break;

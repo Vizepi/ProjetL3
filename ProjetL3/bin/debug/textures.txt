@@ -5,3 +5,6 @@ Tardis:../../pictures/tardis.png
 Coins:../../pictures/coins.png
 Light:../../pictures/light.png
 Background:../../pictures/cave_background.png
+Menu Background:../../pictures/menu.png
+Menu Button:../../pictures/button.png
+Menu Title:../../pictures/title.png
