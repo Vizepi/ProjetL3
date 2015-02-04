@@ -624,6 +624,7 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 			}
 			posY += it;
 		}
+
 		//Faire la plateforme de fin
 		if(i == (signed)dq.size()-2)
 		{
@@ -646,6 +647,27 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 		}
 	}
 	CreateGenerateLevel(dq);
+	//Mettre les echelles tombantes sur chaques platformes du chemin gagnant
+	for(int i = 0; i< (signed)dq.size()-1; i++)
+	{
+		int p1x = ROOM_WIDTH * dq[i]->x + dq[i]->rand_x;
+		int p2x = ROOM_WIDTH * dq[i+1]->x + dq[i+1]->rand_x;
+		int y = ROOM_HEIGHT * dq[i]->y + dq[i]->rand_y;
+		int rand;
+		if(p1x < p2x)
+			rand = m_rand->NextInt(p1x, p2x);
+		else
+			rand = m_rand->NextInt(p2x, p1x);
+		if(m_array[rand][y+1] != lt_empty)
+			continue;
+		m_array[rand][y]= lt_cross;
+		y++;
+		while(m_array[rand][y] == lt_empty)
+		{
+			m_array[rand][y]= lt_ladder;
+			y++;
+		}
+	}
 }
 
 void Level::CreateWalls(deque<Room*> &dq)
@@ -690,7 +712,6 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 
 	//nombre de platforme genere aleatoirement par bloc
 	int nbPlatforme = (int)(ROOM_WIDTH*ROOM_HEIGHT / 2)/(ROOM_WIDTH+ROOM_HEIGHT);
-
 	int dqCount = dq.size();
 
 	std::vector<int> globalCrossX;
