@@ -12,28 +12,13 @@ int main(int argc, char** argv)
 	//Chargement des textures.
 	RessourceLoader::LoadTextures("textures.txt");
 	RessourceLoader::LoadFont("../../pictures/segoeui.ttf");
-	/*Level level;
-	//Chargement du level.
-	level.LoadLevel();
-	//Chargement du level test.
-	level.CreateTestLevel();
-
-	level.GenerateLevel();
-
-	//creation du monde dans box2d.
-	level.LoadLevelArray();*/
 	Game game;
 	sf::Clock frameTime;
-	 //Debug view pour voir toute la map.
-	//sf::View view(sf::FloatRect(0, 0, BLOC_SIZE * ROOM_WIDTH * LEVEL_WIDTH, BLOC_SIZE * ROOM_HEIGHT * LEVEL_HEIGHT));
-	//window.setView(view);
 	//Tant que la fenetre est ouverte.
 	while(window.isOpen())
 	{
 
 		// Begin Update
-
-		//level.Update(window, frameTime);
 		game.Update(window, frameTime);
 
 		// End Update
@@ -42,12 +27,12 @@ int main(int argc, char** argv)
 
 		// Begin Draw
 		//Remplissage de la fenetre.
-		//level.Draw(window);
 		game.Draw(window);
 
 		// End Draw
 		//Affichage de la fenetre.
 		window.display();
 	}
-
+	RessourceLoader::ClearTextures();
+	RessourceLoader::ClearFont();
 }

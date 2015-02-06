@@ -19,14 +19,14 @@ using namespace std;
 //#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 #define LITTLE_BLOCS_PHYSIC
-#define HIDE_LIGHT
+//#define HIDE_LIGHT
 
 #define WINDOW_WIDTH 960
 #define WINDOW_HEIGHT 720
 
 
 #ifndef SCALE
-#define SCALE 30.01
+#define SCALE 25.0
 #endif
 #ifndef GRAVITY_SCALE
 #define GRAVITY_SCALE 5.0
@@ -46,9 +46,9 @@ using namespace std;
 #define LEVEL_WIDTH 6
 #define LEVEL_HEIGHT 6
 
-#define MINIM_DISTANCE ((int)(1 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
+#define MINIM_DISTANCE ((int)(1.5 * (LEVEL_WIDTH + LEVEL_HEIGHT)))
 
-#define NB_COINS 20
+#define NB_COINS 30
 
 enum LevelType
 {
@@ -103,6 +103,7 @@ class Level
 		void SetRoom(deque<Room*> &dq);
 		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** tableauExemple, int w, int h, stack<Room*> &pile);
 		void GetTextureCoords(int* x, int* y, int center, int north, int east, int south, int west);
+		void Dump(void);
 
 	protected:
 

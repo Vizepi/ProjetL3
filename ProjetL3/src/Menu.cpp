@@ -16,7 +16,7 @@
 							(m_background.getTexture()->getSize().y - m_quitButton.getTexture()->getSize().y)/2 + 160);
 	m_title.setTexture(*RessourceLoader::GetTexture("Menu Title"));
 	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getTexture()->getSize().x)/2,
-							m_background.getTexture()->getSize().y/4 - m_title.getTexture()->getSize().y/2);
+							m_background.getTexture()->getSize().y/3 - m_title.getTexture()->getSize().y/2);
 	m_playText.setFont(*RessourceLoader::GetFont());
 	m_playText.setString("Play");
 	m_playText.setColor(sf::Color::Black);
@@ -52,8 +52,8 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_playButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
-				Game::s_instance->NewLevel();
 				Game::s_instance->SwitchState(STATE_INGAME);
+				Game::s_instance->NewLevel();
 			}
 			else if(m_optionButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{

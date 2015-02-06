@@ -9,7 +9,7 @@
 #include <vector>
 
 #ifndef SCALE
-#define SCALE 30.01
+#define SCALE 25.0
 #endif
 
 #define CHARACTER_VELOCITY 7.5
@@ -23,6 +23,9 @@ class Character
         /** \brief Constructeur par defaut
          */
 		Character(void);
+		/** \brief Destructeur
+		 */
+		virtual ~Character(void);
         /** \brief Charge l'image du personnage.
          */
 		void LoadSprite(void);

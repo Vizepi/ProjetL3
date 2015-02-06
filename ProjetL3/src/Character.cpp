@@ -19,6 +19,15 @@ Character::Character()
 	m_currentAnimation->Stop();
 }
 
+/*virtual*/ Character::~Character()
+{
+	while(m_anim.size() > 0)
+	{
+		delete m_anim[m_anim.size()-1];
+		m_anim.pop_back();
+	}
+}
+
 void Character::LoadSprite()
 {
 	m_image.setTexture(*RessourceLoader::GetTexture("doctor_who"));

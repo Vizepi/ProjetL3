@@ -11,7 +11,7 @@ void Event::event(sf::RenderWindow& window, Character& character)
 		{
 			//fermeture de la fenetre lorsque l'utilisateur le souhaite.
 		case sf::Event::Closed:
-			window.close();
+			Game::s_instance->SwitchState(STATE_QUIT);
 			break;
 		case sf::Event::KeyReleased:
 			switch(event.key.code)
@@ -57,8 +57,12 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				break;
 			case sf::Keyboard::P:
-			case sf::Keyboard::Escape:
+				character.GetBody()->SetLinearVelocity(b2Vec2(0, 0));
+				character.GetCurrentAnimation()->Stop();
 				Game::s_instance->SwitchState(STATE_PAUSE);
+				break;
+			case sf::Keyboard::Escape:
+				Game::s_instance->SwitchState(STATE_MENU);
 				break;
 			default:
 				break;

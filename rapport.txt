@@ -1,0 +1,23 @@
+1/ intro : 1-2p
+	-presentation sujet
+2/analyse
+	-analyse du sujet
+	-uml
+	-choix technologie
+	-algorithme generation
+3/implementation
+	-algos implementés
+	-box2d
+	-sfml
+	-diagramme de fonctionnement
+4/bilan
+	-gestion de projet 
+	-organisation
+	-conclusion
+
+page titre :
+1/ titre projet
+2/ auteurs
+3/ ufc
+4/ jube
+5/ l3 info, date

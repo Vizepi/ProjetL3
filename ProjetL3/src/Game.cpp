@@ -100,6 +100,7 @@
 /*virtual*/ void Game::Draw(sf::RenderWindow& window)
 {
 	sf::RectangleShape rs;
+	sf::Text pauseText;
 	switch(m_state)
 	{
 	case STATE_MENU:
@@ -111,9 +112,14 @@
 	case STATE_PAUSE:
 		m_level->Draw(window);
 		rs.setFillColor(sf::Color(0, 0, 0, 128));
-		rs.setPosition(0, 0);
+		rs.setPosition(window.getView().getCenter().x-window.getSize().x/2, window.getView().getCenter().y-window.getSize().y/2);
 		rs.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
 		window.draw(rs);
+		pauseText.setFont(*RessourceLoader::GetFont());
+		pauseText.setString("PAUSE");
+		pauseText.setColor(sf::Color::White);
+		pauseText.setPosition(window.getView().getCenter().x-pauseText.getGlobalBounds().width/2, window.getView().getCenter().y-pauseText.getGlobalBounds().height/2);
+		window.draw(pauseText);
 		break;
 	default:
 		break;
@@ -128,7 +134,6 @@
 	}
 	m_level = new Level();
 	m_level->LoadLevel();
-	m_level->CreateTestLevel();
 	m_level->GenerateLevel();
 	m_level->LoadLevelArray();
 }

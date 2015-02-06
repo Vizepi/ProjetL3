@@ -21,6 +21,7 @@ Level::Level()
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
+	std::cout << m_rand->GetSeed() << std::endl;
 }
 
 Level::~Level()
@@ -322,12 +323,24 @@ void Level::GenerateLevel()
 	//Création pile :
 	stack<Room*> pile;
 
+	// Récupération des dimension du niveau
+	int arrayWidth = LEVEL_WIDTH * ROOM_WIDTH;
+	int arrayHeight = LEVEL_HEIGHT * ROOM_HEIGHT;
+
+	m_array.reserve(arrayWidth);
+	for(i=0;i<arrayWidth;i++)
+	{
+		m_array.push_back(std::vector<int>());
+		//Reservation de 15 en largeur.
+		m_array[i].reserve(arrayHeight);
+		for(j=0;j<arrayHeight;j++)
+		{
+			m_array[i].push_back(lt_empty);
+		}
+	}
 
 	if(m_array.size() == 0)
 		return;
-	// Récupération des dimension du niveau
-	int arrayWidth = m_array.size();
-	int arrayHeight = m_array[0].size();
 
 	int rand_x = m_rand->NextInt(0, LEVEL_WIDTH-1);
 	int rand_y = m_rand->NextInt(0, LEVEL_HEIGHT-1);
@@ -411,6 +424,16 @@ void Level::GenerateLevel()
 	}
 	delete [] tableauExemple;
 
+	for(i=0;i<arrayWidth;i++)
+	{
+		m_array[i][0] = lt_solid;
+		m_array[i][arrayHeight-1] = lt_solid;
+	}
+	for(i=0;i<arrayHeight;i++)
+	{
+		m_array[0][i] = lt_solid;
+		m_array[arrayWidth-1][i] = lt_solid;
+	}
 
 }
 
@@ -658,6 +681,8 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 			rand = m_rand->NextInt(p1x, p2x);
 		else
 			rand = m_rand->NextInt(p2x, p1x);
+		if(y >= (int)m_array[0].size()-1)
+			continue;
 		if(m_array[rand][y+1] != lt_empty)
 			continue;
 		m_array[rand][y]= lt_cross;
@@ -851,7 +876,6 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 
 void Level::PutCoin()
 {
-	//.reserve(NB_COINS);
 	for(int i =0; i< NB_COINS; i++)
 	{
 		int rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);
@@ -959,23 +983,24 @@ void Level::LoadLevelArray()
 	return;
 	#endif
 
-	std::vector<bool> mark;
+	bool mark[mul];
 	for(int i=0;i<mul;i++)
-		mark.push_back(false); // Initialisation du tableau de booléens
+		mark[i] = false; // Initialisation du tableau de booléens
     int width = 0;
     int height = 0;
-    int x, y;
+    float x, y;
     int prev[3] = {0, 0, 0}; // {type, x, y}
     int state;
 	for(int j=0;j<arrayHeight;j++)
 	{
 		for(int i=0;i<arrayWidth;i++)
 		{
-			if(!mark[i * arrayWidth + j]) // Si on n'est pas encore passé sur le bloc
+			assert(i * arrayHeight + j < mul);
+			if(!mark[i * arrayHeight + j]) // Si on n'est pas encore passé sur le bloc
 			{
 				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
 				{
-					mark[i * arrayWidth + j] = true;
+					mark[i * arrayHeight + j] = true;
 					continue;
 				}
 				state = 0;
@@ -984,7 +1009,7 @@ void Level::LoadLevelArray()
 				{
 					if(state == 0) // Debut de rectangle
 					{
-						mark[currentX * arrayWidth + currentY] = true;
+						mark[currentX * arrayHeight + currentY] = true;
 						prev[0] = m_array[i][j];
 						prev[1] = i;
 						prev[2] = j;
@@ -1011,7 +1036,7 @@ void Level::LoadLevelArray()
 							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
 							{
 								width++;
-								mark[currentX * arrayWidth + currentY] = true;
+								mark[currentX * arrayHeight + currentY] = true;
 							}
 							else
 							{
@@ -1042,7 +1067,7 @@ void Level::LoadLevelArray()
 						{
 							// Marquage.
 							for(int k=prev[1];k<lineEnd;k++)
-								mark[k * arrayWidth + currentY] = true;
+								mark[k * arrayHeight + currentY] = true;
 							height++;
 							currentX = prev[1];
 							currentY++;
@@ -1445,6 +1470,20 @@ void Level::GetTextureCoords(int* x, int* y, int center, int north, int east, in
 		*x = 0;
 		*y = 0;
 		break;
+	}
+}
+
+void Level::Dump()
+{
+	int width = m_array.size();
+	int height = m_array[0].size();
+	for(int i=0;i<width;i++)
+	{
+		for(int j=0;j<height;j++)
+		{
+			std::cout << m_array[j][i] << " ";
+		}
+		std::cout << std::endl;
 	}
 }
 
