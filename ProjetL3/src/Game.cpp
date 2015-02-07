@@ -5,6 +5,8 @@
 /*explicit*/ Game::Game()
 : m_level(NULL)
 , m_state(STATE_MENU)
+, m_musicActive(true)
+, m_soundsActive(true)
 {
 	s_instance = this;
 }
@@ -35,6 +37,9 @@
 		break;
 	case STATE_INGAME:
 		m_level->Update(window, frameTime);
+		break;
+	case STATE_OPTION:
+		m_option.Update(window, frameTime);
 		break;
 	case STATE_PAUSE:
 		sf::Event event;
@@ -109,6 +114,9 @@
 	case STATE_INGAME:
 		m_level->Draw(window);
 		break;
+	case STATE_OPTION:
+		m_option.Draw(window);
+		break;
 	case STATE_PAUSE:
 		m_level->Draw(window);
 		rs.setFillColor(sf::Color(0, 0, 0, 128));
@@ -142,3 +150,34 @@
 {
 	m_state = state;
 }
+
+/*virtual*/ void Game::SetMusic(bool state)
+{
+	m_musicActive = state;
+}
+
+/*virtual*/ void Game::SetSounds(bool state)
+{
+	m_soundsActive = state;
+}
+
+/*virtual*/ void Game::SetShadow(bool state)
+{
+	m_shadowActive = state;
+}
+
+/*virtual*/ bool Game::IsMusicActive() const
+{
+	return m_musicActive;
+}
+
+/*virtual*/ bool Game::IsSoundsActive() const
+{
+	return m_soundsActive;
+}
+
+/*virtual*/ bool Game::IsShadowActive() const
+{
+	return m_shadowActive;
+}
+

@@ -59,6 +59,7 @@
 		<Unit filename="header/Game.h" />
 		<Unit filename="header/Level.h" />
 		<Unit filename="header/Menu.h" />
+		<Unit filename="header/Option.h" />
 		<Unit filename="header/Random.h" />
 		<Unit filename="header/RessourceLoader.h" />
 		<Unit filename="src/Animation.cpp" />
@@ -67,9 +68,13 @@
 		<Unit filename="src/Game.cpp" />
 		<Unit filename="src/Level.cpp" />
 		<Unit filename="src/Menu.cpp" />
+		<Unit filename="src/Option.cpp" />
 		<Unit filename="src/Random.cpp" />
 		<Unit filename="src/RessourceLoader.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/ressource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
