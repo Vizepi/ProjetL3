@@ -1,4 +1,5 @@
 #include "../header/Level.h"
+#include "../header/Game.h"
 
 Level::Level()
 : m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
@@ -11,9 +12,9 @@ Level::Level()
 	gagne = false;
 	m_listener = new JumpListener(&m_character);
 	m_world.SetContactListener(m_listener);
-	tardis.setTexture(*RessourceLoader::GetTexture("Tardis"));
+	tardis.setTexture(*RessourceLoader::GetTexture("Start"));
 	tardis.setScale(0.75f, 0.75f);
-	emy.setTexture(*RessourceLoader::GetTexture("Amy Pond"));
+	emy.setTexture(*RessourceLoader::GetTexture("Target"));
 	emy.setTextureRect(sf::IntRect(0, 0, 32, 48));
 
 	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
@@ -21,7 +22,6 @@ Level::Level()
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
-	std::cout << m_rand->GetSeed() << std::endl;
 }
 
 Level::~Level()
@@ -180,6 +180,12 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 		cY = m_array[0].size() * BLOC_SIZE - wY/2.f;
 	window.setView(sf::View(sf::Vector2f(cX, cY), sf::Vector2f(wX, wY)));
 	#endif
+	// Light
+	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
+	if(m_lastLightAlpha < 0)
+		m_lastLightAlpha = 0;
+	if(m_lastLightAlpha > 255)
+		m_lastLightAlpha = 255;
 	// Get coins
 	for(int i=m_coins.size()-1;i>=0;i--)
 	{
@@ -192,8 +198,6 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 		{
 				m_coinsGet++;
 				m_coins.erase(m_coins.begin()+i);
-				printf("Nombres de pieces :%d\n", m_coinsGet);
-				printf("Index : %d, reste %d\n", i, m_coins.size());
 				break;
 		}
 	}
@@ -216,58 +220,54 @@ void Level::Draw(sf::RenderWindow& window)
 		window.draw(m_coin);
 	}
 	// Creation de la lumière
-	#ifndef HIDE_LIGHT
-	sf::Sprite light(*RessourceLoader::GetTexture("Light"));
-	int lightWidth = light.getTexture()->getSize().x;
-	int lightHeight = light.getTexture()->getSize().y;
-	int winW = window.getView().getSize().x;
-	int winH = window.getView().getSize().y;
-	int winX = window.getView().getCenter().x - winW/2;
-	int winY = window.getView().getCenter().y - winH/2;
-	int posChX = m_character.GetSprite()->getPosition().x;
-	int posChY = m_character.GetSprite()->getPosition().y;
-	int posLightX = posChX - (lightWidth / 2.f);
-	int posLightY = posChY - (lightHeight / 2.f);
-	int blackWidth0 = posLightX - winX;
-	int blackHeight0 = posLightY - winY;
-	int blackWidth1 = winX + winW - posLightX - lightWidth;
-	int blackHeight1 = winY + winH - posLightY - lightHeight;
-	sf::RectangleShape blackRS;
-	blackRS.setFillColor(sf::Color::Black);
-	if(blackWidth0 > 0)
+	if(Game::s_instance->IsShadowActive())
 	{
-		blackRS.setSize(sf::Vector2f(blackWidth0+4, winH+4));
-		blackRS.setPosition(winX - 2.f, winY - 2.f);
-		window.draw(blackRS);
+		sf::Sprite light(*RessourceLoader::GetTexture("Light"));
+		int lightWidth = light.getTexture()->getSize().x;
+		int lightHeight = light.getTexture()->getSize().y;
+		int winW = window.getView().getSize().x;
+		int winH = window.getView().getSize().y;
+		int winX = window.getView().getCenter().x - winW/2;
+		int winY = window.getView().getCenter().y - winH/2;
+		int posChX = m_character.GetSprite()->getPosition().x;
+		int posChY = m_character.GetSprite()->getPosition().y;
+		int posLightX = posChX - (lightWidth / 2.f);
+		int posLightY = posChY - (lightHeight / 2.f);
+		int blackWidth0 = posLightX - winX;
+		int blackHeight0 = posLightY - winY;
+		int blackWidth1 = winX + winW - posLightX - lightWidth;
+		int blackHeight1 = winY + winH - posLightY - lightHeight;
+		sf::RectangleShape blackRS;
+		blackRS.setFillColor(sf::Color::Black);
+		if(blackWidth0 > 0)
+		{
+			blackRS.setSize(sf::Vector2f(blackWidth0+4, winH+4));
+			blackRS.setPosition(winX - 2.f, winY - 2.f);
+			window.draw(blackRS);
+		}
+		if(blackWidth1 > 0)
+		{
+			blackRS.setSize(sf::Vector2f(blackWidth1+4, winH+4));
+			blackRS.setPosition(posLightX + lightWidth - 2.f, winY - 2.f);
+			window.draw(blackRS);
+		}
+		if(blackHeight0 > 0)
+		{
+			blackRS.setSize(sf::Vector2f(winW+4, blackHeight0+4));
+			blackRS.setPosition(winX - 2.f, winY - 2.f);
+			window.draw(blackRS);
+		}
+		if(blackHeight1 > 0)
+		{
+			blackRS.setSize(sf::Vector2f(winW+4, blackHeight1+4));
+			blackRS.setPosition(winX - 2.f, posLightY + lightHeight - 2.f);
+			window.draw(blackRS);
+		}
+		light.setPosition(posLightX, posLightY);
+		window.draw(light);
+		light.setColor(sf::Color(255, 255, 255, m_lastLightAlpha));
+		window.draw(light);
 	}
-	if(blackWidth1 > 0)
-	{
-		blackRS.setSize(sf::Vector2f(blackWidth1+4, winH+4));
-		blackRS.setPosition(posLightX + lightWidth - 2.f, winY - 2.f);
-		window.draw(blackRS);
-	}
-	if(blackHeight0 > 0)
-	{
-		blackRS.setSize(sf::Vector2f(winW+4, blackHeight0+4));
-		blackRS.setPosition(winX - 2.f, winY - 2.f);
-		window.draw(blackRS);
-	}
-	if(blackHeight1 > 0)
-	{
-		blackRS.setSize(sf::Vector2f(winW+4, blackHeight1+4));
-		blackRS.setPosition(winX - 2.f, posLightY + lightHeight - 2.f);
-		window.draw(blackRS);
-	}
-	light.setPosition(posLightX, posLightY);
-	window.draw(light);
-	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
-	if(m_lastLightAlpha < 0)
-		m_lastLightAlpha = 0;
-	if(m_lastLightAlpha > 255)
-		m_lastLightAlpha = 255;
-	light.setColor(sf::Color(255, 255, 255, m_lastLightAlpha));
-	window.draw(light);
-	#endif
 	DrawHUB(window.getView().getCenter().x - (window.getView().getSize().x)/2,
 			window.getView().getCenter().y - (window.getView().getSize().y)/2,
 			window.getView().getSize().x,
@@ -353,8 +353,6 @@ void Level::GenerateLevel()
 		rand_xend = m_rand->NextInt(0, LEVEL_WIDTH-1);
 		rand_yend = m_rand->NextInt(0, LEVEL_HEIGHT-1);
 	}
-	printf("x de depart :%d\ny de depart:%d\n", rand_x, rand_y);
-	printf("x d'arrive :%d\ny d'arrive:%d\n", rand_xend, rand_yend);
 
 	FindPath(rand_x, rand_y, rand_xend, rand_yend, MINIM_DISTANCE, (Room**)(tableauExemple), arrayWidth, arrayHeight, pile);
 	Room* r_end = new Room();
@@ -367,13 +365,11 @@ void Level::GenerateLevel()
 	pile.top()->West = false;
 	//Création d'une deque
 	deque<Room*> dq;
-	printf("Pile :\n");
 	while(!pile.empty())
 	{
 		dq.push_front(pile.top());
 		pile.pop();
 	}
-	printf("Deque :\n");
 	SetRoom(dq);
 	for (i=0; i<(signed)dq.size(); i++)
 	{
@@ -1150,7 +1146,7 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
 	sf::Sprite sprite;
-	sprite.setTexture(*RessourceLoader::GetTexture("Skin01"));
+	sprite.setTexture(*RessourceLoader::GetTexture("Skin"));
 	sprite.setScale(BLOC_SIZE/RS_BLOC_SIZE, BLOC_SIZE/RS_BLOC_SIZE);
 	m_brokenLadderRandom = new Random(68435);
 	for(int i=0;i<arrayWidth;i++)

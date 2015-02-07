@@ -31,7 +31,7 @@ Character::Character()
 
 void Character::LoadSprite()
 {
-	m_image.setTexture(*RessourceLoader::GetTexture("doctor_who"));
+	m_image.setTexture(*RessourceLoader::GetTexture("Character"));
 }
 
 sf::Sprite* Character::GetSprite()

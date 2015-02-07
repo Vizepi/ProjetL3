@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 	window.setKeyRepeatEnabled(false);
 
 	//Chargement des textures.
-	RessourceLoader::LoadTextures("textures.txt");
+	RessourceLoader::LoadTextures("data.dat");
 	RessourceLoader::LoadFont("../../pictures/segoeui.ttf");
 	Game game;
 	sf::Clock frameTime;
