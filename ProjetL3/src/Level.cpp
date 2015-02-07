@@ -136,6 +136,7 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 	fixtureDef.isSensor = true;
 	Body->CreateFixture(&fixtureDef);
 
+
 	return Body;
 }
 //Chargement du level.
@@ -196,6 +197,7 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 				break;
 		}
 	}
+    printf("Vie : %d\n", m_character.GetLife());
 }
 
 //Remplissage de la fenetre
@@ -979,7 +981,7 @@ void Level::LoadLevelArray()
 	}
 
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
-
+	m_listener->SetPos(m_character.GetBody()->GetPosition().y * SCALE);
 	return;
 	#endif
 
@@ -1103,6 +1105,7 @@ void Level::LoadLevelArray()
 		}
 	}
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
+	m_listener->SetPos(m_character.GetBody()->GetPosition().y * SCALE);
 }
 
 void Level::DrawBackground(sf::RenderWindow& window)

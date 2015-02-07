@@ -16,6 +16,7 @@
 
 #define CHARACTER_HEIGHT 36
 #define CHARACTER_WIDTH 20
+#define MAX_LIFE 7
 
 class Character
 {
@@ -79,6 +80,10 @@ class Character
 
 		bool IsClimbEnabled(void) const;
 
+		void SetLife(int life);
+
+		int GetLife(void) const;
+
 	protected:
 
 	private:
@@ -89,17 +94,24 @@ class Character
 		int m_currentDirection; /**< Direction courante. */
 		bool m_jumpEnabled; /**< Le personnage peut-il sauter ? (collsion sous les pieds) */
 		int m_climb;
+		int m_life;
 
 };
 
 class JumpListener : public b2ContactListener
 {
 public:
-	JumpListener(Character* character) : b2ContactListener(), m_character(character){}
+	JumpListener(Character* character) : b2ContactListener(), m_character(character), m_fall(false)
+	{
+	}
 	void BeginContact(b2Contact* contact);
 	void EndContact(b2Contact* contact);
+	int GetPos(void);
+	void SetPos(int pos);
 private:
 	Character* m_character;
+	int m_pos;
+	bool m_fall;
 };
 
 #endif // CHARACTER_H
