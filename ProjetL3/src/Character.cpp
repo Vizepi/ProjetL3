@@ -6,6 +6,7 @@ Character::Character()
 , m_currentDirection(LOOK_DOWN)
 , m_jumpEnabled(true)
 , m_climb(0)
+, m_life(MAX_LIFE)
 {
 	// Chargement de l'image
 	LoadSprite();
@@ -124,6 +125,17 @@ bool Character::IsClimbEnabled() const
 	return (m_climb > 0);
 }
 
+void Character::SetLife(int life)
+{
+	m_life = life;
+}
+
+int Character::GetLife() const
+{
+	return m_life;
+}
+
+
 void JumpListener::BeginContact(b2Contact* contact)
 {
     if(	(contact->GetFixtureA()->GetBody() == m_character->GetBody() && contact->GetFixtureA()->IsSensor()) ||
@@ -138,6 +150,23 @@ void JumpListener::BeginContact(b2Contact* contact)
 	{
 		m_character->EnableClimb(true);
 	}
+	//Pour verifier si le personnage est en chute
+	if (m_character->GetBody()->GetPosition().y * SCALE > m_pos+400 &&
+	((!contact->GetFixtureA()->IsSensor() && contact->GetFixtureA()->GetBody()->GetType() != b2_dynamicBody ) ||
+	(!contact->GetFixtureB()->IsSensor() && contact->GetFixtureB()->GetBody()->GetType() != b2_dynamicBody )) )
+	{
+		m_fall = true;
+		for(int i =0; i< 7; i++)
+		{
+			if((m_character->GetBody()->GetPosition().y * SCALE - m_pos) >= i*400+400)
+			m_character->SetLife(m_character->GetLife()-1);
+			if(m_character->GetLife()<= 0)
+			{
+				m_lose = true;
+			}
+		}
+	}
+	m_pos=m_character->GetBody()->GetPosition().y * SCALE;
 }
 void JumpListener::EndContact(b2Contact* contact)
 {
@@ -156,4 +185,21 @@ void JumpListener::EndContact(b2Contact* contact)
 			m_character->SetAnimation(LOOK_RIGHT, ANIM_PLAY);
 		}
 	}
+	m_pos=m_character->GetBody()->GetPosition().y * SCALE;
 }
+
+int JumpListener::GetPos()
+{
+
+	return m_pos;
+}
+void JumpListener::SetPos(int pos)
+{
+	m_pos = pos;
+}
+
+bool JumpListener::GetLose()
+{
+	return m_lose;
+}
+

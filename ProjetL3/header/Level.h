@@ -82,6 +82,7 @@ class Level
 {
 	public:
 		Level(void);
+		Level(int seed);
 		~Level(void);
 		void CreateStaticObject(float x, float y, float width, float height, int side = SIDE_CENTER);
 		void CreateSensor(float x, float y, float width, float height);
@@ -104,6 +105,8 @@ class Level
 		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** tableauExemple, int w, int h, stack<Room*> &pile);
 		void GetTextureCoords(int* x, int* y, int center, int north, int east, int south, int west);
 		void Dump(void);
+		bool GetWin(void);
+		int GetSeed(void);
 
 	protected:
 
@@ -127,6 +130,7 @@ class Level
 		int m_lastLightAlpha;
 		int m_coinsGet;
 		sf::Font* m_font;
+		sf::Sprite m_life;
 
 };
 #endif // LEVEL_H

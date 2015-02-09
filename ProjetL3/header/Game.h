@@ -4,6 +4,8 @@
 #include "Level.h"
 #include "Menu.h"
 #include "Option.h"
+#include "Win.h"
+#include "Lose.h"
 #include <SFML/Graphics.hpp>
 
 enum
@@ -11,6 +13,8 @@ enum
 	STATE_MENU,
 	STATE_INGAME,
 	STATE_PAUSE,
+	STATE_WIN,
+	STATE_LOSE,
 	STATE_OPTION,
 	STATE_QUIT
 };
@@ -24,6 +28,7 @@ public:
 	virtual void Draw(sf::RenderWindow& window);
 	virtual void SwitchState(int state);
 	virtual void NewLevel(void);
+	virtual void NewLevelReplay(void);
 	virtual void SetMusic(bool state);
 	virtual void SetSounds(bool state);
 	virtual void SetShadow(bool state);
@@ -31,10 +36,13 @@ public:
 	virtual bool IsSoundsActive(void) const;
 	virtual bool IsShadowActive(void) const;
 	static Game* s_instance;
+	Level* GetLevel(void);
 protected:
 	Level* m_level;
 	Menu m_menu;
 	Option m_option;
+	Win m_win;
+	Lose m_lose;
 	int m_state;
 	bool m_musicActive;
 	bool m_soundsActive;

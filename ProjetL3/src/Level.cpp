@@ -20,6 +20,34 @@ Level::Level()
 	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
 	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
 
+	m_life.setTexture(*RessourceLoader::GetTexture("Life"));
+
+	m_currentAnimation = m_anim[LOOK_DOWN];
+	m_currentAnimation->Play();
+	printf("%d\n", m_rand->GetSeed());
+}
+
+Level::Level(int seed)
+: m_gravity(b2Vec2(0.f, 15.f*GRAVITY_SCALE))
+, m_world(b2World(m_gravity))
+, m_rand(new Random(seed))
+, m_lastLightAlpha(128)
+, m_coinsGet(0)
+, m_font(RessourceLoader::GetFont())
+{
+	gagne = false;
+	m_listener = new JumpListener(&m_character);
+	m_world.SetContactListener(m_listener);
+	tardis.setTexture(*RessourceLoader::GetTexture("Start"));
+	tardis.setScale(0.75f, 0.75f);
+	emy.setTexture(*RessourceLoader::GetTexture("Target"));
+	emy.setTextureRect(sf::IntRect(0, 0, 32, 48));
+
+	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
+	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
+
+	m_life.setTexture(*RessourceLoader::GetTexture("Life"));
+
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
 }
@@ -136,6 +164,7 @@ b2Body* Level::CreateDynamicObject(float x, float y, float width, float height)
 	fixtureDef.isSensor = true;
 	Body->CreateFixture(&fixtureDef);
 
+
 	return Body;
 }
 //Chargement du level.
@@ -200,6 +229,7 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 				break;
 		}
 	}
+
 }
 
 //Remplissage de la fenetre
@@ -275,15 +305,28 @@ void Level::Draw(sf::RenderWindow& window)
 
 void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window)
 {
+	m_life.setPosition(winX, winY);
+	for(int i=0; i< m_character.GetLife(); i++)
+	{
+		if(i != 0)
+			m_life.setPosition(m_life.getPosition().x + 30, winY);
+		window.draw(m_life);
+	}
+
+	m_coin.setPosition(winX+15, winY+50);
+	window.draw(m_coin);
+
 	sf::Text text_coins;
 	text_coins.setFont(*m_font);
 	std::stringstream strs;
-	strs << "COINS : " << m_coinsGet << " / " << NB_COINS;
+	strs << m_coinsGet << " / " << NB_COINS;
 	std::string text(strs.str());
 	text_coins.setString(text);
-	text_coins.setPosition(winX+10,winY+10);
+	text_coins.setPosition(winX+60,winY+47);
 	window.draw(text_coins);
-	if(gagne == true)
+
+
+	/*if(gagne == true)
 	{
 		sf::Text text_final;
 		text_final.setFont(*m_font);
@@ -291,6 +334,15 @@ void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& wi
 		text_final.setPosition(winX+(winW/2)-(text_final.getGlobalBounds().width/2), winY+(winH/2)-(text_final.getGlobalBounds().height/2));
 		window.draw(text_final);
 	}
+	if(m_listener->GetLose() == true)
+	{
+		sf::Text text_final;
+		text_final.setFont(*m_font);
+		text_final.setString("YOU LOSE !");
+		text_final.setPosition(winX+(winW/2)-(text_final.getGlobalBounds().width/2), winY+(winH/2)-(text_final.getGlobalBounds().height/2));
+		window.draw(text_final);
+	}
+	*/
 }
 
 Character* Level::GetCharacter()
@@ -975,7 +1027,7 @@ void Level::LoadLevelArray()
 	}
 
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
-
+	m_listener->SetPos(m_character.GetBody()->GetPosition().y * SCALE);
 	return;
 	#endif
 
@@ -1099,6 +1151,7 @@ void Level::LoadLevelArray()
 		}
 	}
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
+	m_listener->SetPos(m_character.GetBody()->GetPosition().y * SCALE);
 }
 
 void Level::DrawBackground(sf::RenderWindow& window)
@@ -1483,3 +1536,12 @@ void Level::Dump()
 	}
 }
 
+bool Level::GetWin()
+{
+	return gagne;
+}
+
+int Level::GetSeed()
+{
+	return m_rand->GetSeed();
+}
