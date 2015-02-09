@@ -101,17 +101,19 @@ class Character
 class JumpListener : public b2ContactListener
 {
 public:
-	JumpListener(Character* character) : b2ContactListener(), m_character(character), m_fall(false)
+	JumpListener(Character* character) : b2ContactListener(), m_character(character), m_fall(false), m_lose(false)
 	{
 	}
 	void BeginContact(b2Contact* contact);
 	void EndContact(b2Contact* contact);
 	int GetPos(void);
 	void SetPos(int pos);
+	bool GetLose(void);
 private:
 	Character* m_character;
 	int m_pos;
 	bool m_fall;
+	bool m_lose;
 };
 
 #endif // CHARACTER_H

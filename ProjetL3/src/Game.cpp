@@ -36,8 +36,27 @@
 		m_menu.Update(window, frameTime);
 		break;
 	case STATE_INGAME:
-		m_level->Update(window, frameTime);
+		if(/*gagner*/ m_level->GetWin())
+		{
+			m_win.Update(window, frameTime);
+			m_state = STATE_WIN;
+		}
+		else if(/*perdu*/m_level->GetCharacter()->GetLife() <=0)
+		{
+			m_lose.Update(window, frameTime);
+			m_state = STATE_LOSE;
+		}
+		else
+		{
+			m_level->Update(window, frameTime);
+		}
 		break;
+	case STATE_WIN:
+		m_win.Update(window, frameTime);
+	break;
+	case STATE_LOSE:
+		m_lose.Update(window, frameTime);
+	break;
 	case STATE_OPTION:
 		m_option.Update(window, frameTime);
 		break;
@@ -114,6 +133,12 @@
 	case STATE_INGAME:
 		m_level->Draw(window);
 		break;
+	case STATE_WIN:
+		m_win.Draw(window);
+	break;
+	case STATE_LOSE:
+		m_lose.Draw(window);
+	break;
 	case STATE_OPTION:
 		m_option.Draw(window);
 		break;
@@ -141,6 +166,19 @@
 		delete m_level;
 	}
 	m_level = new Level();
+	m_level->LoadLevel();
+	m_level->GenerateLevel();
+	m_level->LoadLevelArray();
+}
+
+/*virtual*/ void Game::NewLevelReplay()
+{
+	int seed = m_level->GetSeed();
+	if(m_level)
+	{
+		delete m_level;
+	}
+	m_level = new Level(seed);
 	m_level->LoadLevel();
 	m_level->GenerateLevel();
 	m_level->LoadLevelArray();
@@ -179,5 +217,10 @@
 /*virtual*/ bool Game::IsShadowActive() const
 {
 	return m_shadowActive;
+}
+
+Level* Game::GetLevel()
+{
+	return m_level;
 }
 

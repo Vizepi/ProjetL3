@@ -160,6 +160,10 @@ void JumpListener::BeginContact(b2Contact* contact)
 		{
 			if((m_character->GetBody()->GetPosition().y * SCALE - m_pos) >= i*400+400)
 			m_character->SetLife(m_character->GetLife()-1);
+			if(m_character->GetLife()<= 0)
+			{
+				m_lose = true;
+			}
 		}
 	}
 	m_pos=m_character->GetBody()->GetPosition().y * SCALE;
@@ -184,7 +188,7 @@ void JumpListener::EndContact(b2Contact* contact)
 	m_pos=m_character->GetBody()->GetPosition().y * SCALE;
 }
 
-int JumpListener::GetPos(void)
+int JumpListener::GetPos()
 {
 
 	return m_pos;
@@ -192,5 +196,10 @@ int JumpListener::GetPos(void)
 void JumpListener::SetPos(int pos)
 {
 	m_pos = pos;
+}
+
+bool JumpListener::GetLose()
+{
+	return m_lose;
 }
 
