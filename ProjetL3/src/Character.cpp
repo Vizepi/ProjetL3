@@ -151,9 +151,7 @@ void JumpListener::BeginContact(b2Contact* contact)
 		m_character->EnableClimb(true);
 	}
 	//Pour verifier si le personnage est en chute
-	if (m_character->GetBody()->GetPosition().y * SCALE > m_pos+400 &&
-	((!contact->GetFixtureA()->IsSensor() && contact->GetFixtureA()->GetBody()->GetType() != b2_dynamicBody ) ||
-	(!contact->GetFixtureB()->IsSensor() && contact->GetFixtureB()->GetBody()->GetType() != b2_dynamicBody )) )
+	if (m_character->GetBody()->GetPosition().y * SCALE > m_pos+400)
 	{
 		m_fall = true;
 		for(int i =0; i< 7; i++)

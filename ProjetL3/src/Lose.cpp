@@ -14,7 +14,7 @@
 	m_quitButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
 	m_quitButton.setPosition((m_background.getTexture()->getSize().x - m_quitButton.getTexture()->getSize().x)/2,
 							(m_background.getTexture()->getSize().y - m_quitButton.getTexture()->getSize().y)/2 + 160);
-	m_title.setTexture(*RessourceLoader::GetTexture("Menu Title"));
+	m_title.setTexture(*RessourceLoader::GetTexture("Game Over"));
 	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getTexture()->getSize().x)/2,
 							m_background.getTexture()->getSize().y/3 - m_title.getTexture()->getSize().y/2);
 	m_replayText.setFont(*RessourceLoader::GetFont());
@@ -23,7 +23,7 @@
 	m_replayText.setPosition((m_background.getTexture()->getSize().x - m_replayText.getLocalBounds().width)/2,
 							(m_background.getTexture()->getSize().y - m_replayText.getLocalBounds().height)/2 - 8);
 	m_saveText.setFont(*RessourceLoader::GetFont());
-	m_saveText.setString("Save part");
+	m_saveText.setString("Save level");
 	m_saveText.setColor(sf::Color::Black);
 	m_saveText.setPosition((m_background.getTexture()->getSize().x - m_saveText.getLocalBounds().width)/2,
 							(m_background.getTexture()->getSize().y - m_saveText.getLocalBounds().height)/2 - 8 + 80);
@@ -41,6 +41,27 @@
 
 /*virtual*/ void Lose::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 {
+	// Positionnement
+
+	int winX = window.getView().getCenter().x - window.getSize().x / 2;
+	int winY = window.getView().getCenter().y - window.getSize().y / 2;
+	m_background.setPosition(0, 0);
+	m_replayButton.setPosition(winX + (window.getSize().x - m_replayButton.getTexture()->getSize().x)/2,
+							winY + (window.getSize().y - m_replayButton.getTexture()->getSize().y)/2);
+	m_saveButton.setPosition(winX + (window.getSize().x - m_saveButton.getTexture()->getSize().x)/2,
+							winY + (window.getSize().y - m_saveButton.getTexture()->getSize().y)/2 + 80);
+	m_quitButton.setPosition(winX + (window.getSize().x - m_quitButton.getTexture()->getSize().x)/2,
+							winY + (window.getSize().y - m_quitButton.getTexture()->getSize().y)/2 + 160);
+	m_title.setPosition(winX + (window.getSize().x - m_title.getTexture()->getSize().x)/2,
+							winY + window.getSize().y/3 - m_title.getTexture()->getSize().y/2);
+	m_replayText.setPosition(winX + (window.getSize().x - m_replayText.getLocalBounds().width)/2,
+							winY + (window.getSize().y - m_replayText.getLocalBounds().height)/2 - 8);
+	m_saveText.setPosition(winX + (window.getSize().x - m_saveText.getLocalBounds().width)/2,
+							winY + (window.getSize().y - m_saveText.getLocalBounds().height)/2 - 8 + 80);
+	m_quitText.setPosition(winX + (window.getSize().x - m_quitText.getLocalBounds().width)/2,
+							winY + (window.getSize().y - m_quitText.getLocalBounds().height)/2 - 8 + 160);
+
+	// Evenements
 	sf::Event event;
 	while(window.pollEvent(event))
 	{
@@ -79,8 +100,10 @@
 			break;
 		}
 	}
-	sf::View view(sf::Vector2f(m_background.getTexture()->getSize())/2.f, sf::Vector2f(window.getSize()));
+
+	sf::View view(window.getView().getCenter(), sf::Vector2f(window.getSize()));
 	window.setView(view);
+
 }
 
 /*virtual*/ void Lose::Draw(sf::RenderWindow& window)

@@ -135,10 +135,10 @@
 		break;
 	case STATE_WIN:
 		m_win.Draw(window);
-	break;
+		break;
 	case STATE_LOSE:
 		m_lose.Draw(window);
-	break;
+		break;
 	case STATE_OPTION:
 		m_option.Draw(window);
 		break;

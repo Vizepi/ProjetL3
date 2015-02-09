@@ -130,6 +130,8 @@
 			break;
 		}
 	}
+	sf::View view(sf::Vector2f(m_background.getTexture()->getSize())/2.f, sf::Vector2f(window.getSize()));
+	window.setView(view);
 	if(m_set.fullscreen)
 		m_fsText.setColor(m_enabled);
 	else

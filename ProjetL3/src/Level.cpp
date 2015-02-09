@@ -296,6 +296,7 @@ void Level::Draw(sf::RenderWindow& window)
 		light.setColor(sf::Color(255, 255, 255, m_lastLightAlpha));
 		window.draw(light);
 	}
+	if(m_character.GetLife() > 0)
 	DrawHUB(window.getView().getCenter().x - (window.getView().getSize().x)/2,
 			window.getView().getCenter().y - (window.getView().getSize().y)/2,
 			window.getView().getSize().x,
@@ -324,25 +325,6 @@ void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& wi
 	text_coins.setString(text);
 	text_coins.setPosition(winX+60,winY+47);
 	window.draw(text_coins);
-
-
-	/*if(gagne == true)
-	{
-		sf::Text text_final;
-		text_final.setFont(*m_font);
-		text_final.setString("YOU WIN !");
-		text_final.setPosition(winX+(winW/2)-(text_final.getGlobalBounds().width/2), winY+(winH/2)-(text_final.getGlobalBounds().height/2));
-		window.draw(text_final);
-	}
-	if(m_listener->GetLose() == true)
-	{
-		sf::Text text_final;
-		text_final.setFont(*m_font);
-		text_final.setString("YOU LOSE !");
-		text_final.setPosition(winX+(winW/2)-(text_final.getGlobalBounds().width/2), winY+(winH/2)-(text_final.getGlobalBounds().height/2));
-		window.draw(text_final);
-	}
-	*/
 }
 
 Character* Level::GetCharacter()
