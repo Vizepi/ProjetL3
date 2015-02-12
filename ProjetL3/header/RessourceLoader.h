@@ -37,6 +37,12 @@ typedef struct
 	sf::Music* music;
 } music_set;
 
+typedef struct
+{
+	std::string name;
+	sf::Font* font;
+} font_set;
+
 class RessourceLoader
 {
 public:
@@ -65,9 +71,10 @@ public:
 	static sf::Music* GetMusic(unsigned int index);
 	static void ClearMusics(void);
 
-	static void LoadFont(const char* fontFile);
-	static sf::Font* GetFont(void);
-	static void ClearFont(void);
+	static void LoadFonts(const char* dataFile);
+	static sf::Font* GetFont(const std::string& name);
+	static sf::Font* GetFont(unsigned int index);
+	static void ClearFonts(void);
 
 private:
 
@@ -78,7 +85,7 @@ protected:
 	static std::vector<texture_set*> s_textureArray;
 	static std::vector<sound_set*> s_soundArray;
 	static std::vector<music_set*> s_musicArray;
-	static sf::Font* s_font;
+	static std::vector<font_set*> s_fontArray;
 
 	/*
 		Recupère l'item suivant dans le fichier et stocke le nom dans name et le chemin dans path

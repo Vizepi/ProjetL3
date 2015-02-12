@@ -89,8 +89,8 @@ class Level
 		b2Body* CreateDynamicObject(float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
-		void DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window);
-		void Update(sf::RenderWindow& window, sf::Clock& frameTime);
+		void DrawHUB(float winX, float winY, float winW, float winH, sf::RenderWindow& window);
+		void Update(sf::RenderWindow& window, sf::Time& frameTime);
 		Character* GetCharacter(void);
 		void GenerateLevel(void);
 		void CreateLevel(Room** t, deque<Room*> &dq);
@@ -120,9 +120,9 @@ class Level
 		b2Vec2 m_startPosition;
 		JumpListener* m_listener;
 		Random* m_rand;
-		sf::Sprite tardis;
-		sf::Sprite emy;
-		bool gagne;
+		sf::Sprite m_start;
+		sf::Sprite m_target;
+		bool m_win;
 		std::vector<Animation*> m_anim;
 		Animation* m_currentAnimation;
 		sf::Sprite m_coin;
@@ -131,6 +131,7 @@ class Level
 		int m_coinsGet;
 		sf::Font* m_font;
 		sf::Sprite m_life;
-
+		sf::Time m_timer;
+		sf::Sprite m_clock;
 };
 #endif // LEVEL_H

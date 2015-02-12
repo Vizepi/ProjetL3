@@ -1,0 +1,14 @@
+Character:data/images/skin01/matt_smith.png
+Target:data/images/skin01/amy_pond.png
+Skin:data/images/skin01/skin01.png
+Start:data/images/skin01/tardis.png
+Coins:data/images/coins.png
+Light:data/images/light.png
+Background:data/images/skin01/cave_background.png
+Menu Background:data/images/menu.png
+Menu Button:data/images/button.png
+Menu Title:data/images/title.png
+Life:data/images/life.png
+Win:data/images/win.png
+Game Over:data/images/gameover.png
+Clock:data/images/clock.png

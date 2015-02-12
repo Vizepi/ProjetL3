@@ -33,35 +33,38 @@
 	m_shadowButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
 	m_shadowButton.setPosition((m_background.getTexture()->getSize().x - m_shadowButton.getTexture()->getSize().x)/2 + 200,
 							(m_background.getTexture()->getSize().y - m_shadowButton.getTexture()->getSize().y)/2 + 60);
-	m_title.setTexture(*RessourceLoader::GetTexture("Menu Title"));
-	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getTexture()->getSize().x)/2,
-							m_background.getTexture()->getSize().y/3 - m_title.getTexture()->getSize().y/2);
-	m_backText.setFont(*RessourceLoader::GetFont());
+	m_title.setFont(*RessourceLoader::GetFont("Title"));
+	m_title.setCharacterSize(72);
+	m_title.setColor(sf::Color(255, 255, 255, 255));
+	m_title.setString("OPTION");
+	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getLocalBounds().width)/2,
+							m_background.getTexture()->getSize().y/3 - m_title.getLocalBounds().height/2);
+	m_backText.setFont(*RessourceLoader::GetFont("Default"));
 	m_backText.setString("Back");
 	m_backText.setColor(sf::Color::Black);
 	m_backText.setPosition((m_background.getTexture()->getSize().x - m_backText.getLocalBounds().width)/2 - 200,
 							(m_background.getTexture()->getSize().y - m_backText.getLocalBounds().height)/2 + 200 - 8);
-	m_applyText.setFont(*RessourceLoader::GetFont());
+	m_applyText.setFont(*RessourceLoader::GetFont("Default"));
 	m_applyText.setString("Apply");
 	m_applyText.setColor(sf::Color::Black);
 	m_applyText.setPosition((m_background.getTexture()->getSize().x - m_applyText.getLocalBounds().width)/2 + 200,
 							(m_background.getTexture()->getSize().y - m_applyText.getLocalBounds().height)/2 + 200 - 8);
-	m_fsText.setFont(*RessourceLoader::GetFont());
+	m_fsText.setFont(*RessourceLoader::GetFont("Default"));
 	m_fsText.setString("FullScreen");
 	m_fsText.setColor(m_disabled);
 	m_fsText.setPosition((m_background.getTexture()->getSize().x - m_fsText.getLocalBounds().width)/2 - 200,
 							(m_background.getTexture()->getSize().y - m_fsText.getLocalBounds().height)/2 - 60 - 8);
-	m_musicText.setFont(*RessourceLoader::GetFont());
+	m_musicText.setFont(*RessourceLoader::GetFont("Default"));
 	m_musicText.setString("Music");
 	m_musicText.setColor(m_enabled);
 	m_musicText.setPosition((m_background.getTexture()->getSize().x - m_musicText.getLocalBounds().width)/2 - 200,
 							(m_background.getTexture()->getSize().y - m_musicText.getLocalBounds().height)/2 + 60 - 8);
-	m_soundsText.setFont(*RessourceLoader::GetFont());
+	m_soundsText.setFont(*RessourceLoader::GetFont("Default"));
 	m_soundsText.setString("Sounds");
 	m_soundsText.setColor(m_enabled);
 	m_soundsText.setPosition((m_background.getTexture()->getSize().x - m_soundsText.getLocalBounds().width)/2 + 200,
 							(m_background.getTexture()->getSize().y - m_soundsText.getLocalBounds().height)/2 - 60 - 8);
-	m_shadowText.setFont(*RessourceLoader::GetFont());
+	m_shadowText.setFont(*RessourceLoader::GetFont("Default"));
 	m_shadowText.setString("Shadow");
 	m_shadowText.setColor(m_enabled);
 	m_shadowText.setPosition((m_background.getTexture()->getSize().x - m_shadowText.getLocalBounds().width)/2 + 200,
@@ -77,7 +80,7 @@
 
 }
 
-/*virtual*/ void Option::Update(sf::RenderWindow& window, sf::Clock& frameTime)
+/*virtual*/ void Option::Update(sf::RenderWindow& window, sf::Time& frameTime)
 {
 	sf::Event event;
 	while(window.pollEvent(event))
@@ -189,7 +192,10 @@
 	Game::s_instance->SetMusic(m_music);
 	Game::s_instance->SetSounds(m_sound);
 	Game::s_instance->SetShadow(m_shadow);
-	Game::s_instance->SwitchState(STATE_MENU);
+	if(Game::s_instance->WasInMenu())
+		Game::s_instance->SwitchState(STATE_MENU);
+	else
+		Game::s_instance->SwitchState(STATE_PAUSE);
 }
 
 /*virtual*/ void Option::Discard()
@@ -198,6 +204,9 @@
 	m_set.music = m_music;
 	m_set.sound = m_sound;
 	m_set.shadow = m_shadow;
-	Game::s_instance->SwitchState(STATE_MENU);
+	if(Game::s_instance->WasInMenu())
+		Game::s_instance->SwitchState(STATE_MENU);
+	else
+		Game::s_instance->SwitchState(STATE_PAUSE);
 }
 

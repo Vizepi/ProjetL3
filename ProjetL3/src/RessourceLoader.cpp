@@ -70,7 +70,7 @@
 		ss->buffer = new(sf::SoundBuffer);
 		if(!(ss->buffer->loadFromFile(path.c_str())))
 		{
-			std::cerr << "Unable to open texture file \"" << path << "\"" << std::endl;
+			std::cerr << "Unable to open sound file \"" << path << "\"" << std::endl;
 		}
 		ss->sound = new sf::Sound(*(ss->buffer));
 		s_soundArray.push_back(ss);
@@ -124,7 +124,7 @@
 		ms->music = new sf::Music();
 		if(!(ms->music->openFromFile(path.c_str())))
 		{
-			std::cerr << "Unable to open texture file \"" << path << "\"" << std::endl;
+			std::cerr << "Unable to open music file \"" << path << "\"" << std::endl;
 		}
 		s_musicArray.push_back(ms);
 	}
@@ -159,6 +159,58 @@
 	}
 }
 
+/*static*/ void RessourceLoader::LoadFonts(const char* dataFile)
+{
+	std::ifstream file(dataFile, std::ios::in);
+	if(!file.good())
+	{
+		std::cerr << "Error while opening fonts file \"" << dataFile << "\"." << std::endl;
+		exit(1);
+	}
+	std::string name;
+	std::string path;
+	while(NextItem(file, name, path))
+	{
+		font_set * fs = new font_set;
+		fs->name.assign(name);
+		fs->font = new sf::Font();
+		if(!(fs->font->loadFromFile(path.c_str())))
+		{
+			std::cerr << "Unable to open font file \"" << path << "\"" << std::endl;
+		}
+		s_fontArray.push_back(fs);
+	}
+	file.close();
+}
+
+/*static*/ sf::Font* RessourceLoader::GetFont(const std::string& name)
+{
+	int l = s_fontArray.size();
+	for(int i=0;i<l;i++)
+		if(name == s_fontArray[i]->name)
+			return s_fontArray[i]->font;
+	return s_fontArray[0]->font;
+}
+
+/*static*/ sf::Font* RessourceLoader::GetFont(unsigned int index)
+{
+	if(index >= 0 && index < s_fontArray.size())
+	{
+		return s_fontArray[index]->font;
+	}
+	return s_fontArray[0]->font;
+}
+
+/*static*/ void RessourceLoader::ClearFonts()
+{
+	while(s_fontArray.size() > 0)
+	{
+		delete(s_fontArray[0]->font);
+		delete(s_fontArray[0]);
+		s_fontArray.erase(s_fontArray.begin());
+	}
+}
+
 /*static*/ bool RessourceLoader::NextItem(std::ifstream& file, std::string& name, std::string& path)
 {
 	char buffer[BUFFER_SIZE];
@@ -186,29 +238,8 @@
 	return true;
 }
 
-/*static*/ void RessourceLoader::LoadFont(const char* fontFile)
-{
-	s_font = new sf::Font();
-	if(!s_font->loadFromFile(fontFile))
-	{
-		std::cerr << "Error while loading font file \"" << fontFile << "\"." << std::endl;
-	}
-}
-
-/*static*/ sf::Font* RessourceLoader::GetFont()
-{
-	return s_font;
-}
-
-/*static*/ void RessourceLoader::ClearFont()
-{
-	if(s_font)
-		delete s_font;
-	s_font = NULL;
-}
-
 std::vector<texture_set*> RessourceLoader::s_textureArray;
 std::vector<sound_set*> RessourceLoader::s_soundArray;
 std::vector<music_set*> RessourceLoader::s_musicArray;
-sf::Font* RessourceLoader::s_font = NULL;
+std::vector<font_set*> RessourceLoader::s_fontArray;
 

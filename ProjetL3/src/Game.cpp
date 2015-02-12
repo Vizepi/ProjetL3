@@ -7,6 +7,7 @@
 , m_state(STATE_MENU)
 , m_musicActive(true)
 , m_soundsActive(true)
+, m_fromMenu(true)
 {
 	s_instance = this;
 }
@@ -16,20 +17,8 @@
 
 }
 
-/*virtual*/ void Game::Update(sf::RenderWindow& window, sf::Clock& frameTime)
+/*virtual*/ void Game::Update(sf::RenderWindow& window, sf::Time& frameTime)
 {
-	sf::Rect<int> menuButton;
-	float cX = 0.f;
-	float cY = 0.f;
-	float wX = 0.f;
-	float wY = 0.f;
-	if(m_level != NULL)
-	{
-		cX = m_level->GetCharacter()->GetBody()->GetPosition().x * SCALE;
-		cY = m_level->GetCharacter()->GetBody()->GetPosition().y * SCALE;
-		wX = window.getSize().x;
-		wY = window.getSize().y;
-	}
 	switch(m_state)
 	{
 	case STATE_MENU:
@@ -61,55 +50,7 @@
 		m_option.Update(window, frameTime);
 		break;
 	case STATE_PAUSE:
-		sf::Event event;
-		while(window.pollEvent(event))
-		{
-			switch(event.type)
-			{
-			case sf::Event::Closed:
-				m_state = STATE_QUIT;
-				break;
-			case sf::Event::KeyReleased:
-				switch(event.key.code)
-				{
-				case sf::Keyboard::P:
-				case sf::Keyboard::Escape:
-					m_state = STATE_INGAME;
-					break;
-				default:
-					break;
-				}
-				break;
-			case sf::Event::MouseButtonReleased:
-				if(menuButton.contains(sf::Mouse::getPosition(window)))
-				{
-					m_state = STATE_MENU;
-				}
-				break;
-			case sf::Event::Resized:
-				// Gere la taille du viewport lors du redimensionnement !
-				if(event.size.width > 1920)
-					window.setSize(sf::Vector2u(1920, window.getSize().y));
-				if(event.size.width < 800)
-					window.setSize(sf::Vector2u(800, window.getSize().y));
-				if(event.size.height > 1080)
-					window.setSize(sf::Vector2u(window.getSize().x, 1080));
-				if(event.size.height < 600)
-					window.setSize(sf::Vector2u(window.getSize().x, 600));
-				break;
-			default:
-				break;
-			}
-		}
-		if(cX < wX/2.f)
-			cX = wX/2.f;
-		if(cX > LEVEL_WIDTH * ROOM_WIDTH * BLOC_SIZE - wX/2.f)
-			cX = LEVEL_WIDTH * ROOM_WIDTH * BLOC_SIZE - wX/2.f;
-		if(cY < wY/2.f)
-			cY = wY/2.f;
-		if(cY > LEVEL_HEIGHT * ROOM_HEIGHT * BLOC_SIZE - wY/2.f)
-			cY = LEVEL_HEIGHT * ROOM_HEIGHT * BLOC_SIZE - wY/2.f;
-		window.setView(sf::View(sf::Vector2f(cX, cY), sf::Vector2f(wX, wY)));
+		m_pause.Update(window, frameTime);
 		break;
 	default:
 		if(m_level)
@@ -143,16 +84,7 @@
 		m_option.Draw(window);
 		break;
 	case STATE_PAUSE:
-		m_level->Draw(window);
-		rs.setFillColor(sf::Color(0, 0, 0, 128));
-		rs.setPosition(window.getView().getCenter().x-window.getSize().x/2, window.getView().getCenter().y-window.getSize().y/2);
-		rs.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
-		window.draw(rs);
-		pauseText.setFont(*RessourceLoader::GetFont());
-		pauseText.setString("PAUSE");
-		pauseText.setColor(sf::Color::White);
-		pauseText.setPosition(window.getView().getCenter().x-pauseText.getGlobalBounds().width/2, window.getView().getCenter().y-pauseText.getGlobalBounds().height/2);
-		window.draw(pauseText);
+		m_pause.Draw(window);
 		break;
 	default:
 		break;
@@ -204,6 +136,11 @@
 	m_shadowActive = state;
 }
 
+/*virtual*/ void Game::SetFrom(bool menu)
+{
+	m_fromMenu = menu;
+}
+
 /*virtual*/ bool Game::IsMusicActive() const
 {
 	return m_musicActive;
@@ -217,6 +154,11 @@
 /*virtual*/ bool Game::IsShadowActive() const
 {
 	return m_shadowActive;
+}
+
+/*virtual*/ bool Game::WasInMenu() const
+{
+	return m_fromMenu;
 }
 
 Level* Game::GetLevel()

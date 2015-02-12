@@ -1,35 +1,35 @@
-#include "../header/Win.h"
+#include "../header/Pause.h"
 #include "../header/Game.h"
 
-/*explicit*/ Win::Win()
+/*explicit*/ Pause::Pause()
 {
 	m_background.setTexture(*RessourceLoader::GetTexture("Menu Background"));
 	m_background.setPosition(0, 0);
 	m_replayButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
 	m_replayButton.setPosition((m_background.getTexture()->getSize().x - m_replayButton.getTexture()->getSize().x)/2,
 							(m_background.getTexture()->getSize().y - m_replayButton.getTexture()->getSize().y)/2);
-	m_saveButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
-	m_saveButton.setPosition((m_background.getTexture()->getSize().x - m_saveButton.getTexture()->getSize().x)/2,
-							(m_background.getTexture()->getSize().y - m_saveButton.getTexture()->getSize().y)/2 + 80);
+	m_optionButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
+	m_optionButton.setPosition((m_background.getTexture()->getSize().x - m_optionButton.getTexture()->getSize().x)/2,
+							(m_background.getTexture()->getSize().y - m_optionButton.getTexture()->getSize().y)/2 + 80);
 	m_quitButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
 	m_quitButton.setPosition((m_background.getTexture()->getSize().x - m_quitButton.getTexture()->getSize().x)/2,
 							(m_background.getTexture()->getSize().y - m_quitButton.getTexture()->getSize().y)/2 + 160);
 	m_title.setFont(*RessourceLoader::GetFont("Title"));
 	m_title.setCharacterSize(72);
 	m_title.setColor(sf::Color(255, 255, 255, 255));
-	m_title.setString("YOU WIN");
+	m_title.setString("PAUSE");
 	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getLocalBounds().width)/2,
 							m_background.getTexture()->getSize().y/3 - m_title.getLocalBounds().height/2);
 	m_replayText.setFont(*RessourceLoader::GetFont("Default"));
-	m_replayText.setString("Play");
+	m_replayText.setString("Resume");
 	m_replayText.setColor(sf::Color::Black);
 	m_replayText.setPosition((m_background.getTexture()->getSize().x - m_replayText.getLocalBounds().width)/2,
 							(m_background.getTexture()->getSize().y - m_replayText.getLocalBounds().height)/2 - 8);
-	m_saveText.setFont(*RessourceLoader::GetFont("Default"));
-	m_saveText.setString("Save level");
-	m_saveText.setColor(sf::Color::Black);
-	m_saveText.setPosition((m_background.getTexture()->getSize().x - m_saveText.getLocalBounds().width)/2,
-							(m_background.getTexture()->getSize().y - m_saveText.getLocalBounds().height)/2 - 8 + 80);
+	m_optionText.setFont(*RessourceLoader::GetFont("Default"));
+	m_optionText.setString("Option");
+	m_optionText.setColor(sf::Color::Black);
+	m_optionText.setPosition((m_background.getTexture()->getSize().x - m_optionText.getLocalBounds().width)/2,
+							(m_background.getTexture()->getSize().y - m_optionText.getLocalBounds().height)/2 - 8 + 80);
 	m_quitText.setFont(*RessourceLoader::GetFont("Default"));
 	m_quitText.setString("Menu");
 	m_quitText.setColor(sf::Color::Black);
@@ -37,12 +37,12 @@
 							(m_background.getTexture()->getSize().y - m_quitText.getLocalBounds().height)/2 - 8 + 160);
 }
 
-/*virtual*/ Win::~Win()
+/*virtual*/ Pause::~Pause()
 {
 
 }
 
-/*virtual*/ void Win::Update(sf::RenderWindow& window, sf::Time& frameTime)
+/*virtual*/ void Pause::Update(sf::RenderWindow& window, sf::Time& frameTime)
 {
 	// Positionnement
 
@@ -51,21 +51,20 @@
 	m_background.setPosition(0, 0);
 	m_replayButton.setPosition(winX + (window.getSize().x - m_replayButton.getTexture()->getSize().x)/2,
 							winY + (window.getSize().y - m_replayButton.getTexture()->getSize().y)/2);
-	m_saveButton.setPosition(winX + (window.getSize().x - m_saveButton.getTexture()->getSize().x)/2,
-							winY + (window.getSize().y - m_saveButton.getTexture()->getSize().y)/2 + 80);
+	m_optionButton.setPosition(winX + (window.getSize().x - m_optionButton.getTexture()->getSize().x)/2,
+							winY + (window.getSize().y - m_optionButton.getTexture()->getSize().y)/2 + 80);
 	m_quitButton.setPosition(winX + (window.getSize().x - m_quitButton.getTexture()->getSize().x)/2,
 							winY + (window.getSize().y - m_quitButton.getTexture()->getSize().y)/2 + 160);
 	m_title.setPosition(winX + (window.getSize().x - m_title.getLocalBounds().width)/2,
 							winY + window.getSize().y/3 - m_title.getLocalBounds().height/2);
 	m_replayText.setPosition(winX + (window.getSize().x - m_replayText.getLocalBounds().width)/2,
 							winY + (window.getSize().y - m_replayText.getLocalBounds().height)/2 - 8);
-	m_saveText.setPosition(winX + (window.getSize().x - m_saveText.getLocalBounds().width)/2,
-							winY + (window.getSize().y - m_saveText.getLocalBounds().height)/2 - 8 + 80);
+	m_optionText.setPosition(winX + (window.getSize().x - m_optionText.getLocalBounds().width)/2,
+							winY + (window.getSize().y - m_optionText.getLocalBounds().height)/2 - 8 + 80);
 	m_quitText.setPosition(winX + (window.getSize().x - m_quitText.getLocalBounds().width)/2,
 							winY + (window.getSize().y - m_quitText.getLocalBounds().height)/2 - 8 + 160);
 
-
-
+	// Evenements
 	sf::Event event;
 	while(window.pollEvent(event))
 	{
@@ -74,13 +73,22 @@
 		case sf::Event::Closed:
 			Game::s_instance->SwitchState(STATE_QUIT);
 			break;
+		case sf::Event::KeyReleased:
+			switch(event.key.code)
+			{
+			case sf::Keyboard::P:
+				Game::s_instance->SwitchState(STATE_INGAME);
+				break;
+			default:
+				break;
+			}
+			break;
 		case sf::Event::MouseButtonReleased:
 			if(m_replayButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
 				Game::s_instance->SwitchState(STATE_INGAME);
-				Game::s_instance->NewLevel();
 			}
-			else if(m_saveButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
+			else if(m_optionButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
 				Game::s_instance->SwitchState(STATE_OPTION/*A CHANGER*/);
 			}
@@ -105,21 +113,23 @@
 		}
 	}
 
-
 	sf::View view(window.getView().getCenter(), sf::Vector2f(window.getSize()));
 	window.setView(view);
+
 }
 
-/*virtual*/ void Win::Draw(sf::RenderWindow& window)
+/*virtual*/ void Pause::Draw(sf::RenderWindow& window)
 {
 	Game::s_instance->GetLevel()->Draw(window);
 	window.draw(m_title);
 	window.draw(m_replayButton);
-	window.draw(m_saveButton);
+	window.draw(m_optionButton);
 	window.draw(m_quitButton);
 	window.draw(m_replayText);
-	window.draw(m_saveText);
+	window.draw(m_optionText);
 	window.draw(m_quitText);
 }
+
+
 
 

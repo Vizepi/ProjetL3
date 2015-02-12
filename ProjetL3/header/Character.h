@@ -14,6 +14,8 @@
 
 #define CHARACTER_VELOCITY 7.5
 
+#define FALL_HEIGHT 300
+
 #define CHARACTER_HEIGHT 36
 #define CHARACTER_WIDTH 20
 #define MAX_LIFE 7
@@ -101,7 +103,7 @@ class Character
 class JumpListener : public b2ContactListener
 {
 public:
-	JumpListener(Character* character) : b2ContactListener(), m_character(character), m_fall(false), m_lose(false)
+	JumpListener(Character* character) : b2ContactListener(), m_character(character), m_fall(false)
 	{
 	}
 	void BeginContact(b2Contact* contact);
@@ -113,7 +115,6 @@ private:
 	Character* m_character;
 	int m_pos;
 	bool m_fall;
-	bool m_lose;
 };
 
 #endif // CHARACTER_H
