@@ -14,20 +14,23 @@
 	m_quitButton.setTexture(*RessourceLoader::GetTexture("Menu Button"));
 	m_quitButton.setPosition((m_background.getTexture()->getSize().x - m_quitButton.getTexture()->getSize().x)/2,
 							(m_background.getTexture()->getSize().y - m_quitButton.getTexture()->getSize().y)/2 + 160);
-	m_title.setTexture(*RessourceLoader::GetTexture("Menu Title"));
-	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getTexture()->getSize().x)/2,
-							m_background.getTexture()->getSize().y/3 - m_title.getTexture()->getSize().y/2);
-	m_playText.setFont(*RessourceLoader::GetFont());
+	m_title.setFont(*RessourceLoader::GetFont("Title"));
+	m_title.setCharacterSize(72);
+	m_title.setColor(sf::Color(200, 40, 0, 255));
+	m_title.setString("PLATFORMER");
+	m_title.setPosition((m_background.getTexture()->getSize().x - m_title.getLocalBounds().width)/2,
+							m_background.getTexture()->getSize().y/3 - m_title.getLocalBounds().height/2);
+	m_playText.setFont(*RessourceLoader::GetFont("Default"));
 	m_playText.setString("Play");
 	m_playText.setColor(sf::Color::Black);
 	m_playText.setPosition((m_background.getTexture()->getSize().x - m_playText.getLocalBounds().width)/2,
 							(m_background.getTexture()->getSize().y - m_playText.getLocalBounds().height)/2 - 8);
-	m_optionText.setFont(*RessourceLoader::GetFont());
+	m_optionText.setFont(*RessourceLoader::GetFont("Default"));
 	m_optionText.setString("Options");
 	m_optionText.setColor(sf::Color::Black);
 	m_optionText.setPosition((m_background.getTexture()->getSize().x - m_optionText.getLocalBounds().width)/2,
 							(m_background.getTexture()->getSize().y - m_optionText.getLocalBounds().height)/2 - 8 + 80);
-	m_quitText.setFont(*RessourceLoader::GetFont());
+	m_quitText.setFont(*RessourceLoader::GetFont("Default"));
 	m_quitText.setString("Exit");
 	m_quitText.setColor(sf::Color::Black);
 	m_quitText.setPosition((m_background.getTexture()->getSize().x - m_quitText.getLocalBounds().width)/2,
@@ -39,8 +42,9 @@
 
 }
 
-/*virtual*/ void Menu::Update(sf::RenderWindow& window, sf::Clock& frameTime)
+/*virtual*/ void Menu::Update(sf::RenderWindow& window, sf::Time& frameTime)
 {
+	Game::s_instance->SetFrom(true);
 	sf::Event event;
 	while(window.pollEvent(event))
 	{

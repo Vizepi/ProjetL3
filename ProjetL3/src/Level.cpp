@@ -7,15 +7,15 @@ Level::Level()
 , m_rand(new Random())
 , m_lastLightAlpha(128)
 , m_coinsGet(0)
-, m_font(RessourceLoader::GetFont())
+, m_font(RessourceLoader::GetFont("Default"))
 {
-	gagne = false;
+	m_win = false;
 	m_listener = new JumpListener(&m_character);
 	m_world.SetContactListener(m_listener);
-	tardis.setTexture(*RessourceLoader::GetTexture("Start"));
-	tardis.setScale(0.75f, 0.75f);
-	emy.setTexture(*RessourceLoader::GetTexture("Target"));
-	emy.setTextureRect(sf::IntRect(0, 0, 32, 48));
+	m_start.setTexture(*RessourceLoader::GetTexture("Start"));
+	m_start.setScale(0.75f, 0.75f);
+	m_target.setTexture(*RessourceLoader::GetTexture("Target"));
+	m_target.setTextureRect(sf::IntRect(0, 0, 32, 48));
 
 	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
 	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
@@ -24,7 +24,10 @@ Level::Level()
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
-	printf("%d\n", m_rand->GetSeed());
+
+	m_timer = sf::seconds(0);
+	m_clock.setTexture(*RessourceLoader::GetTexture("Clock"));
+	m_clock.setScale(0.8, 0.8);
 }
 
 Level::Level(int seed)
@@ -33,15 +36,15 @@ Level::Level(int seed)
 , m_rand(new Random(seed))
 , m_lastLightAlpha(128)
 , m_coinsGet(0)
-, m_font(RessourceLoader::GetFont())
+, m_font(RessourceLoader::GetFont("Default"))
 {
-	gagne = false;
+	m_win = false;
 	m_listener = new JumpListener(&m_character);
 	m_world.SetContactListener(m_listener);
-	tardis.setTexture(*RessourceLoader::GetTexture("Start"));
-	tardis.setScale(0.75f, 0.75f);
-	emy.setTexture(*RessourceLoader::GetTexture("Target"));
-	emy.setTextureRect(sf::IntRect(0, 0, 32, 48));
+	m_start.setTexture(*RessourceLoader::GetTexture("Start"));
+	m_start.setScale(0.75f, 0.75f);
+	m_target.setTexture(*RessourceLoader::GetTexture("Target"));
+	m_target.setTextureRect(sf::IntRect(0, 0, 32, 48));
 
 	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
 	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
@@ -50,6 +53,10 @@ Level::Level(int seed)
 
 	m_currentAnimation = m_anim[LOOK_DOWN];
 	m_currentAnimation->Play();
+
+	m_timer = sf::seconds(0);
+	m_clock.setTexture(*RessourceLoader::GetTexture("Clock"));
+	m_clock.setScale(0.8, 0.8);
 }
 
 Level::~Level()
@@ -177,22 +184,49 @@ void Level::LoadLevel()
 }
 
 //Fonction de mise a jour.
-void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
+void Level::Update(sf::RenderWindow& window, sf::Time& frameTime)
 {
+	Game::s_instance->SetFrom(false);
 	//On regarde les evenements de la fenetre.
 	m_event.event(window, m_character);
-	m_world.Step(frameTime.restart().asSeconds(), 8, 5);
+	m_world.Step(frameTime.asSeconds(), 8, 5);
 	m_character.Update();
 	m_currentAnimation->Update();
 	//Test si la partie est gagnée
 	int posx_d = GetCharacter()->GetSprite()->getPosition().x;
 	int posy_d = GetCharacter()->GetSprite()->getPosition().y;
-	int posx_a = emy.getPosition().x;
-	int posy_a= emy.getPosition().y;
-	if((posy_d >= posy_a-5 && posy_d <=  posy_a+5) && (posx_d >= posx_a-80 && posx_d <= posx_a+80 ))
+	if(m_target.getGlobalBounds().contains(posx_d + CHARACTER_WIDTH/2, posy_d + CHARACTER_HEIGHT/2))
 	{
-			gagne = true;
+		m_win = true;
 	}
+	// Light
+	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
+	if(m_lastLightAlpha < 0)
+		m_lastLightAlpha = 0;
+	if(m_lastLightAlpha > 255)
+		m_lastLightAlpha = 255;
+	// Get coins
+	for(int i=m_coins.size()-1;i>=0;i--)
+	{
+		//Si le docteur est en colision avec une piece
+		//On incremente de 1 le m_coinsGet
+		//On supprime le coin dans m_coin.erase[i]
+		int posx_coin = m_coins[i].x*BLOC_SIZE+16;
+		int posy_coin = m_coins[i].y*BLOC_SIZE+16;
+		if(m_character.GetSprite()->getGlobalBounds().contains(posx_coin, posy_coin))
+		{
+			RessourceLoader::GetSound("Get Coins")->play();
+			m_coinsGet++;
+			m_coins.erase(m_coins.begin()+i);
+			break;
+		}
+	}
+	m_timer += frameTime;
+}
+
+//Remplissage de la fenetre
+void Level::Draw(sf::RenderWindow& window)
+{
 	#ifndef SHOW_ALL_MAP
 	float cX = m_character.GetBody()->GetPosition().x * SCALE;
 	float cY = m_character.GetBody()->GetPosition().y * SCALE;
@@ -208,37 +242,10 @@ void Level::Update(sf::RenderWindow& window, sf::Clock& frameTime)
 		cY = m_array[0].size() * BLOC_SIZE - wY/2.f;
 	window.setView(sf::View(sf::Vector2f(cX, cY), sf::Vector2f(wX, wY)));
 	#endif
-	// Light
-	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
-	if(m_lastLightAlpha < 0)
-		m_lastLightAlpha = 0;
-	if(m_lastLightAlpha > 255)
-		m_lastLightAlpha = 255;
-	// Get coins
-	for(int i=m_coins.size()-1;i>=0;i--)
-	{
-		//If le docteur est en colision avec une piece
-			//On incremente de 1 le m_coinsGet
-			//On supprime le coin dans m_coin.erase[i]
-		int posx_coin = m_coins[i].x*BLOC_SIZE+16;
-		int posy_coin = m_coins[i].y*BLOC_SIZE+16;
-		if(m_character.GetSprite()->getGlobalBounds().contains(posx_coin, posy_coin))
-		{
-				m_coinsGet++;
-				m_coins.erase(m_coins.begin()+i);
-				break;
-		}
-	}
-
-}
-
-//Remplissage de la fenetre
-void Level::Draw(sf::RenderWindow& window)
-{
 	DrawBackground(window);
 	DrawLevelArray(window);
-	window.draw(tardis);
-	window.draw(emy);
+	window.draw(m_start);
+	window.draw(m_target);
 	//window.draw(m_coin);
 	window.draw(*m_character.GetSprite());
 	int coin_count = m_coins.size();
@@ -304,7 +311,7 @@ void Level::Draw(sf::RenderWindow& window)
 			window);
 }
 
-void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& window)
+void Level::DrawHUB(float winX, float winY, float winW, float winH, sf::RenderWindow& window)
 {
 	m_life.setPosition(winX, winY);
 	for(int i=0; i< m_character.GetLife(); i++)
@@ -325,6 +332,23 @@ void Level::DrawHUB(int winX, int winY, int winW, int winH, sf::RenderWindow& wi
 	text_coins.setString(text);
 	text_coins.setPosition(winX+60,winY+47);
 	window.draw(text_coins);
+	m_clock.setPosition(window.getView().getCenter().x + winW/2 - 50, window.getView().getCenter().y - winH/2 + 10);
+	window.draw(m_clock);
+	sf::Text text_clock;
+	text_clock.setFont(*m_font);
+	strs.clear();
+	strs.str(std::string());
+	std::string zero = "";
+	if((int)(m_timer.asSeconds() / 60) < 10)
+		zero = "0";
+	strs << zero << (int)(m_timer.asSeconds() / 60) << ":";
+	zero = "";
+	if((int)(m_timer.asSeconds()) % 60 < 10)
+		zero = "0";
+	strs << zero << (int)(m_timer.asSeconds()) % 60 << std::endl;
+	text_clock.setString(strs.str());
+	text_clock.setPosition(winX + winW - 60 - text_clock.getGlobalBounds().width, winY + 14);
+	window.draw(text_clock);
 }
 
 Character* Level::GetCharacter()
@@ -427,18 +451,19 @@ void Level::GenerateLevel()
 
 	CreateLevel(tableauExemple, dq);
 
-	tardis.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
+	m_start.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
 						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
 	int x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
 	int y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
-	emy.setPosition(sf::Vector2f(x,y));
+	m_target.setPosition(sf::Vector2f(x,y));
 
-	//Pour eviter qu'Amy soit dans le mur
-	while(m_array[emy.getPosition().x/BLOC_SIZE][emy.getPosition().y/BLOC_SIZE] == lt_solid)
+	//Pour eviter que l'arrivée soit dans le mur
+	while(	m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE] == lt_solid ||
+			m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE + 1] == lt_empty)
 	{
 		x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
 		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
-		emy.setPosition(sf::Vector2f(x,y));
+		m_target.setPosition(sf::Vector2f(x,y));
 	}
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
 
@@ -687,13 +712,13 @@ void Level::CreateLevel(Room** t, deque<Room*> &dq)
 				m_array[p2x][p2y]= lt_ground;
 			for(int xf=p2x+1; xf<(p2x+4); xf++)
 			{
-				if(xf >= (int)m_array.size())
+				if(xf >= (int)m_array.size() || m_array[xf][p2y] != lt_empty)
 					break;
 				m_array[xf][p2y] = lt_ground;
 			}
 			for(int xf=p2x-1; xf>(p2x-4); xf--)
 			{
-				if(xf < 0)
+				if(xf < 0 || m_array[xf][p2y] != lt_empty)
 					break;
 				m_array[xf][p2y] = lt_ground;
 			}
@@ -1140,8 +1165,8 @@ void Level::DrawBackground(sf::RenderWindow& window)
 {
 	float coef = 2.f;
 	sf::Sprite backgroundTexture(*RessourceLoader::GetTexture("Background"));
-	int px = m_character.GetSprite()->getPosition().x / coef;
-	int py = m_character.GetSprite()->getPosition().y / coef;
+	int px = window.getView().getCenter().x / coef;
+	int py = window.getView().getCenter().y / coef;
 	int texX = backgroundTexture.getTexture()->getSize().x;
 	int texY = backgroundTexture.getTexture()->getSize().y;
 	while(std::abs(m_character.GetSprite()->getPosition().x - px) > texX)
@@ -1520,7 +1545,7 @@ void Level::Dump()
 
 bool Level::GetWin()
 {
-	return gagne;
+	return m_win;
 }
 
 int Level::GetSeed()

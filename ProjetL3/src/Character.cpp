@@ -151,16 +151,17 @@ void JumpListener::BeginContact(b2Contact* contact)
 		m_character->EnableClimb(true);
 	}
 	//Pour verifier si le personnage est en chute
-	if (m_character->GetBody()->GetPosition().y * SCALE > m_pos+400)
+	if (m_character->GetBody()->GetPosition().y * SCALE > m_pos+FALL_HEIGHT)
 	{
 		m_fall = true;
+		RessourceLoader::GetSound("Get Coins")->play();
 		for(int i =0; i< 7; i++)
 		{
-			if((m_character->GetBody()->GetPosition().y * SCALE - m_pos) >= i*400+400)
+			if((m_character->GetBody()->GetPosition().y * SCALE - m_pos) >= i*FALL_HEIGHT+FALL_HEIGHT)
 			m_character->SetLife(m_character->GetLife()-1);
-			if(m_character->GetLife()<= 0)
+			if(m_character->GetLife() <= 0)
 			{
-				m_lose = true;
+				RessourceLoader::GetSound("Get Coins")->play();
 			}
 		}
 	}
@@ -194,10 +195,5 @@ int JumpListener::GetPos()
 void JumpListener::SetPos(int pos)
 {
 	m_pos = pos;
-}
-
-bool JumpListener::GetLose()
-{
-	return m_lose;
 }
 

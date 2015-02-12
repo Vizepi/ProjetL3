@@ -18,7 +18,7 @@ class Option
 public:
 	explicit Option(void);
 	virtual ~Option(void);
-	virtual void Update(sf::RenderWindow& window, sf::Clock& frameTime);
+	virtual void Update(sf::RenderWindow& window, sf::Time& frameTime);
 	virtual void Draw(sf::RenderWindow& window);
 	virtual void Apply(sf::RenderWindow& window);
 	virtual void Discard(void);
@@ -30,7 +30,7 @@ protected:
 	sf::Sprite m_musicButton;
 	sf::Sprite m_soundsButton;
 	sf::Sprite m_shadowButton;
-	sf::Sprite m_title;
+	sf::Text m_title;
 	sf::Text m_backText;
 	sf::Text m_applyText;
 	sf::Text m_fsText;
