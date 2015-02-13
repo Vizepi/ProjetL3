@@ -1,3 +1,22 @@
+/*
+
+	Platformer Game - Made for the 3rd year of undergraduated project.
+    Copyright (C) 2015  Corbat Lisa, Kieffer Joseph
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 #include "../header/Level.h"
 #include "../header/Game.h"
 
@@ -1053,8 +1072,10 @@ void Level::LoadLevelArray()
 			assert(i * arrayHeight + j < mul);
 			if(!mark[i * arrayHeight + j]) // Si on n'est pas encore passé sur le bloc
 			{
+				assert(i >= 0 && i < arrayWidth && j >= 0 && j < arrayHeight);
 				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
 				{
+					assert(i * arrayHeight + j < mul);
 					mark[i * arrayHeight + j] = true;
 					continue;
 				}
@@ -1064,7 +1085,9 @@ void Level::LoadLevelArray()
 				{
 					if(state == 0) // Debut de rectangle
 					{
+						assert(currentX * arrayHeight + currentY < mul);
 						mark[currentX * arrayHeight + currentY] = true;
+						assert(i >= 0 && i < arrayWidth && j >= 0 && j < arrayHeight);
 						prev[0] = m_array[i][j];
 						prev[1] = i;
 						prev[2] = j;
@@ -1079,29 +1102,31 @@ void Level::LoadLevelArray()
 						if(currentX == arrayWidth)//Si on est au bout de la fenetre en X
 						{
 							currentX = prev[1];
+							state = 2;
 							currentY++;
 							if(currentY == arrayHeight)//Si on est au bout de la fenetre en Y
 							{
 								state = 3;
 							}
-							state = 2;
 						}
 						else
 						{
+							assert(currentX >= 0 && currentX < arrayWidth && currentY >= 0 && currentY < arrayHeight);
 							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
 							{
 								width++;
+								assert(currentX * arrayHeight + currentY < mul);
 								mark[currentX * arrayHeight + currentY] = true;
 							}
 							else
 							{
 								currentX = prev[1];
+								state = 2;
 								currentY++;
 								if(currentY == arrayHeight)
 								{
 									state = 3;
 								}
-								state = 2;
 							}
 						}
 					}
@@ -1112,6 +1137,8 @@ void Level::LoadLevelArray()
 						for(int k=prev[1];k<lineEnd;k++)
 						{
 							// Ligne non terminée.
+							std::cout << k << " " << currentY << std::endl;
+							assert(k >= 0 && k < arrayWidth && currentY >= 0 && currentY < arrayHeight);
 							if(!SAME_LEVELTYPE(m_array[k][currentY],  prev[0]))
 							{
 								isOk = false;
@@ -1122,7 +1149,10 @@ void Level::LoadLevelArray()
 						{
 							// Marquage.
 							for(int k=prev[1];k<lineEnd;k++)
+							{
+								assert(k * arrayHeight + currentY < mul);
 								mark[k * arrayHeight + currentY] = true;
+							}
 							height++;
 							currentX = prev[1];
 							currentY++;
@@ -1141,14 +1171,14 @@ void Level::LoadLevelArray()
 				case lt_ground:
 					x = prev[1];
 					y = prev[2];
-					std::cout << "static : " << x << " " << y << " " << width << " " << height << std::endl;
+					//std::cout << "static : " << x << " " << y << " " << width << " " << height << std::endl;
 					CreateStaticObject(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
 					break;
 				case lt_ladder:
 				case lt_cross:
 					x = prev[1];
 					y = prev[2];
-					std::cout << "sensor : " << x << " " << y << " " << width << " " << height << std::endl;
+					//std::cout << "sensor : " << x << " " << y << " " << width << " " << height << std::endl;
 					CreateSensor(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
 					break;
 				default:
