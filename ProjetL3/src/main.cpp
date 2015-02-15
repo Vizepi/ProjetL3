@@ -46,6 +46,7 @@ int main(int argc, char** argv)
 	RessourceLoader::LoadSounds(dataset[1].c_str());
 	RessourceLoader::LoadMusics(dataset[2].c_str());
 	RessourceLoader::LoadFonts(dataset[3].c_str());
+	RessourceLoader::GetMusic("Level")->setLoop(true);
 	Game game;
 	sf::Clock frameTime;
 	//Tant que la fenetre est ouverte.

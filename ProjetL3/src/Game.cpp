@@ -26,6 +26,7 @@
 , m_state(STATE_MENU)
 , m_musicActive(true)
 , m_soundsActive(true)
+, m_shadowActive(true)
 , m_fromMenu(true)
 {
 	s_instance = this;

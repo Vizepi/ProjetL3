@@ -22,6 +22,8 @@
 #include <Box2D/Box2D.h>
 #include "Character.h"
 
+#define USE_FULLTIME_TESTS
+
 
 class Event
 {

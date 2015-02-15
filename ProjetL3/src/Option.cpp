@@ -125,26 +125,38 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_fsButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.fullscreen = !m_set.fullscreen;
 			}
 			else if(m_shadowButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.shadow = !m_set.shadow;
 			}
 			else if(m_musicButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.music = !m_set.music;
 			}
 			else if(m_soundsButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.sound = !m_set.sound;
 			}
 			else if(m_backButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Discard();
 			}
 			else if(m_applyButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Apply(window);
 			}
 			break;

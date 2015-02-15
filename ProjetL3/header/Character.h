@@ -33,7 +33,7 @@
 
 #define CHARACTER_VELOCITY 12.0
 
-#define JUMP_IMPULSE 225.0
+#define JUMP_IMPULSE 320.0
 
 #define FALL_HEIGHT 300
 
@@ -106,6 +106,8 @@ class Character
 		void SetLife(int life);
 
 		int GetLife(void) const;
+
+		sf::RectangleShape GetCollisionBox(void);
 
 	protected:
 

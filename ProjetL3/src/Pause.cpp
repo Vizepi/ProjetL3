@@ -97,6 +97,10 @@
 			{
 			case sf::Keyboard::P:
 				Game::s_instance->SwitchState(STATE_INGAME);
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->play();
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetMusic("Clock")->play();
 				break;
 			default:
 				break;
@@ -105,14 +109,22 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_replayButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_INGAME);
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->play();
 			}
 			else if(m_optionButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_OPTION/*A CHANGER*/);
 			}
 			else if(m_quitButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_MENU);
 			}
 			break;

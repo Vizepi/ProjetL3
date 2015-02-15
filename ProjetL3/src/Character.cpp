@@ -18,6 +18,7 @@
 
 */
 #include "../header/Character.h"
+#include "../header/Game.h"
 
 Character::Character()
 : m_body(NULL)
@@ -154,6 +155,15 @@ int Character::GetLife() const
 	return m_life;
 }
 
+sf::RectangleShape Character::GetCollisionBox()
+{
+	sf::RectangleShape rs;
+	rs.setPosition(	m_image.getPosition().x + (m_image.getGlobalBounds().width - CHARACTER_WIDTH) /2.0,
+					m_image.getPosition().y + BLOC_SIZE - CHARACTER_HEIGHT);
+	rs.setSize(sf::Vector2f(CHARACTER_WIDTH, CHARACTER_HEIGHT));
+	return rs;
+}
+
 
 void JumpListener::BeginContact(b2Contact* contact)
 {
@@ -173,14 +183,18 @@ void JumpListener::BeginContact(b2Contact* contact)
 	if (m_character->GetBody()->GetPosition().y * SCALE > m_pos+FALL_HEIGHT)
 	{
 		m_fall = true;
-		RessourceLoader::GetSound("Get Coins")->play();
+		if(Game::s_instance->IsSoundsActive())
+			RessourceLoader::GetSound("Fall")->play();
 		for(int i =0; i< 7; i++)
 		{
 			if((m_character->GetBody()->GetPosition().y * SCALE - m_pos) >= i*FALL_HEIGHT+FALL_HEIGHT)
 			m_character->SetLife(m_character->GetLife()-1);
 			if(m_character->GetLife() <= 0)
 			{
-				RessourceLoader::GetSound("Get Coins")->play();
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->stop();
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Dead Fall")->play();
 			}
 		}
 	}

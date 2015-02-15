@@ -152,5 +152,8 @@ class Level
 		sf::Sprite m_life;
 		sf::Time m_timer;
 		sf::Sprite m_clock;
+		std::vector<sf::Vector2i> m_traps;
+		sf::Sprite m_trapSprite;
+		bool m_underTwenty;
 };
 #endif // LEVEL_H

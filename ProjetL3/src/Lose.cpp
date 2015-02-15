@@ -95,15 +95,23 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_replayButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->play();
 				Game::s_instance->SwitchState(STATE_INGAME);
 				Game::s_instance->NewLevelReplay();
 			}
 			else if(m_saveButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
-				Game::s_instance->SwitchState(STATE_OPTION/*A CHANGER*/);
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
+				//Game::s_instance->SwitchState(STATE_OPTION/*A CHANGER*/);
 			}
 			else if(m_quitButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_MENU);
 			}
 			break;

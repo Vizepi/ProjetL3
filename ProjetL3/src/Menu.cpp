@@ -75,15 +75,23 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_playButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_INGAME);
 				Game::s_instance->NewLevel();
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->play();
 			}
 			else if(m_optionButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_OPTION);
 			}
 			else if(m_quitButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_QUIT);
 			}
 			break;
