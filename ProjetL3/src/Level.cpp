@@ -396,14 +396,14 @@ void Level::Draw(sf::RenderWindow& window)
 		window.draw(light);
 	}
 	if(m_character.GetLife() > 0)
-	DrawHUB(window.getView().getCenter().x - (window.getView().getSize().x)/2,
+	DrawHUD(window.getView().getCenter().x - (window.getView().getSize().x)/2,
 			window.getView().getCenter().y - (window.getView().getSize().y)/2,
 			window.getView().getSize().x,
 			window.getView().getSize().y,
 			window);
 }
 
-void Level::DrawHUB(float winX, float winY, float winW, float winH, sf::RenderWindow& window)
+void Level::DrawHUD(float winX, float winY, float winW, float winH, sf::RenderWindow& window)
 {
 	m_life.setPosition(winX, winY);
 	for(int i=0; i< m_character.GetLife(); i++)

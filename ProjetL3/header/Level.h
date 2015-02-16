@@ -108,7 +108,7 @@ class Level
 		b2Body* CreateDynamicObject(float x, float y, float width, float height);
 		void LoadLevel(void);
 		void Draw(sf::RenderWindow& window);
-		void DrawHUB(float winX, float winY, float winW, float winH, sf::RenderWindow& window);
+		void DrawHUD(float winX, float winY, float winW, float winH, sf::RenderWindow& window);
 		void Update(sf::RenderWindow& window, sf::Time& frameTime);
 		Character* GetCharacter(void);
 		void GenerateLevel(void);
