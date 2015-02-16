@@ -16,7 +16,7 @@
 
 using namespace std;
 
-//#define SHOW_ALL_MAP
+#define SHOW_ALL_MAP
 //#define SHOW_COLLISION_BOXES
 #define LITTLE_BLOCS_PHYSIC
 //#define HIDE_LIGHT
