@@ -1,3 +1,22 @@
+/*
+
+	Platformer Game - Made for the 3rd year of undergraduated project.
+    Copyright (C) 2015  Corbat Lisa, Kieffer Joseph
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 #include "../header/Pause.h"
 #include "../header/Game.h"
 
@@ -78,6 +97,10 @@
 			{
 			case sf::Keyboard::P:
 				Game::s_instance->SwitchState(STATE_INGAME);
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->play();
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetMusic("Clock")->play();
 				break;
 			default:
 				break;
@@ -86,14 +109,22 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_replayButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_INGAME);
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->play();
 			}
 			else if(m_optionButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_OPTION/*A CHANGER*/);
 			}
 			else if(m_quitButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Game::s_instance->SwitchState(STATE_MENU);
 			}
 			break;

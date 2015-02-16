@@ -1,3 +1,22 @@
+/*
+
+	Platformer Game - Made for the 3rd year of undergraduated project.
+    Copyright (C) 2015  Corbat Lisa, Kieffer Joseph
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 #include "../header/Level.h"
 #include "../header/Game.h"
 
@@ -8,6 +27,7 @@ Level::Level()
 , m_lastLightAlpha(128)
 , m_coinsGet(0)
 , m_font(RessourceLoader::GetFont("Default"))
+, m_underTwenty(false)
 {
 	m_win = false;
 	m_listener = new JumpListener(&m_character);
@@ -19,6 +39,8 @@ Level::Level()
 
 	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
 	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
+
+	m_trapSprite.setTexture(*RessourceLoader::GetTexture("Trap"));
 
 	m_life.setTexture(*RessourceLoader::GetTexture("Life"));
 
@@ -37,6 +59,7 @@ Level::Level(int seed)
 , m_lastLightAlpha(128)
 , m_coinsGet(0)
 , m_font(RessourceLoader::GetFont("Default"))
+, m_underTwenty(false)
 {
 	m_win = false;
 	m_listener = new JumpListener(&m_character);
@@ -48,6 +71,8 @@ Level::Level(int seed)
 
 	m_coin.setTexture(*RessourceLoader::GetTexture("Coins"));
 	m_anim.push_back(new Animation(&m_coin, sf::IntRect(0, 0, 32, 32), 8, 150));
+
+	m_trapSprite.setTexture(*RessourceLoader::GetTexture("Trap"));
 
 	m_life.setTexture(*RessourceLoader::GetTexture("Life"));
 
@@ -198,6 +223,10 @@ void Level::Update(sf::RenderWindow& window, sf::Time& frameTime)
 	if(m_target.getGlobalBounds().contains(posx_d + CHARACTER_WIDTH/2, posy_d + CHARACTER_HEIGHT/2))
 	{
 		m_win = true;
+		if(Game::s_instance->IsSoundsActive())
+			RessourceLoader::GetSound("Win")->play();
+		if(Game::s_instance->IsMusicActive())
+			RessourceLoader::GetMusic("Level")->stop();
 	}
 	// Light
 	m_lastLightAlpha += m_rand->NextInt(0, 50)-25;
@@ -211,17 +240,73 @@ void Level::Update(sf::RenderWindow& window, sf::Time& frameTime)
 		//Si le docteur est en colision avec une piece
 		//On incremente de 1 le m_coinsGet
 		//On supprime le coin dans m_coin.erase[i]
-		int posx_coin = m_coins[i].x*BLOC_SIZE+16;
+		int posx_coin = (m_coins[i].x + 0.5)*BLOC_SIZE;
 		int posy_coin = m_coins[i].y*BLOC_SIZE+16;
 		if(m_character.GetSprite()->getGlobalBounds().contains(posx_coin, posy_coin))
 		{
-			RessourceLoader::GetSound("Get Coins")->play();
+			if(Game::s_instance->IsSoundsActive())
+				RessourceLoader::GetSound("Get Coins")->play();
 			m_coinsGet++;
 			m_coins.erase(m_coins.begin()+i);
 			break;
 		}
 	}
-	m_timer += frameTime;
+	m_timer -= frameTime;
+	if(Game::s_instance->IsSoundsActive())
+	{
+		if(!m_underTwenty)
+		{
+			RessourceLoader::GetMusic("Clock")->stop();
+			if(m_timer.asSeconds() <= 20.f)
+			{
+				m_underTwenty = true;
+				RessourceLoader::GetMusic("Clock")->setVolume(0.f);
+				RessourceLoader::GetMusic("Clock")->setLoop(false);
+				RessourceLoader::GetMusic("Clock")->play();
+			}
+		}
+		if(m_underTwenty)
+		{
+			float lefttime = m_timer.asSeconds() - 5.f;
+			if(lefttime < 0.f)
+				lefttime = 0.f;
+			float newVolume = 100.f * (1 - lefttime / 15.f);
+			if(newVolume > 100.f)
+				newVolume = 100.f;
+			RessourceLoader::GetMusic("Clock")->setVolume(newVolume);
+		}
+	}
+	if(m_timer.asSeconds() <= 0.f)
+	{
+		if(Game::s_instance->IsSoundsActive())
+			RessourceLoader::GetSound("Dead Time")->play();
+		if(Game::s_instance->IsMusicActive())
+			RessourceLoader::GetMusic("Level")->stop();
+		Game::s_instance->SwitchState(STATE_LOSE);
+	}
+	sf::RectangleShape trap;
+	trap.setSize(sf::Vector2f(BLOC_SIZE, BLOC_SIZE / 2));
+	for(int i=0;i<(int)m_traps.size();i++)
+	{
+		int posx_trap = m_traps[i].x*BLOC_SIZE;
+		int posy_trap = (m_traps[i].y + 0.5)*BLOC_SIZE;
+		trap.setPosition(posx_trap, posy_trap);
+		if(trap.getGlobalBounds().intersects(m_character.GetCollisionBox().getGlobalBounds()))
+		{
+			if(Game::s_instance->IsSoundsActive())
+				RessourceLoader::GetSound("Trap Hit")->play();
+			m_traps.erase(m_traps.begin()+i);
+			m_character.SetLife(m_character.GetLife()-1);
+			if(m_character.GetLife() <= 0)
+			{
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->stop();
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Dead Fall")->play();
+			}
+			break;
+		}
+	}
 }
 
 //Remplissage de la fenetre
@@ -246,13 +331,20 @@ void Level::Draw(sf::RenderWindow& window)
 	DrawLevelArray(window);
 	window.draw(m_start);
 	window.draw(m_target);
-	//window.draw(m_coin);
 	window.draw(*m_character.GetSprite());
+	// Dessin des pièces
 	int coin_count = m_coins.size();
 	for(int i=0; i< coin_count; i++)
 	{
-		m_coin.setPosition(m_coins[i].x * BLOC_SIZE, m_coins[i].y * BLOC_SIZE);
+		m_coin.setPosition(m_coins[i].x * BLOC_SIZE + (BLOC_SIZE - m_coin.getLocalBounds().width)/2.0, m_coins[i].y * BLOC_SIZE);
 		window.draw(m_coin);
+	}
+	// Dessin des pièges
+	int trap_count = m_traps.size();
+	for(int i=0; i<trap_count; i++)
+	{
+		m_trapSprite.setPosition(m_traps[i].x * BLOC_SIZE, (m_traps[i].y + 0.5) * BLOC_SIZE);
+		window.draw(m_trapSprite);
 	}
 	// Creation de la lumière
 	if(Game::s_instance->IsShadowActive())
@@ -339,13 +431,14 @@ void Level::DrawHUB(float winX, float winY, float winW, float winH, sf::RenderWi
 	strs.clear();
 	strs.str(std::string());
 	std::string zero = "";
-	if((int)(m_timer.asSeconds() / 60) < 10)
+	float lefttime = m_timer.asSeconds() + 1.f;
+	if((int)(lefttime / 60) < 10)
 		zero = "0";
-	strs << zero << (int)(m_timer.asSeconds() / 60) << ":";
+	strs << zero << (int)(lefttime / 60) << ":";
 	zero = "";
-	if((int)(m_timer.asSeconds()) % 60 < 10)
+	if((int)(lefttime) % 60 < 10)
 		zero = "0";
-	strs << zero << (int)(m_timer.asSeconds()) % 60 << std::endl;
+	strs << zero << (int)(lefttime) % 60 << std::endl;
 	text_clock.setString(strs.str());
 	text_clock.setPosition(winX + winW - 60 - text_clock.getGlobalBounds().width, winY + 14);
 	window.draw(text_clock);
@@ -453,19 +546,28 @@ void Level::GenerateLevel()
 
 	m_start.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
 						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
-	int x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
-	int y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
-	m_target.setPosition(sf::Vector2f(x,y));
-
+	int x, y;
 	//Pour eviter que l'arrivée soit dans le mur
-	while(	m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE] == lt_solid ||
-			m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE + 1] == lt_empty)
+	do
 	{
-		x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
+		do
+		{
+			x = ((ROOM_WIDTH * dq[dq.size()-1]->x + dq[dq.size()-1]->rand_x) * BLOC_SIZE)-(3*BLOC_SIZE)+(m_rand->NextInt(0, 6)* BLOC_SIZE);
+		} while (x < 0 || x >= arrayWidth*BLOC_SIZE);
 		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
 		m_target.setPosition(sf::Vector2f(x,y));
-	}
+	} while(m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE] == lt_solid ||
+			m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE + 1] == lt_empty);
+
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
+
+	int dqsize = 0;
+	for(i=0;i<(int)dq.size()-2;i++)
+	{
+		dqsize += std::abs(dq[i]->rand_x - dq[i+1]->rand_x) + std::abs(dq[i]->rand_y - dq[i+1]->rand_y);
+	}
+	// Initialisation du chronometre
+	m_timer = sf::seconds(dqsize * 0.6);
 
 	//Pour supprimer le tableau
 	while(dq.size() > 0)
@@ -890,7 +992,13 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 					m_array[generateX + roomOriginX - l][generateY + roomOriginY] == lt_cross)
 					m_array[generateX + roomOriginX - l][generateY + roomOriginY] = lt_cross;
 				else
+				{
 					m_array[generateX + roomOriginX - l][generateY + roomOriginY] = lt_ground;
+					if(m_rand->NextInt(0, 50) == 0)
+					{
+						m_traps.push_back(sf::Vector2i(generateX + roomOriginX - l, generateY + roomOriginY -1));
+					}
+				}
 			}
 			for(int l=0;l<rightRand;l++)
 			{
@@ -905,7 +1013,13 @@ void Level::CreateGenerateLevel(deque<Room*> &dq)
 					m_array[generateX + roomOriginX + l][generateY + roomOriginY] == lt_cross)
 					m_array[generateX + roomOriginX + l][generateY + roomOriginY] = lt_cross;
 				else
+				{
 					m_array[generateX + roomOriginX + l][generateY + roomOriginY] = lt_ground;
+					if(m_rand->NextInt(0, 7) == 0)
+					{
+						m_traps.push_back(sf::Vector2i(generateX + roomOriginX + l, generateY + roomOriginY -1));
+					}
+				}
 			}
 		}
 	}
@@ -933,18 +1047,33 @@ void Level::PutCoin()
 {
 	for(int i =0; i< NB_COINS; i++)
 	{
-		int rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);
-		int rand_y = m_rand->NextInt(0,ROOM_HEIGHT*LEVEL_HEIGHT-1);
-		while(m_array[rand_x][rand_y] != lt_empty)
+		int rand_x, rand_y;
+		int cY;
+		bool contains;
+		do
 		{
-			rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);
-			rand_y = m_rand->NextInt(0,ROOM_HEIGHT*LEVEL_HEIGHT-1);
-		}
-		int cY = rand_y;
-		while(m_array[rand_x][cY+1] == lt_empty)
-		{
-			cY++;
-		}
+			contains = false;
+			do
+			{
+				rand_x = m_rand->NextInt(0, ROOM_WIDTH*LEVEL_WIDTH-1);
+				rand_y = m_rand->NextInt(0,ROOM_HEIGHT*LEVEL_HEIGHT-1);
+			} while(m_array[rand_x][rand_y] != lt_empty);
+
+			cY = rand_y;
+			while(m_array[rand_x][cY+1] == lt_empty)
+			{
+				cY++;
+			}
+			// Test si une pièce est sur un piège
+			for(int i=0;i<(int)m_traps.size();i++)
+			{
+				if(m_traps[i].x == rand_x && m_traps[i].y == cY)
+				{
+					contains = true;
+					break;
+				}
+			}
+		} while(contains);
 		m_coins.push_back(sf::Vector2i(rand_x, cY));
 
 	}
@@ -1015,13 +1144,11 @@ void Level::LoadLevelArray()
 			case lt_solid :
 				if(i > 0 && m_array[i-1][j] != lt_empty)
 				{
-					if(j > 0 && m_array[i-1][j-1] != lt_ladder)
-						side = side | SIDE_LEFT;
+					side = side | SIDE_LEFT;
 				}
 				if(i < arrayWidth-1 && m_array[i+1][j] != lt_empty)
 				{
-					if(j > 0 && m_array[i+1][j-1] != lt_ladder)
-						side = side | SIDE_RIGHT;
+					side = side | SIDE_RIGHT;
 				}
 				CreateStaticObject(i*BLOC_SIZE, j*BLOC_SIZE, BLOC_SIZE, BLOC_SIZE, side);
 				break;
@@ -1053,8 +1180,10 @@ void Level::LoadLevelArray()
 			assert(i * arrayHeight + j < mul);
 			if(!mark[i * arrayHeight + j]) // Si on n'est pas encore passé sur le bloc
 			{
+				assert(i >= 0 && i < arrayWidth && j >= 0 && j < arrayHeight);
 				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
 				{
+					assert(i * arrayHeight + j < mul);
 					mark[i * arrayHeight + j] = true;
 					continue;
 				}
@@ -1064,7 +1193,9 @@ void Level::LoadLevelArray()
 				{
 					if(state == 0) // Debut de rectangle
 					{
+						assert(currentX * arrayHeight + currentY < mul);
 						mark[currentX * arrayHeight + currentY] = true;
+						assert(i >= 0 && i < arrayWidth && j >= 0 && j < arrayHeight);
 						prev[0] = m_array[i][j];
 						prev[1] = i;
 						prev[2] = j;
@@ -1079,29 +1210,31 @@ void Level::LoadLevelArray()
 						if(currentX == arrayWidth)//Si on est au bout de la fenetre en X
 						{
 							currentX = prev[1];
+							state = 2;
 							currentY++;
 							if(currentY == arrayHeight)//Si on est au bout de la fenetre en Y
 							{
 								state = 3;
 							}
-							state = 2;
 						}
 						else
 						{
+							assert(currentX >= 0 && currentX < arrayWidth && currentY >= 0 && currentY < arrayHeight);
 							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
 							{
 								width++;
+								assert(currentX * arrayHeight + currentY < mul);
 								mark[currentX * arrayHeight + currentY] = true;
 							}
 							else
 							{
 								currentX = prev[1];
+								state = 2;
 								currentY++;
 								if(currentY == arrayHeight)
 								{
 									state = 3;
 								}
-								state = 2;
 							}
 						}
 					}
@@ -1112,6 +1245,8 @@ void Level::LoadLevelArray()
 						for(int k=prev[1];k<lineEnd;k++)
 						{
 							// Ligne non terminée.
+							std::cout << k << " " << currentY << std::endl;
+							assert(k >= 0 && k < arrayWidth && currentY >= 0 && currentY < arrayHeight);
 							if(!SAME_LEVELTYPE(m_array[k][currentY],  prev[0]))
 							{
 								isOk = false;
@@ -1122,7 +1257,10 @@ void Level::LoadLevelArray()
 						{
 							// Marquage.
 							for(int k=prev[1];k<lineEnd;k++)
+							{
+								assert(k * arrayHeight + currentY < mul);
 								mark[k * arrayHeight + currentY] = true;
+							}
 							height++;
 							currentX = prev[1];
 							currentY++;
@@ -1141,14 +1279,14 @@ void Level::LoadLevelArray()
 				case lt_ground:
 					x = prev[1];
 					y = prev[2];
-					std::cout << "static : " << x << " " << y << " " << width << " " << height << std::endl;
+					//std::cout << "static : " << x << " " << y << " " << width << " " << height << std::endl;
 					CreateStaticObject(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
 					break;
 				case lt_ladder:
 				case lt_cross:
 					x = prev[1];
 					y = prev[2];
-					std::cout << "sensor : " << x << " " << y << " " << width << " " << height << std::endl;
+					//std::cout << "sensor : " << x << " " << y << " " << width << " " << height << std::endl;
 					CreateSensor(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
 					break;
 				default:

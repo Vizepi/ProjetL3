@@ -1,3 +1,22 @@
+/*
+
+	Platformer Game - Made for the 3rd year of undergraduated project.
+    Copyright (C) 2015  Corbat Lisa, Kieffer Joseph
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 #include <SFML/Graphics.hpp>
 #include "../header/Game.h"
 #include "../header/RessourceLoader.h"
@@ -27,6 +46,7 @@ int main(int argc, char** argv)
 	RessourceLoader::LoadSounds(dataset[1].c_str());
 	RessourceLoader::LoadMusics(dataset[2].c_str());
 	RessourceLoader::LoadFonts(dataset[3].c_str());
+	RessourceLoader::GetMusic("Level")->setLoop(true);
 	Game game;
 	sf::Clock frameTime;
 	//Tant que la fenetre est ouverte.

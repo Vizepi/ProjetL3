@@ -1,3 +1,22 @@
+/*
+
+	Platformer Game - Made for the 3rd year of undergraduated project.
+    Copyright (C) 2015  Corbat Lisa, Kieffer Joseph
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 #include "../header/Option.h"
 #include "../header/Game.h"
 
@@ -106,26 +125,38 @@
 		case sf::Event::MouseButtonReleased:
 			if(m_fsButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.fullscreen = !m_set.fullscreen;
 			}
 			else if(m_shadowButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.shadow = !m_set.shadow;
 			}
 			else if(m_musicButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.music = !m_set.music;
 			}
 			else if(m_soundsButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				m_set.sound = !m_set.sound;
 			}
 			else if(m_backButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Discard();
 			}
 			else if(m_applyButton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)) + window.getView().getCenter() - sf::Vector2f(window.getSize())/2.f))
 			{
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetSound("Click")->play();
 				Apply(window);
 			}
 			break;

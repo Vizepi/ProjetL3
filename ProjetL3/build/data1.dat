@@ -1,1 +1,7 @@
 Get coins:data/sounds/coin.wav
+Fall:data/sounds/fall.wav
+Dead Fall:data/sounds/falldeath.wav
+Dead Time:data/sounds/timedeath.wav
+Win:data/sounds/victory.wav
+Click:data/sounds/cursor.wav
+Trap Hit:data/sounds/trap.wav

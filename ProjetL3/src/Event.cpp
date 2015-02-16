@@ -1,3 +1,22 @@
+/*
+
+	Platformer Game - Made for the 3rd year of undergraduated project.
+    Copyright (C) 2015  Corbat Lisa, Kieffer Joseph
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 #include "../header/Event.h"
 #include "../header/Game.h"
 
@@ -16,6 +35,7 @@ void Event::event(sf::RenderWindow& window, Character& character)
 		case sf::Event::KeyReleased:
 			switch(event.key.code)
 			{
+				#ifndef USE_FULLTIME_TESTS
 			case sf::Keyboard::Down:
 				if(character.GetCurrentDirection() == LOOK_UP)
 				{
@@ -56,12 +76,19 @@ void Event::event(sf::RenderWindow& window, Character& character)
 				}
 				character.GetBody()->SetLinearVelocity(b2Vec2(character.GetBody()->GetLinearVelocity().x, 0));
 				break;
+				#endif // USE_FULLTIME_TESTS
 			case sf::Keyboard::P:
 				character.GetBody()->SetLinearVelocity(b2Vec2(0, 0));
 				character.GetCurrentAnimation()->Stop();
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->pause();
+				if(Game::s_instance->IsSoundsActive())
+					RessourceLoader::GetMusic("Clock")->pause();
 				Game::s_instance->SwitchState(STATE_PAUSE);
 				break;
 			case sf::Keyboard::Escape:
+				if(Game::s_instance->IsMusicActive())
+					RessourceLoader::GetMusic("Level")->stop();
 				Game::s_instance->SwitchState(STATE_MENU);
 				break;
 			default:
@@ -71,6 +98,7 @@ void Event::event(sf::RenderWindow& window, Character& character)
 		case sf::Event::KeyPressed:
 			switch(event.key.code)
 			{
+				#ifndef USE_FULLTIME_TESTS
 			case sf::Keyboard::Down:
 				if(character.IsClimbEnabled())
 				{
@@ -99,11 +127,12 @@ void Event::event(sf::RenderWindow& window, Character& character)
 					character.SetAnimation(LOOK_UP, ANIM_PLAY);
 				}
 				break;
+				#endif // USE_FULLTIME_TESTS
 			case sf::Keyboard::Space:
 				if(character.IsJumpEnabled() && !character.IsClimbEnabled())
 				{
 					character.GetBody()->SetGravityScale(1.f);
-					character.GetBody()->ApplyLinearImpulse(b2Vec2(0.f, -225.f), character.GetBody()->GetWorldCenter(), true);
+					character.GetBody()->ApplyLinearImpulse(b2Vec2(0.f, -JUMP_IMPULSE), character.GetBody()->GetWorldCenter(), true);
 				}
 				character.EnableJump(false);
 				break;
@@ -126,6 +155,70 @@ void Event::event(sf::RenderWindow& window, Character& character)
 			break;
 		}
 	}
+
+	#ifdef USE_FULLTIME_TESTS
+	int dir = 0;
+	if(character.IsClimbEnabled())
+	{
+		character.GetBody()->SetLinearVelocity(b2Vec2(0.f, 0.f));
+	}
+	else
+	{
+		character.GetBody()->SetLinearVelocity(b2Vec2(0.f, character.GetBody()->GetLinearVelocity().y));
+	}
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+	{
+		dir = dir | 0x1;
+		character.GetBody()->SetLinearVelocity(b2Vec2(	character.GetBody()->GetLinearVelocity().x - CHARACTER_VELOCITY,
+														character.GetBody()->GetLinearVelocity().y));
+        if(character.GetCurrentDirection() != LOOK_LEFT)
+		{
+			character.GetCurrentAnimation()->Stop();
+		}
+		character.SetAnimation(LOOK_LEFT, ANIM_PLAY);
+	}
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+	{
+		dir = dir | 0x2;
+		character.GetBody()->SetLinearVelocity(b2Vec2(	character.GetBody()->GetLinearVelocity().x + CHARACTER_VELOCITY,
+														character.GetBody()->GetLinearVelocity().y));
+        if(character.GetCurrentDirection() != LOOK_RIGHT)
+		{
+			character.GetCurrentAnimation()->Stop();
+		}
+		character.SetAnimation(LOOK_RIGHT, ANIM_PLAY);
+	}
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+	{
+		dir = dir | 0x4;
+		if(character.IsClimbEnabled())
+		{
+			character.GetBody()->SetLinearVelocity(b2Vec2(	character.GetBody()->GetLinearVelocity().x,
+															character.GetBody()->GetLinearVelocity().y - CHARACTER_VELOCITY));
+			if(character.GetCurrentDirection() != LOOK_UP)
+			{
+				character.GetCurrentAnimation()->Stop();
+			}
+			character.SetAnimation(LOOK_UP, ANIM_PLAY);
+		}
+	}
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+	{
+		dir = dir | 0x8;
+		if(character.IsClimbEnabled())
+		{
+			character.GetBody()->SetLinearVelocity(b2Vec2(	character.GetBody()->GetLinearVelocity().x,
+															character.GetBody()->GetLinearVelocity().y + CHARACTER_VELOCITY));
+			if(character.GetCurrentDirection() != LOOK_UP)
+			{
+				character.GetCurrentAnimation()->Stop();
+			}
+			character.SetAnimation(LOOK_UP, ANIM_PLAY);
+		}
+	}
+	if(dir == 0)
+		character.GetCurrentAnimation()->Stop();
+	#endif // USE_FULLTIME_TESTS
 
 }
 
