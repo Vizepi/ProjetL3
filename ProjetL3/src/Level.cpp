@@ -1364,6 +1364,7 @@ void Level::DrawLevelArray(sf::RenderWindow& window)
 			sprite.setTextureRect(sf::IntRect(RS_POS(x), RS_POS(y), RS_BLOC_SIZE, RS_BLOC_SIZE));
 			sprite.setPosition(i*BLOC_SIZE, j*BLOC_SIZE);
 			window.draw(sprite);
+			//Affichage de l'echelle par dessus les blocs.
 			if(m_array[i][j] == lt_cross)
 			{
 				sprite.setTextureRect(sf::IntRect(RS_POS(2), RS_POS(7), RS_BLOC_SIZE, RS_BLOC_SIZE));
