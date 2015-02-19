@@ -36,11 +36,9 @@ protected:
 private:
 	sf::Sprite m_background;
 	sf::Sprite m_replayButton;
-	sf::Sprite m_saveButton;
 	sf::Sprite m_quitButton;
 	sf::Text m_title;
 	sf::Text m_replayText;
-	sf::Text m_saveText;
 	sf::Text m_quitText;
 };
 
