@@ -251,6 +251,7 @@ void Level::Update(sf::RenderWindow& window, sf::Time& frameTime)
 			break;
 		}
 	}
+	//Gestion du timer.
 	m_timer -= frameTime;
 	if(Game::s_instance->IsSoundsActive())
 	{
@@ -284,6 +285,7 @@ void Level::Update(sf::RenderWindow& window, sf::Time& frameTime)
 			RessourceLoader::GetMusic("Level")->stop();
 		Game::s_instance->SwitchState(STATE_LOSE);
 	}
+	//Gestion des pièges.
 	sf::RectangleShape trap;
 	trap.setSize(sf::Vector2f(BLOC_SIZE, BLOC_SIZE / 2));
 	for(int i=0;i<(int)m_traps.size();i++)
@@ -1165,138 +1167,6 @@ void Level::LoadLevelArray()
 	return;
 	#endif
 
-	bool mark[mul];
-	for(int i=0;i<mul;i++)
-		mark[i] = false; // Initialisation du tableau de booléens
-    int width = 0;
-    int height = 0;
-    float x, y;
-    int prev[3] = {0, 0, 0}; // {type, x, y}
-    int state;
-	for(int j=0;j<arrayHeight;j++)
-	{
-		for(int i=0;i<arrayWidth;i++)
-		{
-			assert(i * arrayHeight + j < mul);
-			if(!mark[i * arrayHeight + j]) // Si on n'est pas encore passé sur le bloc
-			{
-				assert(i >= 0 && i < arrayWidth && j >= 0 && j < arrayHeight);
-				if(m_array[i][j] == lt_empty)//Si le bloc est vide on continue
-				{
-					assert(i * arrayHeight + j < mul);
-					mark[i * arrayHeight + j] = true;
-					continue;
-				}
-				state = 0;
-				int currentX = i, currentY = j;
-				while(state != 3)
-				{
-					if(state == 0) // Debut de rectangle
-					{
-						assert(currentX * arrayHeight + currentY < mul);
-						mark[currentX * arrayHeight + currentY] = true;
-						assert(i >= 0 && i < arrayWidth && j >= 0 && j < arrayHeight);
-						prev[0] = m_array[i][j];
-						prev[1] = i;
-						prev[2] = j;
-						width = 1;
-						height = 1;
-						state = 1;
-					}
-					if(state == 1) // Recherche de la longueur
-					{
-						// Avancement des positions courantes et passage
-						currentX++;
-						if(currentX == arrayWidth)//Si on est au bout de la fenetre en X
-						{
-							currentX = prev[1];
-							state = 2;
-							currentY++;
-							if(currentY == arrayHeight)//Si on est au bout de la fenetre en Y
-							{
-								state = 3;
-							}
-						}
-						else
-						{
-							assert(currentX >= 0 && currentX < arrayWidth && currentY >= 0 && currentY < arrayHeight);
-							if(SAME_LEVELTYPE(prev[0], m_array[currentX][currentY]))
-							{
-								width++;
-								assert(currentX * arrayHeight + currentY < mul);
-								mark[currentX * arrayHeight + currentY] = true;
-							}
-							else
-							{
-								currentX = prev[1];
-								state = 2;
-								currentY++;
-								if(currentY == arrayHeight)
-								{
-									state = 3;
-								}
-							}
-						}
-					}
-					if(state == 2) // Recherche de la hauteur
-					{
-						bool isOk = true;
-						int lineEnd = prev[1]+width;
-						for(int k=prev[1];k<lineEnd;k++)
-						{
-							// Ligne non terminée.
-							std::cout << k << " " << currentY << std::endl;
-							assert(k >= 0 && k < arrayWidth && currentY >= 0 && currentY < arrayHeight);
-							if(!SAME_LEVELTYPE(m_array[k][currentY],  prev[0]))
-							{
-								isOk = false;
-								break;
-							}
-						}
-						if(isOk)
-						{
-							// Marquage.
-							for(int k=prev[1];k<lineEnd;k++)
-							{
-								assert(k * arrayHeight + currentY < mul);
-								mark[k * arrayHeight + currentY] = true;
-							}
-							height++;
-							currentX = prev[1];
-							currentY++;
-							if(currentY == arrayHeight)
-							{
-								state = 3;
-							}
-						}
-						else
-							state = 3;
-					}
-				}
-				switch(prev[0])
-				{
-				case lt_solid:
-				case lt_ground:
-					x = prev[1];
-					y = prev[2];
-					//std::cout << "static : " << x << " " << y << " " << width << " " << height << std::endl;
-					CreateStaticObject(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
-					break;
-				case lt_ladder:
-				case lt_cross:
-					x = prev[1];
-					y = prev[2];
-					//std::cout << "sensor : " << x << " " << y << " " << width << " " << height << std::endl;
-					CreateSensor(x * BLOC_SIZE, y * BLOC_SIZE, width * BLOC_SIZE, height * BLOC_SIZE);
-					break;
-				default:
-					break;
-				}
-			}
-		}
-	}
-	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
-	m_listener->SetPos(m_character.GetBody()->GetPosition().y * SCALE);
 }
 
 void Level::DrawBackground(sf::RenderWindow& window)
