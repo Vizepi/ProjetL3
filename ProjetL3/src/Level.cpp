@@ -559,7 +559,7 @@ void Level::GenerateLevel()
 		y = (ROOM_HEIGHT * dq[dq.size()-1]->y + dq[dq.size()-1]->rand_y) * BLOC_SIZE - CHARACTER_HEIGHT - 8;
 		m_target.setPosition(sf::Vector2f(x,y));
 	} while(m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE] == lt_solid ||
-			m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE + 1] == lt_empty);
+			!SAME_LEVELTYPE(m_array[m_target.getPosition().x/BLOC_SIZE][m_target.getPosition().y/BLOC_SIZE + 1], lt_solid));
 
 	m_character.GetBody()->SetTransform(m_startPosition, m_character.GetBody()->GetAngle());
 
