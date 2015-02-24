@@ -403,6 +403,10 @@ void Level::Draw(sf::RenderWindow& window)
 			window.getView().getSize().x,
 			window.getView().getSize().y,
 			window);
+	#ifdef SHOW_ALL_MAP
+	window.setView(sf::View(sf::Vector2f(LEVEL_WIDTH * ROOM_WIDTH * BLOC_SIZE/2.0, LEVEL_HEIGHT * ROOM_HEIGHT * BLOC_SIZE/2.0),
+							sf::Vector2f(LEVEL_WIDTH * ROOM_WIDTH * BLOC_SIZE, LEVEL_HEIGHT * ROOM_HEIGHT * BLOC_SIZE)));
+	#endif // SHOW_ALL_MAP
 }
 
 void Level::DrawHUD(float winX, float winY, float winW, float winH, sf::RenderWindow& window)
@@ -1128,7 +1132,6 @@ void Level::LoadLevelArray()
 	// Récupération des dimension du niveau
 	int arrayWidth = m_array.size();
 	int arrayHeight = m_array[0].size();
-	int mul = arrayWidth * arrayHeight; // Nombre de blocs du niveau
 	#ifdef LITTLE_BLOCS_PHYSIC
 	int side = 0;
 	for(int i =0; i < arrayWidth; i++)
