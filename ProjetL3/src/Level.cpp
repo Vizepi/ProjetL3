@@ -460,21 +460,21 @@ void Level::GenerateLevel()
 {
 	int i, j;
 
-	Room** tableauExemple = new Room*[LEVEL_WIDTH];
+	Room** rooms = new Room*[LEVEL_WIDTH];
 	for(i = 0; i<LEVEL_WIDTH; i++)
 	{
-			tableauExemple[i] = new Room[LEVEL_HEIGHT];
+			rooms[i] = new Room[LEVEL_HEIGHT];
 	}
 	for(i = 0; i<LEVEL_WIDTH; i++)
 	{
 		for(j = 0; j<LEVEL_HEIGHT; j++)
 		{
-			tableauExemple[i][j].North = false;
-			tableauExemple[i][j].South = false;
-			tableauExemple[i][j].East = false;
-			tableauExemple[i][j].West = false;
-			tableauExemple[i][j].y=j;
-			tableauExemple[i][j].x=i;
+			rooms[i][j].North = false;
+			rooms[i][j].South = false;
+			rooms[i][j].East = false;
+			rooms[i][j].West = false;
+			rooms[i][j].y=j;
+			rooms[i][j].x=i;
 		}
 	}
 	//Création pile :
@@ -484,11 +484,12 @@ void Level::GenerateLevel()
 	int arrayWidth = LEVEL_WIDTH * ROOM_WIDTH;
 	int arrayHeight = LEVEL_HEIGHT * ROOM_HEIGHT;
 
+	//Reservation de arrayWidth blocs en largeur.
 	m_array.reserve(arrayWidth);
 	for(i=0;i<arrayWidth;i++)
 	{
 		m_array.push_back(std::vector<int>());
-		//Reservation de 15 en largeur.
+		//Reservation de arrayHeight blocs en hauteur.
 		m_array[i].reserve(arrayHeight);
 		for(j=0;j<arrayHeight;j++)
 		{
@@ -509,7 +510,7 @@ void Level::GenerateLevel()
 		rand_yend = m_rand->NextInt(0, LEVEL_HEIGHT-1);
 	}
 
-	FindPath(rand_x, rand_y, rand_xend, rand_yend, MINIM_DISTANCE, (Room**)(tableauExemple), arrayWidth, arrayHeight, pile);
+	FindPath(rand_x, rand_y, rand_xend, rand_yend, MINIM_DISTANCE, (Room**)(rooms), arrayWidth, arrayHeight, pile);
 	Room* r_end = new Room();
 	pile.push(r_end);
 	pile.top()->x = rand_xend;
@@ -548,7 +549,7 @@ void Level::GenerateLevel()
 		}
 	}
 
-	CreateLevel(tableauExemple, dq);
+	CreateLevel(rooms, dq);
 
 	m_start.setPosition(sf::Vector2f((ROOM_WIDTH * dq[0]->x + dq[0]->rand_x-0.25) * BLOC_SIZE,
 						(ROOM_HEIGHT * dq[0]->y + dq[0]->rand_y - 1.5) * BLOC_SIZE));
@@ -583,9 +584,9 @@ void Level::GenerateLevel()
 	}
 	for(i=0; i< LEVEL_WIDTH; i++)
 	{
-		delete [] tableauExemple[i];
+		delete [] rooms[i];
 	}
-	delete [] tableauExemple;
+	delete [] rooms;
 
 	for(i=0;i<arrayWidth;i++)
 	{

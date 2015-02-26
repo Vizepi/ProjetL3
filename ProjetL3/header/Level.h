@@ -121,7 +121,7 @@ class Level
 		void DrawBackground(sf::RenderWindow& window);
 		void DrawLevelArray(sf::RenderWindow& window);
 		void SetRoom(deque<Room*> &dq);
-		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** tableauExemple, int w, int h, stack<Room*> &pile);
+		bool FindPath(int x, int y, int xend, int yend, int minimDistance, Room** rooms, int w, int h, stack<Room*> &pile);
 		void GetTextureCoords(int* x, int* y, int center, int north, int east, int south, int west);
 		void Dump(void);
 		bool GetWin(void);
