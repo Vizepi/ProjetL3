@@ -224,7 +224,10 @@ void Level::Update(sf::RenderWindow& window, sf::Time& frameTime)
 	{
 		m_win = true;
 		if(Game::s_instance->IsSoundsActive())
+		{
 			RessourceLoader::GetSound("Win")->play();
+			RessourceLoader::GetMusic("Clock")->stop();
+		}
 		if(Game::s_instance->IsMusicActive())
 			RessourceLoader::GetMusic("Level")->stop();
 	}
